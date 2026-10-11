@@ -1,0 +1,30 @@
+# Local secrets and runtime data
+.env
+.env.*
+!.env.example
+*.db
+*.db-wal
+*.db-shm
+*.sqlite*
+backend/data/
+backend/runtime/
+backend/logs/
+backend/demo/*.jsonl
+# Installed dependencies and build artifacts
+node_modules/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.tsbuildinfo
+# Local review backups
+*.before-build-fix
+*.log
+.DS_Store
+Thumbs.db
