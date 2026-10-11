@@ -860,10 +860,15 @@ async def upload_document(
             course_id=course_id,
             auto_route=auto_route,
         )
+        # Post-processing applies to material with at least some extracted text.
+        # A duplicate was already processed on first upload, so it must not reset a
+        # source role the course owner has since changed.
+        usable = record.get("status") in {"ready", "ready_partial"} and not record.get("duplicate")
+
         # A direct teacher upload into a course is authoritative by default. The
         # teacher can lower it to supplementary/reference later; student-private
         # material is linked through the separate preferred-explanation path.
-        if course_id and record.get("status") in {"ready", "routed"}:
+        if course_id and usable:
             try:
                 s.course_intelligence.set_document_role(
                     user_id=p.user_id,
@@ -877,7 +882,7 @@ async def upload_document(
 
         # Learning IR is a deterministic projection over successfully extracted
         # material. Failure to compile IR must not destroy an otherwise valid upload.
-        if record.get("status") in {"ready", "routed"}:
+        if usable:
             try:
                 s.course_intelligence.compile_document_ir(user_id=p.user_id, document_id=record["document_id"])
             except (ValueError, RuntimeError):

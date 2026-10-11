@@ -106,3 +106,65 @@ def test_kernel_cause_is_scoped_to_target(settings, tmp_path):
 
         own = plan("bio_peroxisome")
         assert own.diagnosis.get("causal_cause_type") == "misconception"
+
+
+# ---------------------------------------------------------------------------
+# Bug 3: partially extracted uploads are fully set up; duplicates change nothing
+# ---------------------------------------------------------------------------
+def _two_slide_pptx() -> bytes:
+    import io
+    from pptx import Presentation
+
+    prs = Presentation()
+    first = prs.slides.add_slide(prs.slide_layouts[5])
+    first.shapes.title.text = "The Golgi apparatus modifies, sorts and packages proteins."
+    prs.slides.add_slide(prs.slide_layouts[6])  # blank slide -> no extractable text
+    out = io.BytesIO()
+    prs.save(out)
+    return out.getvalue()
+
+
+def test_partial_upload_gets_role_and_ir(settings, tmp_path):
+    with _client(settings, tmp_path) as client:
+        _, headers = _register(client, "partialowner")
+        course = client.post("/v1/courses", headers=headers, json={"name": "Cells", "subject_name": "Cells"}).json()
+        cid = course["course_id"]
+        upload = client.post(
+            f"/v1/documents/upload?course_id={cid}", headers=headers,
+            files={"file": ("slides.pptx", _two_slide_pptx(),
+                            "application/vnd.openxmlformats-officedocument.presentationml.presentation")},
+        )
+        assert upload.status_code == 200, upload.text
+        record = upload.json()
+        assert record["status"] == "ready_partial"
+        db = client.app.state.services.db
+        role = db.fetchone(
+            "SELECT authority FROM document_source_roles WHERE course_id=? AND document_id=?",
+            (cid, record["document_id"]),
+        )
+        assert role and role["authority"] == "canonical"
+        ir = db.fetchone("SELECT count(*) AS n FROM learning_ir_objects WHERE document_id=?", (record["document_id"],))
+        assert ir["n"] > 0
+
+
+def test_duplicate_upload_keeps_teacher_role(settings, tmp_path):
+    with _client(settings, tmp_path) as client:
+        _, headers = _register(client, "dupowner")
+        cid = client.post("/v1/courses", headers=headers, json={"name": "Dup", "subject_name": "Dup"}).json()["course_id"]
+        body = b"Ribosomes assemble proteins from amino acids. Mitochondria produce ATP."
+        files = {"file": ("notes.txt", body, "text/plain")}
+        first = client.post(f"/v1/documents/upload?course_id={cid}", headers=headers, files=files).json()
+        doc_id = first["document_id"]
+        patched = client.patch(
+            f"/v1/courses/{cid}/sources/{doc_id}", headers=headers,
+            json={"authority": "supplementary", "explanation_weight": 0.4},
+        )
+        assert patched.status_code == 200, patched.text
+        again = client.post(f"/v1/documents/upload?course_id={cid}", headers=headers, files=files).json()
+        assert again["document_id"] == doc_id and again["duplicate"] is True
+        role = client.app.state.services.db.fetchone(
+            "SELECT authority,explanation_weight FROM document_source_roles WHERE course_id=? AND document_id=?",
+            (cid, doc_id),
+        )
+        assert role["authority"] == "supplementary"
+        assert abs(role["explanation_weight"] - 0.4) < 1e-9
