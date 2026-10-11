@@ -168,3 +168,56 @@ def test_duplicate_upload_keeps_teacher_role(settings, tmp_path):
         )
         assert role["authority"] == "supplementary"
         assert abs(role["explanation_weight"] - 0.4) < 1e-9
+
+
+# ---------------------------------------------------------------------------
+# Bug 4: the learning map only exposes subjects the caller can access
+# ---------------------------------------------------------------------------
+def test_learning_map_hides_other_users_private_subjects(settings, tmp_path):
+    with _client(settings, tmp_path) as client:
+        _, owner = _register(client, "mapowner")
+        _, stranger = _register(client, "mapstranger")
+        course = client.post("/v1/courses", headers=owner, json={"name": "Secret Sci", "subject_name": "Secret Sci"}).json()
+        concept = client.post(
+            f"/v1/courses/{course['course_id']}/concepts", headers=owner, json={"name": "Hidden Topic Alpha"}
+        ).json()
+        private_subject = course["subject_id"]
+        assert private_subject.startswith("USR:")
+
+        def nodes(headers, **params):
+            r = client.get("/v1/memory/map", headers=headers, params=params)
+            assert r.status_code == 200, r.text
+            return r.json()
+
+        mine = nodes(owner)
+        assert concept["concept_id"] in {n["id"] for n in mine["nodes"]}
+
+        theirs = nodes(stranger)
+        ids = {n["id"] for n in theirs["nodes"]}
+        assert concept["concept_id"] not in ids
+        assert "Hidden Topic Alpha" not in str(theirs)
+        assert "bio_golgi" in ids  # built-in subjects stay visible
+
+        guessed = nodes(stranger, subject_id=private_subject)
+        assert guessed["nodes"] == [] and guessed["edges"] == []
+        assert nodes(owner, subject_id=private_subject)["nodes"]
+
+
+def test_learning_map_follows_class_enrollment(settings, tmp_path):
+    with _client(settings, tmp_path) as client:
+        _, teacher = _register(client, "mapteacher", "teacher")
+        _, enrolled = _register(client, "mapenrolled")
+        _, outsider = _register(client, "mapoutsider")
+        course = client.post(
+            "/v1/courses", headers=teacher,
+            json={"name": "Class Bio", "subject_name": "Class Bio", "course_kind": "class"},
+        ).json()
+        cid = course["course_id"]
+        concept = client.post(f"/v1/courses/{cid}/concepts", headers=teacher, json={"name": "Class Topic"}).json()
+        assert client.post(f"/v1/courses/{cid}/enroll", headers=teacher, json={"learner_username": "mapenrolled"}).status_code == 200
+
+        def ids(headers):
+            return {n["id"] for n in client.get("/v1/memory/map", headers=headers).json()["nodes"]}
+
+        assert concept["concept_id"] in ids(enrolled)
+        assert concept["concept_id"] not in ids(outsider)
