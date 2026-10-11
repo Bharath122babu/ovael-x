@@ -173,7 +173,24 @@ class DecisionKernel:
         )
         cases = list(causal.get("cases") or [])
         supported_cases = [case for case in cases if not bool(case.get("abstained"))]
-        cause = str(supported_cases[0].get("cause_type") or "") if supported_cases else ""
+        # The subject-wide projection above is informational. The cause that steers
+        # the action and the teaching program must describe the concept actually
+        # being taught, not whichever gap ranks highest elsewhere in the subject.
+        scoped = self.causal_gaps.analyze(
+            user_id=user_id,
+            case_owner_user_id=content_user_id,
+            subject_id=subject_id,
+            max_cases=2,
+            persist=False,
+            concept_ids=[target, concept_id],
+        )
+        scoped_supported = {
+            str(case.get("target_concept_id")): case
+            for case in (scoped.get("cases") or [])
+            if not bool(case.get("abstained"))
+        }
+        chosen_case = scoped_supported.get(target) or scoped_supported.get(concept_id)
+        cause = str(chosen_case.get("cause_type") or "") if chosen_case else ""
         diagnosis["causal"] = {
             "headline": (causal.get("summary") or {}).get("headline"),
             "cases": cases[:4],
