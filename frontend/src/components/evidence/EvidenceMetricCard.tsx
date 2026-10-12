@@ -19,7 +19,11 @@ export const EvidenceMetricCard: React.FC<EvidenceMetricCardProps> = ({
   variant = 'default',
 }) => {
   return (
-    <Card className={`evidence-metric-card evidence-metric-card--${variant}`}>
+    <Card
+      className={`evidence-metric-card evidence-metric-card--${variant}`}
+      role="region"
+      aria-label={`${label}: ${value}. ${description}`}
+    >
       <div className="evidence-metric-card__header">
         <span className="evidence-metric-card__icon" aria-hidden="true">
           {icon}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   FileText,
   X,
@@ -8,7 +8,7 @@ import {
   ShieldCheck,
   RotateCw,
 } from 'lucide-react';
-import { Button, IconButton, Badge, Alert, Spinner } from '../ui';
+import { Button, IconButton, Badge, Alert, Spinner, useFocusTrap } from '../ui';
 import { api } from '../../api';
 import { DocumentItem, DocumentPage } from './types';
 
@@ -27,6 +27,9 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
   fetchPageText,
   initialPageData,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(isOpen, dialogRef);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageData, setPageData] = useState<DocumentPage | null>(
     initialPageData || null
@@ -104,7 +107,7 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="doc-preview-dialog" role="document">
+      <div ref={dialogRef} className="doc-preview-dialog" role="document" tabIndex={-1}>
         {/* Header */}
         <div className="doc-preview-dialog__header">
           <div className="doc-preview-dialog__title-wrap">

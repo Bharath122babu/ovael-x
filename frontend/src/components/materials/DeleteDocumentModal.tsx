@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, Trash2, X } from 'lucide-react';
-import { Button, IconButton, Alert } from '../ui';
+import { Button, IconButton, Alert, useFocusTrap } from '../ui';
 import { DocumentItem } from './types';
 
 export interface DeleteDocumentModalProps {
@@ -16,6 +16,9 @@ export const DeleteDocumentModal: React.FC<DeleteDocumentModalProps> = ({
   onClose,
   onDelete,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(isOpen, dialogRef);
+
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -58,7 +61,7 @@ export const DeleteDocumentModal: React.FC<DeleteDocumentModalProps> = ({
         if (e.target === e.currentTarget && !busy) onClose();
       }}
     >
-      <div className="doc-modal doc-modal--danger" role="document">
+      <div ref={dialogRef} className="doc-modal doc-modal--danger" role="document" tabIndex={-1}>
         <div className="doc-modal__header">
           <div className="doc-modal__title-wrap">
             <span

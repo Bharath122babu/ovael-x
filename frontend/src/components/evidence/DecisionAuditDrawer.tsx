@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   ShieldCheck,
   X,
@@ -10,7 +10,7 @@ import {
   Layers,
   Info,
 } from 'lucide-react';
-import { Button, IconButton, Badge, Alert } from '../ui';
+import { Button, IconButton, Badge, Alert, useFocusTrap } from '../ui';
 import { DecisionAuditData } from './types';
 
 export interface DecisionAuditDrawerProps {
@@ -28,6 +28,8 @@ export const DecisionAuditDrawer: React.FC<DecisionAuditDrawerProps> = ({
   onClose,
   onRefresh,
 }) => {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(isOpen, drawerRef);
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -55,7 +57,7 @@ export const DecisionAuditDrawer: React.FC<DecisionAuditDrawerProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="decision-audit-panel" role="document">
+      <div ref={drawerRef} className="decision-audit-panel" role="document" tabIndex={-1}>
         {/* Header */}
         <div className="decision-audit-header">
           <div className="decision-audit-header__title-wrap">

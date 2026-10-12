@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X, LockKeyhole, LogOut } from 'lucide-react';
-import { IconButton } from '../ui';
+import { IconButton, useFocusTrap } from '../ui';
 import { Brand, NAV_ITEMS, ViewType } from './Sidebar';
 
 export interface MobileDrawerProps {
@@ -20,6 +20,11 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   user,
   onLogout,
 }) => {
+  const drawerRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Accessible focus trap and restoration
+  useFocusTrap(isOpen, drawerRef, closeButtonRef);
   // Close on Escape key press
   useEffect(() => {
     if (!isOpen) return;
@@ -69,14 +74,17 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
 
       {/* Drawer Panel */}
       <aside
+        ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
         className="mobile-drawer"
+        tabIndex={-1}
       >
         <div className="mobile-drawer__head">
           <Brand collapsed={false} />
           <IconButton
+            ref={closeButtonRef as any}
             label="Close navigation menu"
             icon={<X size={20} />}
             onClick={onClose}

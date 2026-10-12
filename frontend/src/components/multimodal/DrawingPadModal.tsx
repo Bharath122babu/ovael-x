@@ -10,7 +10,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from 'lucide-react';
-import { Button, IconButton, Badge } from '../ui';
+import { Button, IconButton, Badge, useFocusTrap } from '../ui';
 
 export interface DrawingPadModalProps {
   onDone: (blob: Blob) => void;
@@ -24,6 +24,9 @@ export const DrawingPadModal: React.FC<DrawingPadModalProps> = ({
   onDone,
   onCancel,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(true, dialogRef);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
@@ -205,7 +208,7 @@ export const DrawingPadModal: React.FC<DrawingPadModalProps> = ({
       aria-modal="true"
       aria-labelledby="drawing-dialog-title"
     >
-      <div className="draw-dialog" role="document">
+      <div ref={dialogRef} className="draw-dialog" role="document" tabIndex={-1}>
         {/* 1. Modal Header */}
         <div className="draw-dialog__header">
           <div className="draw-dialog__title-wrap">

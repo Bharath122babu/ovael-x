@@ -26,12 +26,12 @@
   /* --------------------------------------------------------------------------
      1.2 Colors: Typography
      -------------------------------------------------------------------------- */
-  --color-text-primary: #0f172a;        /* Deep slate for high contrast readability */
-  --color-text-secondary: #334155;      /* Body text, sub-labels, and metadata */
-  --color-text-muted: #64748b;          /* Descriptions, supporting notes, and captions */
-  --color-text-subtle: #94a3b8;         /* Placeholders, disabled text, icons */
-  --color-text-inverse: #ffffff;        /* High-contrast text on dark surfaces */
-  --color-text-inverse-muted: #cbd5e1;  /* Supporting text on dark surfaces */
+  --color-text-primary: #0f172a;        /* Deep slate for high contrast readability (14.6:1) */
+  --color-text-secondary: #1e293b;      /* Slate 800: High-contrast body text & metadata (12.6:1) */
+  --color-text-muted: #475569;          /* Slate 600: Descriptions, supporting notes (7.0:1) */
+  --color-text-subtle: #64748b;         /* Slate 500: Secondary captions & labels (4.8:1) */
+  --color-text-inverse: #ffffff;        /* High-contrast text on dark surfaces (14.6:1) */
+  --color-text-inverse-muted: #e2e8f0;  /* Slate 200: Supporting text on dark surfaces (10.2:1) */
 
   /* --------------------------------------------------------------------------
      1.3 Colors: Borders & Dividers
@@ -39,8 +39,8 @@
   --color-border-subtle: #f1f5f9;       /* Slate 100: Hairline section separators */
   --color-border-default: #e2e8f0;      /* Slate 200: Card borders, inputs, buttons */
   --color-border-strong: #cbd5e1;       /* Slate 300: High-visibility outlines */
-  --color-border-hover: #94a3b8;        /* Slate 400: Active hover boundary */
-  --color-border-focus: #6366f1;        /* Indigo 500: Focused input borders */
+  --color-border-hover: #64748b;        /* Slate 500: Active hover boundary */
+  --color-border-focus: #4f46e5;        /* Indigo 600: Focused input borders */
 
   /* --------------------------------------------------------------------------
      1.4 Colors: Primary Action & Interactive States (Indigo Accent)
@@ -83,8 +83,8 @@
   --color-info-border: #bae6fd;
   --color-info-text: #0369a1;
 
-  /* Focus Indicator */
-  --color-focus-ring: #6366f1;
+  /* Focus Indicator (High-Contrast Indigo 600: 4.6:1 on Canvas) */
+  --color-focus-ring: #4f46e5;
 
   /* --------------------------------------------------------------------------
      1.6 Typography Scale & Weights
@@ -8976,5 +8976,39 @@ p {
   .adaptive-motif {
     transform: none !important;
     transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   18.1 ACCESSIBILITY: HIGH CONTRAST (FORCED COLORS) MODE
+   ========================================================================== */
+@media (forced-colors: active) {
+  :focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  .nav-item:focus-visible,
+  .course-card:focus-visible,
+  .topic-card:focus-visible {
+    outline: 3px solid Highlight !important;
+    outline-offset: 3px !important;
+  }
+
+  .ui-button,
+  .ui-icon-button,
+  .course-card,
+  .topic-card,
+  .session-mode-card,
+  .doc-modal,
+  .decision-audit-panel,
+  .mobile-drawer {
+    border: 1px solid ButtonText !important;
+  }
+
+  .course-card--selected,
+  .topic-card--selected,
+  .nav-item.selected {
+    outline: 2px solid Highlight !important;
   }
 }

@@ -68,7 +68,14 @@ export const ActiveSessionWorkspace: React.FC<ActiveSessionWorkspaceProps> = ({
       <div className="active-workspace__grid">
         {/* 2. Main Conversation Column & Composer */}
         <main className="active-workspace__main" aria-label="Tutoring dialogue">
-          <div className="conversation-timeline" role="log" aria-live="polite">
+          {/* Polite live region announcing only newly arrived messages */}
+          <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+            {messages.length > 0 && messages[messages.length - 1].who === 'system'
+              ? `New tutor turn: ${messages[messages.length - 1].text.slice(0, 120)}`
+              : ''}
+          </div>
+
+          <div className="conversation-timeline" role="region" aria-label="Conversation timeline">
             <div className="conversation-timeline__date-pill">
               ACTIVE LEARNING SESSION
             </div>
