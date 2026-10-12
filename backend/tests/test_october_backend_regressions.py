@@ -103,10 +103,43 @@ def test_preexisting_private_subject_graft_does_not_grant_ownership(app):
         assert c.post('/v1/courses', headers=attacker, json={'name': 'Copy', 'subject_id': subject}).status_code == 403
         assert c.get('/v1/courses/legacy-graft/concepts', headers=attacker).status_code == 404
         assert c.post('/v1/courses/legacy-graft/concepts', headers=attacker, json={'name': 'Injection'}).status_code == 404
+        assert not s.memory.visible_concept(intruder, concept['concept_id'])
         assert subject not in {r['subject_id'] for r in c.get('/v1/subjects', headers=attacker).json()}
         denied = c.post('/v1/learning/sessions', headers=attacker, json={
             'subject_id': subject, 'concept_id': concept['concept_id'], 'course_id': 'legacy-graft'})
         assert denied.status_code == 400
+
+
+def test_mcp_map_checks_private_ownership_and_active_enrollment(app):
+    s = app.state.services
+    teacher = s.auth.register('mapteacher', 'audit-password-12345', role='teacher')
+    teacher_headers = {'Authorization': 'Bearer '+teacher['access_token']}
+    with TestClient(app) as c:
+        learner, headers = register(c, 'maplearner')
+        course = c.post('/v1/courses', headers=teacher_headers,
+                        json={'name': 'Private class', 'subject_name': 'Private class', 'course_kind': 'class'}).json()
+        concept = c.post(f"/v1/courses/{course['course_id']}/concepts", headers=teacher_headers,
+                         json={'name': 'Private Class Concept'}).json()
+        cid = concept['concept_id']
+        relay = c.post('/v1/mcp/context-relay', headers=headers, json={'capsule': {'concept_states': [
+            {'concept_id': cid}, {'concept_id': 'bio_golgi'}]}})
+        assert relay.status_code == 200, relay.text
+        connection = c.post('/v1/connections/mcp', headers=headers,
+                            json={'client_name': 'Audit client', 'scopes': ['learning.map.read']}).json()
+        mcp_headers = {'Authorization': 'Bearer '+connection['access_token']}
+        def mapped():
+            response = c.post('/mcp', headers=mcp_headers, json={'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
+                'params': {'name': 'get_learning_map', 'arguments': {}}})
+            assert response.status_code == 200, response.text
+            return response.json()['result']['structuredContent']
+        first = mapped()
+        assert {n['concept_id'] for n in first['nodes']} == {'bio_golgi'}
+        assert 'Private Class Concept' not in str(first)
+        assert c.post(f"/v1/courses/{course['course_id']}/enroll", headers=teacher_headers,
+                      json={'learner_username': 'maplearner'}).status_code == 200
+        assert cid in {n['concept_id'] for n in mapped()['nodes']}
+        assert c.delete(f"/v1/courses/{course['course_id']}/enroll/{learner}", headers=teacher_headers).status_code == 200
+        assert cid not in {n['concept_id'] for n in mapped()['nodes']}
 
 
 @pytest.mark.parametrize('failure_point', ['_next_move', '_save_state'])

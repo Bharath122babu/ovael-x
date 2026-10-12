@@ -331,7 +331,7 @@ class MCPService:
                     cid = str(item.get("concept_id") or "").strip()
                     if not cid:
                         continue
-                    concept = self.db.fetchone("SELECT name,subject_id FROM concepts WHERE concept_id=?", (cid,))
+                    concept = self.memory.visible_concept(user_id, cid)
                     if not concept or (subject_id and concept["subject_id"] != subject_id):
                         continue
                     concept_ids.append(cid)

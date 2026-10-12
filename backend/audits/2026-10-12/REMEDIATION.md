@@ -18,6 +18,7 @@ The nine confirmed findings from the original audit are addressed in this workin
 
 ## Additional improvements
 
+- The server learning map and local-first MCP map now share canonical subject-ownership and active-enrollment checks. The MCP regression covers denied lookup, enrollment, and revocation; preexisting copied namespaces do not grant visibility.
 - Per-session locks replace the global turn lock, allowing another learner to proceed while a provider call is blocked. Locks are weakly retained to avoid an ever-growing session-lock map.
 - SQLite helpers join enclosing transactions through savepoints. Failed evidence writes roll back their calibration and events together. Undelivered candidate assessments are discarded after delivery rollback or a competing committed response.
 - Document extraction, package decompression and IR compilation, image OCR, voice turns, and compatibility MCP tool calls run in worker threads when invoked from async routes. The installed official MCP SDK already offloads synchronous tool handlers.
@@ -27,9 +28,9 @@ The nine confirmed findings from the original audit are addressed in this workin
 
 ## Verification
 
-- Full backend suite: **182 passed**, including **38 new regression cases**, plus the existing Starlette/AnyIO deprecation warning. XML: `regression-results.xml`.
-- The 38-case regression suite also passed after the final privacy/redaction refinements.
-- Frontend: **7 contract tests passed**; TypeScript and Vite production build passed.
+- Integrated with GitHub main on **13 October 2026**, preserving the merged frontend design and prior bug fixes.
+- Full combined backend suite: **189 passed**, including **39 audit regression cases** and the incoming bug-fix regressions, plus the existing Starlette/AnyIO deprecation warning. XML: `regression-results.xml`.
+- Frontend: **9 contract tests passed**; TypeScript and Vite production build passed.
 - Python compilation and `git diff --check` passed.
 
 Tests use temporary databases and synthetic accounts. Providers are mocked. Concurrency coverage uses threads and two independent service objects against one SQLite database; restart recovery recreates services against the persisted database. These are meaningful persistence tests, but are not OS process-kill tests or a production distributed-worker benchmark.
@@ -51,4 +52,4 @@ Winning prospects still depend on the actual hackathon rubric and competing team
 
 Remaining limits include SQLite write serialization, no distributed spend/token cap, unbenchmarked real-provider grading, no live browser end-to-end rehearsal in this repair pass, no production stress/penetration tests, and unproven educational efficacy. Pause prevents new personalized evidence; it does not erase earlier history. Historical unauthorized disclosure or tampering cannot be reconstructed or undone automatically by an ownership fix. The large service modules still warrant further separation as the product grows.
 
-These repairs are prepared for integration into the existing GitHub repository. No deployment or production-data repair was performed.
+These repairs are integrated into the existing OVAEL-X repository without creating a new pull request or issue. No deployment or production-data repair was performed.
