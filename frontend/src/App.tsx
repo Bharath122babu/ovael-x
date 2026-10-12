@@ -12,13 +12,18 @@ import {DrawingPadModal} from './components/multimodal';
 import {CourseLibrary} from './components/courses';
 import {LearningEvidenceView} from './components/evidence';
 import {SettingsView} from './components/settings';
+import {NotificationProvider, useNotification, formatApiError} from './components/feedback';
 
 type Obj=Record<string,any>;
 type View='learn'|'courses'|'insights'|'settings';
 function Brand(){return <div className="brand"><div className="brand-mark"><Layers3 size={20}/></div><span>ovael<span className="brand-dot">.</span><small> X</small></span></div>}
-export default function App(){const[user,setUser]=useState<Obj|null>(null),[view,setView]=useState<View>('learn'),[courses,setCourses]=useState<Obj[]>([]),[activeCourse,setActiveCourse]=useState(''),[concepts,setConcepts]=useState<Obj[]>([]),[concept,setConcept]=useState(''),[newCourse,setNewCourse]=useState(''),[newConcept,setNewConcept]=useState(''),[session,setSession]=useState(''),[move,setMove]=useState<Obj|null>(null),[evidence,setEvidence]=useState<Obj|null>(null),[answer,setAnswer]=useState(''),[choice,setChoice]=useState<number|null>(null),[mode,setMode]=useState<'text'|'code'>('text'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[messages,setMessages]=useState<{who:'system'|'user',text:string}[]>([]),[showDraw,setShowDraw]=useState(false),[ocr,setOcr]=useState<Transcription|null>(null),[ocrConfirmed,setOcrConfirmed]=useState(false),[speechAnswer,setSpeechAnswer]=useState(false),[showTrace,setShowTrace]=useState(false),[goal,setGoal]=useState(''),[activeFile,setActiveFile]=useState<File|null>(null),[insights,setInsights]=useState<Obj|null>(null),[mic,setMic]=useState(false);
-const uploads=useRef<HTMLInputElement>(null),chatBottom=useRef<HTMLDivElement>(null),recognition=useRef<any>(null),pendingTurn=useRef<{signature:string,key:string}|null>(null);const currentCourse=courses.find(c=>c.course_id===activeCourse);const currentConcept=concepts.find(c=>c.concept_id===concept);
-function fail(e:any){setError(e?.message||String(e))}async function reloadCourses(){const c=await api('/v1/courses');setCourses(c);setActiveCourse(old=>old&&c.some((i:Obj)=>i.course_id===old)?old:c[0]?.course_id||'')}
+function AppRoot(){
+  const {notifySuccess, notifyError}=useNotification();
+  const[user,setUser]=useState<Obj|null>(null),[view,setView]=useState<View>('learn'),[courses,setCourses]=useState<Obj[]>([]),[activeCourse,setActiveCourse]=useState(''),[concepts,setConcepts]=useState<Obj[]>([]),[concept,setConcept]=useState(''),[newCourse,setNewCourse]=useState(''),[newConcept,setNewConcept]=useState(''),[session,setSession]=useState(''),[move,setMove]=useState<Obj|null>(null),[evidence,setEvidence]=useState<Obj|null>(null),[answer,setAnswer]=useState(''),[choice,setChoice]=useState<number|null>(null),[mode,setMode]=useState<'text'|'code'>('text'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[messages,setMessages]=useState<{who:'system'|'user',text:string}[]>([]),[showDraw,setShowDraw]=useState(false),[ocr,setOcr]=useState<Transcription|null>(null),[ocrConfirmed,setOcrConfirmed]=useState(false),[speechAnswer,setSpeechAnswer]=useState(false),[showTrace,setShowTrace]=useState(false),[goal,setGoal]=useState(''),[activeFile,setActiveFile]=useState<File|null>(null),[insights,setInsights]=useState<Obj|null>(null),[mic,setMic]=useState(false);
+  const uploads=useRef<HTMLInputElement>(null),chatBottom=useRef<HTMLDivElement>(null),recognition=useRef<any>(null),pendingTurn=useRef<{signature:string,key:string}|null>(null);const currentCourse=courses.find(c=>c.course_id===activeCourse);const currentConcept=concepts.find(c=>c.concept_id===concept);
+  function notify(msg:string){setNotice(msg);notifySuccess(msg)}
+  function fail(e:any){const info=formatApiError(e);setError(info.message);notifyError(info.message)}
+  async function reloadCourses(){const c=await api('/v1/courses');setCourses(c);setActiveCourse(old=>old&&c.some((i:Obj)=>i.course_id===old)?old:c[0]?.course_id||'')}
 useEffect(()=>{api('/v1/auth/me').then(u=>{setUser(u);reloadCourses().catch(fail)}).catch(()=>{})},[]);
 useEffect(()=>{if(!user||!activeCourse){setConcepts([]);return}api(`/v1/courses/${activeCourse}/concepts`).then((c:Obj[])=>{setConcepts(c);setConcept(old=>old&&c.some(x=>x.concept_id===old)?old:c[0]?.concept_id||'')}).catch(fail)},[user,activeCourse]);
 useEffect(()=>{chatBottom.current?.scrollIntoView({behavior:'smooth'})},[messages,move,evidence]);
@@ -40,7 +45,7 @@ async function handleCreateCourse(data:{name:string;description?:string;course_k
     });
     await reloadCourses();
     setActiveCourse(c.course_id);
-    setNotice(`Course "${c.name}" created successfully.`);
+    notify(`Course "${c.name}" created successfully.`);
   }catch(e:any){fail(e);throw e}finally{setBusy(false)}
 }
 async function handleUpdateCourse(courseId:string,data:{name:string;description?:string}){
@@ -48,7 +53,7 @@ async function handleUpdateCourse(courseId:string,data:{name:string;description?
   try{
     await api(`/v1/courses/${courseId}`,'PATCH',data);
     await reloadCourses();
-    setNotice('Course updated successfully.');
+    notify('Course updated successfully.');
   }catch(e:any){fail(e);throw e}finally{setBusy(false)}
 }
 async function handleDeleteCourse(courseId:string){
@@ -61,7 +66,7 @@ async function handleDeleteCourse(courseId:string){
       setConcept('');
       setConcepts([]);
     }
-    setNotice('Course deleted.');
+    notify('Course deleted.');
   }catch(e:any){fail(e);throw e}finally{setBusy(false)}
 }
 async function handleAddConcept(name:string){
@@ -122,7 +127,7 @@ async function uploadAnswer(file:File){
     if(!out.text)setError('No text was extracted. This version cannot inspect raw diagram topology. Type your answer or try a clearer image.');
   }catch(e){fail(e)}finally{setBusy(false)}
 }
-async function uploadCourse(file:File){setBusy(true);setError('');try{const data=new FormData();data.append('file',file);await api(`/v1/documents/upload?course_id=${encodeURIComponent(activeCourse)}&auto_route=true`,'POST',data);setNotice('Material accepted. You can check its processing status in the backend document list.')}catch(e){fail(e)}finally{setBusy(false)}}
+async function uploadCourse(file:File){setBusy(true);setError('');try{const data=new FormData();data.append('file',file);await api(`/v1/documents/upload?course_id=${encodeURIComponent(activeCourse)}&auto_route=true`,'POST',data);notify('Material accepted. You can check its processing status in the backend document list.')}catch(e){fail(e)}finally{setBusy(false)}}
 function speech(){if(mic){recognition.current?.stop();setMic(false);return}const w=window as any;const SR=w.SpeechRecognition||w.webkitSpeechRecognition;if(!SR)return setError('This browser does not support speech recognition; use typed answers or upload a photo.');if(!window.confirm('Browser speech recognition may send audio to your browser vendor. Do not use this for confidential answers. Continue?'))return;const r=new SR();r.lang=navigator.language||'en-US';r.interimResults=false;r.onresult=(e:any)=>{setAnswer(a=>a+(a?' ':'')+e.results[0][0].transcript);setSpeechAnswer(true)};r.onerror=()=>{setMic(false);setError('Speech recognition failed. You can type instead.')};r.onend=()=>setMic(false);recognition.current=r;r.start();setMic(true)}
 async function showInsights(){setView('insights');setBusy(true);setError('');try{setInsights(await api('/v1/proof-learning'))}catch(e){fail(e)}finally{setBusy(false)}}
 if(!user)return <AuthPage onLogin={handleLogin} onRegister={handleRegister} onRecover={handleRecover} error={error} onClearError={()=>setError('')} busy={busy}/>;
@@ -228,6 +233,15 @@ return <><AppShell view={view} user={user} activeCourseName={currentCourse?.name
 {view==='settings'&&<SettingsView
   user={user as any}
   onLogout={logout}
-  onNotice={(msg) => setNotice(msg)}
+  onNotice={(msg) => notify(msg)}
 />}
-</AppShell>{showDraw&&<DrawingPadModal onCancel={()=>setShowDraw(false)} onDone={blob=>{setShowDraw(false);uploadAnswer(new File([blob],'drawing.png',{type:'image/png'}))}}/>}</>}
+</AppShell>{showDraw&&<DrawingPadModal onCancel={()=>setShowDraw(false)} onDone={blob=>{setShowDraw(false);uploadAnswer(new File([blob],'drawing.png',{type:'image/png'}))}}/>}</>;
+}
+
+export default function App() {
+  return (
+    <NotificationProvider>
+      <AppRoot />
+    </NotificationProvider>
+  );
+}

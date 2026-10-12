@@ -6,6 +6,7 @@ export interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   description?: string;
   action?: React.ReactNode;
+  variant?: 'default' | 'compact' | 'card';
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -13,11 +14,19 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   title,
   description,
   action,
+  variant = 'default',
   className,
   ...props
 }) => {
   return (
-    <div className={cn('ui-empty-state', className)} {...props}>
+    <div
+      className={cn(
+        'ui-empty-state',
+        variant !== 'default' && `ui-empty-state--${variant}`,
+        className
+      )}
+      {...props}
+    >
       {icon && <div className="ui-empty-state__icon">{icon}</div>}
       <h3 className="ui-empty-state__title">{title}</h3>
       {description && <p className="ui-empty-state__description">{description}</p>}
