@@ -1608,6 +1608,50 @@ p {
   overflow-x: hidden;
   padding: clamp(32px, 6vh, 64px) 24px;
   box-sizing: border-box;
+  cursor: url("/assets/ovael-login-cursor.svg") 2 2, default;
+}
+
+/* Custom Cursor Scoped Exclusively to Authentication Page */
+.auth-page-root,
+.auth-page,
+.auth-page__stage,
+.auth-page__companion,
+.auth-page__container,
+.auth-page__box,
+.auth-form-card {
+  cursor: url("/assets/ovael-login-cursor.svg") 2 2, default;
+}
+
+/* Interactive Elements within Authentication Page */
+.auth-page-root button:not(:disabled),
+.auth-page-root a,
+.auth-page-root [role="button"]:not(:disabled),
+.auth-page-root [role="radio"]:not(:disabled),
+.auth-page-root .auth-link,
+.auth-page-root .auth-role-option,
+.auth-page-root .ui-button,
+.auth-page-root .ui-icon-button {
+  cursor: url("/assets/ovael-login-cursor-pointer.svg") 2 2, pointer;
+}
+
+/* Text Inputs retain native text selection caret */
+.auth-page-root input,
+.auth-page-root textarea,
+.auth-page-root .ui-input {
+  cursor: text;
+}
+
+/* Disabled Controls retain standard not-allowed feedback */
+.auth-page-root :disabled,
+.auth-page-root [aria-disabled="true"],
+.auth-page-root .ui-button:disabled,
+.auth-page-root .ui-input-wrapper--disabled {
+  cursor: not-allowed;
+}
+
+/* Code elements for account recovery token */
+.auth-page-root code {
+  cursor: text;
 }
 
 /* Secondary Branding Panel (Preserved for backwards compatibility / tests) */
