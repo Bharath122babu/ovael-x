@@ -1,6 +1,7 @@
 import React from 'react';
 import { PageHeader } from '../layout';
 import { Alert } from '../ui';
+import { AdaptiveLearningMotif } from '../visuals';
 import { CourseSelector, Course } from './CourseSelector';
 import { TopicSelector, Concept } from './TopicSelector';
 import { SessionSetupPanel, LearningIntent } from './SessionSetupPanel';
@@ -47,6 +48,7 @@ export const LearnLanding: React.FC<LearnLandingProps> = ({
         eyebrow="ADAPTIVE WORKSPACE"
         title="What would you like to learn"
         description="Choose a course and topic to begin your next learning session."
+        actions={<AdaptiveLearningMotif variant="compact" />}
       />
 
       {error && (
