@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Lock, KeyRound, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { User, Lock, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { Button, Input, Field, IconButton } from '../ui';
 
 export interface RecoverFormProps {
