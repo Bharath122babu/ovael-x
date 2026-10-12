@@ -4,6 +4,7 @@
  */
 
 export * from './AuthBranding';
+export * from './AuthMotionPath';
 export * from './SignInForm';
 export * from './RegisterForm';
 export * from './RecoverForm';

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { KeyRound, Copy, Check } from 'lucide-react';
+import { KeyRound, Copy, Check, Layers3, ShieldCheck, Cpu, Database } from 'lucide-react';
 import { Alert, Button } from '../ui';
-import { Brand } from '../layout';
 import { SignInForm } from './SignInForm';
 import { RegisterForm } from './RegisterForm';
 import { RecoverForm } from './RecoverForm';
+import { AuthMotionPath } from './AuthMotionPath';
 
 export type AuthMode = 'signin' | 'register' | 'recover';
 
@@ -90,104 +90,178 @@ export const AuthPage: React.FC<AuthPageProps> = ({
         Skip to authentication form
       </a>
 
-      {/* Main Single-Column Focused Authentication Area */}
-      <main id="auth-main-card" className="auth-page__container" tabIndex={-1}>
-        <div className="auth-page__box">
-          {/* Brand header */}
+      {/* Composed Architectural Stage */}
+      <div className="auth-page__stage">
+        {/* Supporting Visual & Motion Storytelling Companion (Desktop / Tablet) */}
+        <aside className="auth-page__companion" aria-label="Platform Architecture Overview">
+          {/* Brand Header */}
           <header className="auth-page__brand">
-            <Brand />
+            <div className="auth-brand" title="OVAEL-X v5.0.0">
+              <div className="auth-brand__mark">
+                <Layers3 size={22} aria-hidden="true" />
+              </div>
+              <div className="auth-brand__details">
+                <div className="auth-brand__name-row">
+                  <span className="auth-brand__name">
+                    OVAEL<span className="brand-dot">.</span>X
+                  </span>
+                  <span className="auth-brand__version">v5.0.0</span>
+                </div>
+                <span className="auth-brand__tagline">Adaptive AI Tutoring Workbench</span>
+              </div>
+            </div>
           </header>
 
-          {/* Error Banner */}
-          {error && (
-            <div className="auth-page__alert" role="alert">
-              <Alert variant="error" onDismiss={onClearError}>
-                {error}
-              </Alert>
+          <div className="auth-companion__story">
+            <div className="auth-companion__eyebrow">
+              <span className="auth-companion__eyebrow-dot" />
+              <span>CONTINUOUS ADAPTIVE ARCHITECTURE</span>
             </div>
-          )}
 
-          {/* Success Banner */}
-          {successNotice && (
-            <div className="auth-page__alert" role="status">
-              <Alert variant="success" onDismiss={() => setSuccessNotice('')}>
-                {successNotice}
-              </Alert>
+            <h2 className="auth-companion__headline">
+              Deterministic learning, grounded in evidence.
+            </h2>
+
+            <p className="auth-companion__copy">
+              An intelligent tutoring engine that continuously adapts to learner responses with verifiable mastery milestones.
+            </p>
+
+            {/* Signature Abstract Learning-Path Motion Graphic */}
+            <AuthMotionPath className="auth-companion__motif" />
+
+            {/* Architectural Pillars */}
+            <div className="auth-companion__pillars">
+              <div className="auth-companion__pillar">
+                <div className="auth-companion__pillar-icon">
+                  <Cpu size={14} aria-hidden="true" />
+                </div>
+                <span>Deterministic kernel</span>
+              </div>
+              <div className="auth-companion__pillar">
+                <div className="auth-companion__pillar-icon">
+                  <Database size={14} aria-hidden="true" />
+                </div>
+                <span>Demonstrated mastery</span>
+              </div>
+              <div className="auth-companion__pillar">
+                <div className="auth-companion__pillar-icon">
+                  <ShieldCheck size={14} aria-hidden="true" />
+                </div>
+                <span>Local-first privacy</span>
+              </div>
             </div>
-          )}
+          </div>
+        </aside>
 
-          {/* Recovery Key Notice upon Registration */}
-          {issuedRecoveryKey && (
-            <div className="auth-recovery-banner" role="status">
-              <div className="auth-recovery-banner__head">
-                <KeyRound size={18} className="auth-recovery-banner__icon" />
-                <div>
-                  <strong>Save your account recovery key</strong>
-                  <p>Keep this key in a secure place to restore access if you ever reset your password.</p>
+        {/* Focused Authentication Card Column */}
+        <main id="auth-main-card" className="auth-page__container" tabIndex={-1}>
+          <div className="auth-page__box">
+            {/* Mobile-only brand header (visible when companion collapses on mobile screens) */}
+            <div className="auth-page__mobile-brand" aria-hidden="true">
+              <div className="auth-brand">
+                <div className="auth-brand__mark">
+                  <Layers3 size={20} aria-hidden="true" />
+                </div>
+                <div className="auth-brand__name-row">
+                  <span className="auth-brand__name">
+                    OVAEL<span className="brand-dot">.</span>X
+                  </span>
+                  <span className="auth-brand__version">v5.0.0</span>
                 </div>
               </div>
-              <div className="auth-recovery-banner__keybox">
-                <code>{issuedRecoveryKey}</code>
+            </div>
+
+            {/* Error Banner */}
+            {error && (
+              <div className="auth-page__alert" role="alert">
+                <Alert variant="error" onDismiss={onClearError}>
+                  {error}
+                </Alert>
+              </div>
+            )}
+
+            {/* Success Banner */}
+            {successNotice && (
+              <div className="auth-page__alert" role="status">
+                <Alert variant="success" onDismiss={() => setSuccessNotice('')}>
+                  {successNotice}
+                </Alert>
+              </div>
+            )}
+
+            {/* Recovery Key Notice upon Registration */}
+            {issuedRecoveryKey && (
+              <div className="auth-recovery-banner" role="status">
+                <div className="auth-recovery-banner__head">
+                  <KeyRound size={18} className="auth-recovery-banner__icon" />
+                  <div>
+                    <strong>Save your account recovery key</strong>
+                    <p>Keep this key in a secure place to restore access if you ever reset your password.</p>
+                  </div>
+                </div>
+                <div className="auth-recovery-banner__keybox">
+                  <code>{issuedRecoveryKey}</code>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCopyKey}
+                    leftIcon={copiedKey ? <Check size={14} /> : <Copy size={14} />}
+                  >
+                    {copiedKey ? 'Copied' : 'Copy key'}
+                  </Button>
+                </div>
                 <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleCopyKey}
-                  leftIcon={copiedKey ? <Check size={14} /> : <Copy size={14} />}
+                  size="md"
+                  variant="primary"
+                  fullWidth
+                  onClick={() => setIssuedRecoveryKey(null)}
+                  className="auth-recovery-banner__dismiss"
                 >
-                  {copiedKey ? 'Copied' : 'Copy key'}
+                  I saved my key — Continue to Workspace
                 </Button>
               </div>
-              <Button
-                size="md"
-                variant="primary"
-                fullWidth
-                onClick={() => setIssuedRecoveryKey(null)}
-                className="auth-recovery-banner__dismiss"
-              >
-                I saved my key — Continue to Workspace
-              </Button>
-            </div>
-          )}
+            )}
 
-          {/* Form Switcher */}
-          {!issuedRecoveryKey && (
-            <>
-              {mode === 'signin' && (
-                <SignInForm
-                  onSubmit={async (credentials) => {
-                    onClearError?.();
-                    await onLogin(credentials);
-                  }}
-                  onSwitchToRegister={() => switchMode('register')}
-                  onSwitchToRecover={() => switchMode('recover')}
-                  busy={busy}
-                />
-              )}
+            {/* Form Switcher */}
+            {!issuedRecoveryKey && (
+              <>
+                {mode === 'signin' && (
+                  <SignInForm
+                    onSubmit={async (credentials) => {
+                      onClearError?.();
+                      await onLogin(credentials);
+                    }}
+                    onSwitchToRegister={() => switchMode('register')}
+                    onSwitchToRecover={() => switchMode('recover')}
+                    busy={busy}
+                  />
+                )}
 
-              {mode === 'register' && (
-                <RegisterForm
-                  onSubmit={handleRegisterSubmit}
-                  onSwitchToSignIn={() => switchMode('signin')}
-                  busy={busy}
-                />
-              )}
+                {mode === 'register' && (
+                  <RegisterForm
+                    onSubmit={handleRegisterSubmit}
+                    onSwitchToSignIn={() => switchMode('signin')}
+                    busy={busy}
+                  />
+                )}
 
-              {mode === 'recover' && (
-                <RecoverForm
-                  onSubmit={handleRecoverSubmit}
-                  onSwitchToSignIn={() => switchMode('signin')}
-                  busy={busy}
-                />
-              )}
-            </>
-          )}
+                {mode === 'recover' && (
+                  <RecoverForm
+                    onSubmit={handleRecoverSubmit}
+                    onSwitchToSignIn={() => switchMode('signin')}
+                    busy={busy}
+                  />
+                )}
+              </>
+            )}
 
-          {/* Quiet, unobtrusive footer */}
-          <footer className="auth-page__footer">
-            <p>OVAEL-X v5.0.0 • Adaptive Learning Platform</p>
-          </footer>
-        </div>
-      </main>
+            {/* Quiet, unobtrusive footer */}
+            <footer className="auth-page__footer">
+              <p>OVAEL-X v5.0.0 • Adaptive Learning Platform</p>
+            </footer>
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

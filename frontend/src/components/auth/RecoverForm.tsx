@@ -72,7 +72,7 @@ export const RecoverForm: React.FC<RecoverFormProps> = ({
   return (
     <div className="auth-form-card">
       <div className="auth-form-card__header">
-        <h1 className="auth-form-card__title">Reset your password</h1>
+        <h1 className="auth-form-card__title">Reset password</h1>
         <p className="auth-form-card__subtitle">
           Enter your learner ID and recovery key to set a new password.
         </p>
