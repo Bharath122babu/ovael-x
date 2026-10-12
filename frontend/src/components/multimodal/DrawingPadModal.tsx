@@ -33,7 +33,7 @@ export const DrawingPadModal: React.FC<DrawingPadModalProps> = ({
 
   const [tool, setTool] = useState<ToolMode>('pen');
   const [lineWidth, setLineWidth] = useState<StrokeWidth>(4);
-  const [color, setColor] = useState('#172554');
+  const [color, setColor] = useState('#222222');
   const [hasDrawn, setHasDrawn] = useState(false);
   const [history, setHistory] = useState<ImageData[]>([]);
   const [validationError, setValidationError] = useState('');
@@ -319,30 +319,30 @@ export const DrawingPadModal: React.FC<DrawingPadModalProps> = ({
               <button
                 type="button"
                 role="radio"
-                aria-checked={color === '#172554'}
-                className={`draw-color-btn ${color === '#172554' ? 'draw-color-btn--active' : ''}`}
-                style={{ backgroundColor: '#172554' }}
-                onClick={() => setColor('#172554')}
-                title="Navy Ink"
-                aria-label="Navy Ink"
+                aria-checked={color === '#222222'}
+                className={`draw-color-btn ${color === '#222222' ? 'draw-color-btn--active' : ''}`}
+                style={{ backgroundColor: '#222222' }}
+                onClick={() => setColor('#222222')}
+                title="Black Hole Ink"
+                aria-label="Black Hole Ink"
               />
               <button
                 type="button"
                 role="radio"
-                aria-checked={color === '#4f46e5'}
-                className={`draw-color-btn ${color === '#4f46e5' ? 'draw-color-btn--active' : ''}`}
-                style={{ backgroundColor: '#4f46e5' }}
-                onClick={() => setColor('#4f46e5')}
-                title="Indigo Ink"
-                aria-label="Indigo Ink"
+                aria-checked={color === '#FF6D1F'}
+                className={`draw-color-btn ${color === '#FF6D1F' ? 'draw-color-btn--active' : ''}`}
+                style={{ backgroundColor: '#FF6D1F' }}
+                onClick={() => setColor('#FF6D1F')}
+                title="Electric Tangerine Ink"
+                aria-label="Electric Tangerine Ink"
               />
               <button
                 type="button"
                 role="radio"
-                aria-checked={color === '#0f172a'}
-                className={`draw-color-btn ${color === '#0f172a' ? 'draw-color-btn--active' : ''}`}
-                style={{ backgroundColor: '#0f172a' }}
-                onClick={() => setColor('#0f172a')}
+                aria-checked={color === '#3D3D3D'}
+                className={`draw-color-btn ${color === '#3D3D3D' ? 'draw-color-btn--active' : ''}`}
+                style={{ backgroundColor: '#3D3D3D' }}
+                onClick={() => setColor('#3D3D3D')}
                 title="Graphite Ink"
                 aria-label="Graphite Ink"
               />

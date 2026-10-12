@@ -13,13 +13,13 @@ export const AuthBranding: React.FC = () => {
       >
         <defs>
           <linearGradient id="meshGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#818cf8" stopOpacity="0.25" />
-            <stop offset="50%" stopColor="#4f46e5" stopOpacity="0.12" />
-            <stop offset="100%" stopColor="#0f172a" stopOpacity="0" />
+            <stop offset="0%" stopColor="#FF6D1F" stopOpacity="0.25" />
+            <stop offset="50%" stopColor="#E55B10" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#222222" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.1" />
+            <stop offset="0%" stopColor="#FF6D1F" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="#F5E7C6" stopOpacity="0.15" />
           </linearGradient>
         </defs>
 
@@ -36,15 +36,15 @@ export const AuthBranding: React.FC = () => {
         <path d="M 180 200 L 300 300 L 300 420" stroke="url(#lineGrad)" strokeWidth="1.2" />
 
         {/* Nodes */}
-        <circle cx="300" cy="300" r="7" fill="#6366f1" />
-        <circle cx="300" cy="300" r="14" stroke="#818cf8" strokeWidth="1.5" opacity="0.4" />
+        <circle cx="300" cy="300" r="7" fill="#FF6D1F" />
+        <circle cx="300" cy="300" r="14" stroke="#FF6D1F" strokeWidth="1.5" opacity="0.4" />
 
-        <circle cx="180" cy="200" r="4.5" fill="#38bdf8" />
-        <circle cx="300" cy="160" r="5" fill="#818cf8" />
-        <circle cx="420" cy="220" r="4.5" fill="#a5b4fc" />
-        <circle cx="410" cy="370" r="5" fill="#38bdf8" />
-        <circle cx="300" cy="420" r="4.5" fill="#818cf8" />
-        <circle cx="190" cy="350" r="5" fill="#6366f1" />
+        <circle cx="180" cy="200" r="4.5" fill="#F5E7C6" />
+        <circle cx="300" cy="160" r="5" fill="#FF6D1F" />
+        <circle cx="420" cy="220" r="4.5" fill="#FAF3E1" />
+        <circle cx="410" cy="370" r="5" fill="#FF6D1F" />
+        <circle cx="300" cy="420" r="4.5" fill="#F5E7C6" />
+        <circle cx="190" cy="350" r="5" fill="#FAF3E1" />
       </svg>
 
       <div className="auth-branding__content">

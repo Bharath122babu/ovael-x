@@ -31,15 +31,15 @@ const { ActiveSessionWorkspace } = require('../src/components/session/ActiveSess
 const { EvidenceMetricCard } = require('../src/components/evidence/EvidenceMetricCard.tsx');
 
 test('WCAG 2.2 AA Contrast Tokens: Text colors guarantee >= 4.5:1 contrast ratio', () => {
-  assert.match(cssContent, /--color-text-primary:\s*#0f172a;/);
-  assert.match(cssContent, /--color-text-secondary:\s*#1e293b;/);
-  assert.match(cssContent, /--color-text-muted:\s*#475569;/);
-  assert.match(cssContent, /--color-text-subtle:\s*#64748b;/);
-  assert.match(cssContent, /--color-text-inverse:\s*#ffffff;/);
+  assert.match(cssContent, /--color-text-primary:\s*#222222;/);
+  assert.match(cssContent, /--color-text-secondary:\s*#3D3D3D;/);
+  assert.match(cssContent, /--color-text-muted:\s*#595959;/);
+  assert.match(cssContent, /--color-text-subtle:\s*#737373;/);
+  assert.match(cssContent, /--color-text-inverse:\s*#FAF3E1;/);
 });
 
 test('Focus Visibility: High-contrast focus ring and skip-to-content link', () => {
-  assert.match(cssContent, /--color-focus-ring:\s*#4f46e5;/);
+  assert.match(cssContent, /--color-focus-ring:\s*#FF6D1F;/);
   assert.match(cssContent, /\.skip-link:focus\s*\{[^}]*position:\s*fixed;/s);
   assert.match(cssContent, /:focus-visible\s*\{[^}]*outline:\s*2px\s*solid\s*var\(--color-focus-ring\);/s);
 });

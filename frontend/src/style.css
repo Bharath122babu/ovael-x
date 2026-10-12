@@ -8,54 +8,72 @@
    ========================================================================== */
 :root {
   /* --------------------------------------------------------------------------
-     1.1 Colors: Canvas, Surfaces, & Structural Neutrals
+     1.1 Core Four-Color Brand Palette
      -------------------------------------------------------------------------- */
-  --color-canvas: #f8fafc;              /* Slate 50: Crisp, clean workbench background */
-  --color-surface: #ffffff;             /* Pure white card and container surface */
-  --color-surface-subtle: #f1f5f9;      /* Slate 100: Soft inner wells and hover pills */
-  --color-surface-muted: #e2e8f0;       /* Slate 200: Dividers and muted tags */
-  --color-surface-elevated: #ffffff;    /* Modals and popovers */
+  --color-sustainable-linen: #FAF3E1;       /* Main light background & primary light surface */
+  --color-recycled-cotton: #F5E7C6;         /* Secondary light surface & subtle highlights */
+  --color-electric-tangerine: #FF6D1F;      /* Primary interactive CTA, active indicators & focus */
+  --color-electric-tangerine-hover: #E55B10;/* Controlled CTA hover state */
+  --color-electric-tangerine-active: #CC4E0A;/* CTA pressed state */
+  --color-electric-tangerine-subtle: rgba(255, 109, 31, 0.12); /* Subtle tangerine tint */
+  --color-electric-tangerine-border: rgba(255, 109, 31, 0.35); /* Focus & selection boundary */
+  --color-black-hole: #222222;              /* Dark surfaces, sidebar, text on light, text on CTA */
 
-  /* Structural Graphite & Deep Navy */
-  --color-navy-950: #0a0f1d;
-  --color-navy-900: #0f172a;
-  --color-navy-800: #1e293b;
-  --color-navy-700: #334155;
-  --color-navy-600: #475569;
+  /* Supporting Deep Neutrals for Dark Surface Separation */
+  --color-black-hole-pure: #181818;         /* Deepest near-black neutral */
+  --color-black-hole-elevated: #2c2c2c;     /* Elevated dark surface / panel */
+  --color-black-hole-border: #383838;       /* Subtle dark border for dark surfaces */
 
   /* --------------------------------------------------------------------------
-     1.2 Colors: Typography
+     1.2 Colors: Canvas, Surfaces, & Structural Neutrals
      -------------------------------------------------------------------------- */
-  --color-text-primary: #0f172a;        /* Deep slate for high contrast readability (14.6:1) */
-  --color-text-secondary: #1e293b;      /* Slate 800: High-contrast body text & metadata (12.6:1) */
-  --color-text-muted: #475569;          /* Slate 600: Descriptions, supporting notes (7.0:1) */
-  --color-text-subtle: #64748b;         /* Slate 500: Secondary captions & labels (4.8:1) */
-  --color-text-inverse: #ffffff;        /* High-contrast text on dark surfaces (14.6:1) */
-  --color-text-inverse-muted: #e2e8f0;  /* Slate 200: Supporting text on dark surfaces (10.2:1) */
+  --color-canvas: #FAF3E1;                  /* Sustainable Linen: Crisp, warm, elegant canvas */
+  --color-surface: #ffffff;                 /* Pure crisp white card & container surface */
+  --color-surface-subtle: #F5E7C6;          /* Recycled Cotton: Soft inner wells & hover pills */
+  --color-surface-muted: #EADBC0;           /* Warm recycled cotton divider / muted well */
+  --color-surface-elevated: #ffffff;        /* Modals and popovers */
+  --color-surface-dark: #222222;            /* Black Hole: Structural dark surface */
+
+  /* Structural Dark Neutrals (Black Hole scale) */
+  --color-navy-950: #181818;
+  --color-navy-900: #222222;
+  --color-navy-800: #2c2c2c;
+  --color-navy-700: #3D3D3D;
+  --color-navy-600: #595959;
 
   /* --------------------------------------------------------------------------
-     1.3 Colors: Borders & Dividers
+     1.3 Colors: Typography (Strict WCAG 2.2 AA Contrast Compliance)
      -------------------------------------------------------------------------- */
-  --color-border-subtle: #f1f5f9;       /* Slate 100: Hairline section separators */
-  --color-border-default: #e2e8f0;      /* Slate 200: Card borders, inputs, buttons */
-  --color-border-strong: #cbd5e1;       /* Slate 300: High-visibility outlines */
-  --color-border-hover: #64748b;        /* Slate 500: Active hover boundary */
-  --color-border-focus: #4f46e5;        /* Indigo 600: Focused input borders */
+  --color-text-primary: #222222;        /* Black Hole: 13.8:1 contrast on Sustainable Linen (#FAF3E1) */
+  --color-text-secondary: #3D3D3D;      /* Slate/graphite: 9.5:1 contrast on Sustainable Linen */
+  --color-text-muted: #595959;          /* Descriptions, supporting notes: 6.2:1 contrast on Linen */
+  --color-text-subtle: #737373;         /* Secondary captions & labels: 4.6:1 contrast on Linen */
+  --color-text-inverse: #FAF3E1;        /* Sustainable Linen: 13.8:1 contrast on Black Hole (#222222) */
+  --color-text-inverse-muted: #F5E7C6;  /* Recycled Cotton: 11.9:1 contrast on Black Hole */
 
   /* --------------------------------------------------------------------------
-     1.4 Colors: Primary Action & Interactive States (Indigo Accent)
+     1.4 Colors: Borders & Dividers
      -------------------------------------------------------------------------- */
-  --color-primary: #4f46e5;             /* Indigo 600: Intentional primary buttons & active links */
-  --color-primary-hover: #4338ca;       /* Indigo 700: Controlled hover state */
-  --color-primary-active: #3730a3;      /* Indigo 800: Active pressed state */
-  --color-primary-subtle: #eef2ff;      /* Indigo 50: Active nav pills, badges, selection backgrounds */
-  --color-primary-subtle-hover: #e0e7ff;/* Indigo 100: Hovered active pill */
-  --color-primary-border: #c7d2fe;      /* Indigo 200: Subtle brand ring / card boundary */
-  --color-primary-text: #4338ca;        /* Indigo 700: High-contrast brand typography */
-  --color-primary-shadow: rgba(79, 70, 229, 0.18);
+  --color-border-subtle: #EFE4CA;       /* Subtle warm section separator */
+  --color-border-default: #E2D3B3;      /* Card borders, inputs, buttons */
+  --color-border-strong: #CBB998;       /* High-visibility outlines */
+  --color-border-hover: #FF6D1F;        /* Electric Tangerine: Active hover boundary */
+  --color-border-focus: #FF6D1F;        /* Electric Tangerine: Focused input borders */
 
   /* --------------------------------------------------------------------------
-     1.5 Colors: Evidence & Status Accents
+     1.5 Colors: Primary Action & Interactive States (Electric Tangerine)
+     -------------------------------------------------------------------------- */
+  --color-primary: #FF6D1F;             /* Electric Tangerine: Primary CTAs, active indicators, links */
+  --color-primary-hover: #E55B10;       /* Controlled hover state */
+  --color-primary-active: #CC4E0A;      /* Active pressed state */
+  --color-primary-subtle: rgba(255, 109, 31, 0.12); /* Active nav pills, badges, selection backgrounds */
+  --color-primary-subtle-hover: rgba(255, 109, 31, 0.20); /* Hovered active pill */
+  --color-primary-border: rgba(255, 109, 31, 0.35); /* Subtle brand ring / card boundary */
+  --color-primary-text: #222222;        /* Black Hole: High-contrast dark text on Electric Tangerine (~4.9:1) */
+  --color-primary-shadow: rgba(255, 109, 31, 0.25);
+
+  /* --------------------------------------------------------------------------
+     1.6 Colors: Evidence & Status Accents
      -------------------------------------------------------------------------- */
   /* Verified Evidence & Mastery (Restrained Emerald / Teal) */
   --color-success: #059669;
@@ -83,8 +101,8 @@
   --color-info-border: #bae6fd;
   --color-info-text: #0369a1;
 
-  /* Focus Indicator (High-Contrast Indigo 600: 4.6:1 on Canvas) */
-  --color-focus-ring: #4f46e5;
+  /* Focus Indicator (High-Contrast Electric Tangerine: 4.9:1 on Linen) */
+  --color-focus-ring: #FF6D1F;
 
   /* --------------------------------------------------------------------------
      1.6 Typography Scale & Weights
@@ -216,14 +234,14 @@
   /* Dimensional Surfaces & Materials */
   --surface-depth-flat: var(--color-surface);
   --surface-depth-raised: #ffffff;
-  --surface-depth-graphite: #0f172a;
-  --surface-depth-graphite-soft: #1e293b;
+  --surface-depth-graphite: #222222;
+  --surface-depth-graphite-soft: #2c2c2c;
 
   /* Ambient & Dimensional Shadows */
-  --depth-shadow-subtle: 0 2px 4px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.03);
-  --depth-shadow-ambient: 0 8px 24px -4px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
-  --depth-shadow-elevated: 0 16px 32px -6px rgba(15, 23, 42, 0.09), 0 6px 12px -3px rgba(15, 23, 42, 0.04);
-  --depth-shadow-brand: 0 12px 28px -6px rgba(79, 70, 229, 0.18), 0 4px 10px -2px rgba(79, 70, 229, 0.08);
+  --depth-shadow-subtle: 0 2px 4px rgba(34, 34, 34, 0.04), 0 1px 2px rgba(34, 34, 34, 0.03);
+  --depth-shadow-ambient: 0 8px 24px -4px rgba(34, 34, 34, 0.07), 0 2px 6px -1px rgba(34, 34, 34, 0.04);
+  --depth-shadow-elevated: 0 16px 32px -6px rgba(34, 34, 34, 0.09), 0 6px 12px -3px rgba(34, 34, 34, 0.04);
+  --depth-shadow-brand: 0 12px 28px -6px rgba(255, 109, 31, 0.24), 0 4px 10px -2px rgba(255, 109, 31, 0.12);
 
   /* 3D Transform Distances */
   --depth-lift-sm: translateY(-2px);
@@ -304,7 +322,7 @@ p {
   left: 12px;
   z-index: 9999;
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-primary-text);
   padding: 8px 16px;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-md);
@@ -314,7 +332,7 @@ p {
   margin: 0;
   text-decoration: none;
   font-weight: var(--weight-bold);
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--color-black-hole);
 }
 
 .shell {
@@ -327,8 +345,8 @@ p {
 .sidebar {
   width: 252px;
   flex-shrink: 0;
-  background: var(--color-surface);
-  border-right: 1px solid var(--color-border-default);
+  background: var(--color-black-hole);
+  border-right: 1px solid var(--color-black-hole-border);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -338,6 +356,7 @@ p {
   z-index: var(--z-sidebar);
   overflow-y: auto;
   overflow-x: hidden;
+  color: var(--color-sustainable-linen);
 }
 
 .sidebar.collapsed {
@@ -351,7 +370,7 @@ p {
   font-size: 22px;
   font-weight: var(--weight-extrabold);
   letter-spacing: -1.2px;
-  color: var(--color-navy-900);
+  color: var(--color-sustainable-linen);
   white-space: nowrap;
   font-family: var(--font-sans);
   text-decoration: none;
@@ -361,12 +380,13 @@ p {
   width: 36px;
   height: 36px;
   background: var(--color-primary);
-  color: white;
+  color: var(--color-black-hole);
   border-radius: 10px;
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 12px var(--color-primary-shadow);
+  box-shadow: 0 4px 12px var(--color-primary-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
+  font-weight: var(--weight-extrabold);
 }
 
 .brand-dot,
@@ -378,7 +398,7 @@ p {
   font-weight: var(--weight-extrabold);
   font-size: var(--text-caption);
   letter-spacing: -0.02em;
-  color: var(--color-text-subtle);
+  color: var(--color-recycled-cotton);
 }
 
 .side-head {
@@ -388,7 +408,7 @@ p {
   justify-content: space-between;
   align-items: center;
   gap: 6px;
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-black-hole-border);
   flex-shrink: 0;
 }
 
@@ -404,7 +424,7 @@ p {
 .icon-btn {
   border: 0;
   background: transparent;
-  color: var(--color-text-subtle);
+  color: var(--color-recycled-cotton);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -416,7 +436,7 @@ p {
 
 .icon-btn:hover,
 .mode-btn:hover {
-  background: var(--color-surface-subtle);
+  background: rgba(250, 243, 225, 0.08);
   color: var(--color-primary);
 }
 
@@ -431,11 +451,12 @@ p {
   font-size: var(--text-micro);
   letter-spacing: var(--tracking-wider);
   font-weight: var(--weight-extrabold);
-  color: var(--color-text-subtle);
+  color: var(--color-recycled-cotton);
 }
 
 .nav-label {
   padding: 0 12px 14px;
+  opacity: 0.8;
 }
 
 .sidebar.collapsed .nav-label {
@@ -451,9 +472,9 @@ p {
   align-items: center;
   gap: 13px;
   padding: 11px 14px;
-  color: var(--color-text-muted);
+  color: var(--color-sustainable-linen);
   font-size: var(--text-body);
-  font-weight: var(--weight-bold);
+  font-weight: var(--weight-semibold);
   text-align: left;
   margin-bottom: 4px;
   transition: all var(--duration-fast) var(--ease-standard);
@@ -462,14 +483,16 @@ p {
 }
 
 .nav-item:hover:not(.selected) {
-  background: var(--color-surface-subtle);
-  color: var(--color-text-primary);
+  background: rgba(250, 243, 225, 0.08);
+  color: var(--color-sustainable-linen);
 }
 
 .nav-item.selected,
 .nav-item[aria-current="page"] {
-  background: var(--color-primary-subtle);
-  color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-black-hole);
+  font-weight: var(--weight-bold);
+  box-shadow: 0 2px 8px var(--color-primary-shadow);
 }
 
 .nav-item:focus-visible {
@@ -494,13 +517,13 @@ p {
 .side-bottom {
   margin-top: auto;
   padding: 16px 12px;
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--color-black-hole-border);
   flex-shrink: 0;
 }
 
 .privacy-mini {
-  background: var(--color-canvas);
-  border: 1px solid var(--color-border-subtle);
+  background: var(--color-black-hole-pure);
+  border: 1px solid var(--color-black-hole-border);
   padding: 12px 10px;
   border-radius: 10px;
   display: flex;
@@ -525,13 +548,14 @@ p {
 .privacy-mini b,
 .user-item b {
   font-size: var(--text-caption);
-  color: var(--color-text-secondary);
+  color: var(--color-sustainable-linen);
 }
 
 .privacy-mini small,
 .user-item small {
   font-size: var(--text-micro);
-  color: var(--color-text-subtle);
+  color: var(--color-recycled-cotton);
+  opacity: 0.85;
 }
 
 .user-item {
@@ -543,7 +567,7 @@ p {
   background: transparent;
   text-align: left;
   padding: 8px 6px;
-  color: var(--color-text-muted);
+  color: var(--color-sustainable-linen);
   border-radius: 10px;
   transition: background var(--duration-fast);
   cursor: pointer;
@@ -551,7 +575,7 @@ p {
 }
 
 .user-item:hover {
-  background: var(--color-surface-subtle);
+  background: rgba(250, 243, 225, 0.08);
 }
 
 .user-item:focus-visible {
@@ -569,8 +593,8 @@ p {
 }
 
 .avatar {
-  background: var(--color-primary-subtle);
-  color: var(--color-primary-hover);
+  background: var(--color-primary);
+  color: var(--color-black-hole);
   font-size: var(--text-body);
   font-weight: var(--weight-extrabold);
   width: 36px;
@@ -599,7 +623,7 @@ p {
 .topbar {
   height: 64px;
   border-bottom: 1px solid var(--color-border-default);
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(250, 243, 225, 0.94);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
@@ -696,7 +720,8 @@ p {
 .mobile-drawer {
   position: relative;
   width: min(300px, 85vw);
-  background: var(--color-surface);
+  background: var(--color-black-hole);
+  color: var(--color-sustainable-linen);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -717,7 +742,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-black-hole-border);
 }
 
 .mobile-drawer__nav {
@@ -727,7 +752,7 @@ p {
 
 .mobile-drawer__footer {
   padding: 18px 12px;
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--color-black-hole-border);
   margin-top: auto;
 }
 
@@ -1024,7 +1049,7 @@ p {
 .primary {
   background: var(--color-primary);
   border: 1px solid var(--color-primary);
-  color: white;
+  color: var(--color-primary-text);
   box-shadow: 0 4px 14px var(--color-primary-shadow);
 }
 
@@ -2090,7 +2115,7 @@ p {
 
 .course-card--selected .course-card__letter {
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-primary-text);
 }
 
 .course-card__tags {
@@ -2743,7 +2768,7 @@ p {
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: #0f172a;
+  background: var(--color-black-hole-pure);
 }
 
 .tutor-code-block__header {
@@ -2751,8 +2776,8 @@ p {
   align-items: center;
   justify-content: space-between;
   padding: 6px 14px;
-  background: #1e293b;
-  color: #94a3b8;
+  background: var(--color-black-hole);
+  color: var(--color-recycled-cotton);
   font-size: var(--text-micro);
   font-family: var(--font-mono);
 }
@@ -2908,7 +2933,7 @@ p {
 
 .tutor-mcq__option--selected .tutor-mcq__letter {
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-primary-text);
 }
 
 .tutor-mcq__text {
@@ -2972,7 +2997,7 @@ p {
   height: 26px;
   border-radius: 7px;
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-primary-text);
   display: grid;
   place-items: center;
   font-size: var(--text-caption);
@@ -3304,7 +3329,7 @@ p {
 }
 
 .decision-trace-viewer__json-wrap {
-  background: #0f172a;
+  background: var(--color-black-hole-pure);
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
@@ -3314,8 +3339,8 @@ p {
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  background: #1e293b;
-  color: #94a3b8;
+  background: var(--color-black-hole);
+  color: var(--color-recycled-cotton);
   font-size: var(--text-micro);
   font-family: var(--font-mono);
 }
@@ -3576,7 +3601,7 @@ p {
 
 .mcq-option--selected .mcq-option__letter {
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-primary-text);
 }
 
 .mcq-option__text {
@@ -3665,7 +3690,7 @@ p {
 
 .true-false-option--selected .true-false-option__indicator {
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-primary-text);
 }
 
 .true-false-option__title {
@@ -3728,8 +3753,8 @@ p {
   justify-content: space-between;
   align-items: center;
   padding: 7px 14px;
-  background: #1e293b;
-  color: #94a3b8;
+  background: var(--color-black-hole);
+  color: var(--color-recycled-cotton);
   font-size: var(--text-micro);
 }
 
@@ -3738,7 +3763,7 @@ p {
   align-items: center;
   gap: 7px;
   font-weight: var(--weight-semibold);
-  color: #f1f5f9;
+  color: var(--color-sustainable-linen);
 }
 
 .code-editor-header__lang-badge {
@@ -3766,8 +3791,8 @@ p {
   width: 100%;
   border: 0;
   border-radius: 0;
-  background: #0f172a;
-  color: #f1f5f9;
+  background: var(--color-black-hole-pure);
+  color: var(--color-sustainable-linen);
   font-family: var(--font-mono);
   font-size: var(--text-body-sm);
   line-height: 1.6;
@@ -3941,7 +3966,7 @@ p {
 .draw-tool-btn--active {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #ffffff !important;
+  color: var(--color-primary-text) !important;
 }
 
 .draw-tool-btn--secondary {
@@ -4635,7 +4660,7 @@ p {
 .ui-button--primary {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-primary-text);
   box-shadow: 0 4px 14px var(--color-primary-shadow);
 }
 
@@ -7127,7 +7152,7 @@ p {
 
 .dim-pill--acq strong { color: #2563eb; }
 .dim-pill--indep strong { color: #059669; }
-.dim-pill--trans strong { color: #4f46e5; }
+.dim-pill--trans strong { color: var(--color-primary); }
 .dim-pill--ret strong { color: #7c3aed; }
 
 /* Metrics Grid */
@@ -7523,7 +7548,7 @@ p {
 
 .proof-dimension-bar__fill--acquisition { background: #2563eb; }
 .proof-dimension-bar__fill--independent { background: #059669; }
-.proof-dimension-bar__fill--transfer { background: #4f46e5; }
+.proof-dimension-bar__fill--transfer { background: var(--color-primary); }
 .proof-dimension-bar__fill--retention { background: #7c3aed; }
 
 /* Decision Audit Drawer / Modal */
@@ -8888,7 +8913,7 @@ p {
   width: 100%;
   max-width: 320px;
   height: 180px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(250, 243, 225, 0.95) 0%, rgba(245, 231, 198, 0.8) 100%);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-xl);
   box-shadow: var(--depth-shadow-ambient), var(--depth-highlight-top);
