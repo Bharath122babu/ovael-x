@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import hmac
+import asyncio
+import logging
+from contextlib import suppress
+from starlette.concurrency import run_in_threadpool
 from contextlib import asynccontextmanager
 from typing import Any
 from uuid import uuid4
@@ -147,15 +151,30 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     mcp_bundle = build_mcp_protocol(services)
 
+    async def reap_shadows():
+        while True:
+            try:
+                await run_in_threadpool(services.teaching._expire_stale_local_first_shadows)
+            except Exception:
+                logging.getLogger(__name__).exception("Temporary learner state cleanup failed")
+            await asyncio.sleep(60)
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         app.state.services = services
-        if mcp_bundle is not None:
-            mcp_server, _mcp_asgi = mcp_bundle
-            async with mcp_server.session_manager.run():
+        await run_in_threadpool(services.teaching._expire_stale_local_first_shadows)
+        reaper = asyncio.create_task(reap_shadows())
+        try:
+            if mcp_bundle is not None:
+                mcp_server, _mcp_asgi = mcp_bundle
+                async with mcp_server.session_manager.run():
+                    yield
+            else:
                 yield
-        else:
-            yield
+        finally:
+            reaper.cancel()
+            with suppress(asyncio.CancelledError):
+                await reaper
 
     if settings.auth_required and (not settings.auth_secret or len(settings.auth_secret) < 32):
         raise ValueError("OVAEL_AUTH_SECRET must be at least 32 characters when OVAEL_AUTH_REQUIRED=true")
@@ -465,7 +484,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # evidence store; users receive the safe derived map and explicit delete controls.
     @app.post("/memory/personalization/{enabled}")
     def set_personalization(enabled: bool, user_id: str = "local") -> dict[str, Any]:
-        services.memory.set_personalization(user_id, enabled)
+        services.teaching.set_personalization(user_id, enabled)
         return {"user_id": user_id, "personalization_enabled": enabled}
 
     @app.delete("/memory")
@@ -488,7 +507,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> OCRResult:
         data = await _read_upload_limited(file, services.ocr.MAX_BYTES)
         try:
-            return services.ocr.extract(data, language=language)
+            return await run_in_threadpool(services.ocr.extract, data, language=language)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         except RuntimeError as exc:
@@ -501,7 +520,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> SpeechTranscript:
         data = await _read_upload_limited(file, services.speech.MAX_AUDIO_BYTES)
         try:
-            return services.speech.transcribe(data, filename=file.filename or "audio.wav", language=language)
+            return await run_in_threadpool(services.speech.transcribe, data, filename=file.filename or "audio.wav", language=language)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         except RuntimeError as exc:

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import random
 import re
 import time
 from dataclasses import dataclass
@@ -261,42 +260,20 @@ class ModelGateway:
             body["max_tokens"] = body.pop("max_completion_tokens")
 
         started = time.perf_counter()
-        retryable = {408, 429, 500, 502, 503, 504}
-        last_exc: Exception | None = None
+        # One gateway invocation sends exactly one provider request. The caller
+        # owns retry policy and must reserve a fresh semantic-budget slot before
+        # retrying; hidden transport retries cannot spend unrecorded calls.
         try:
             with httpx.Client(timeout=self.timeout) as client:
-                for attempt in range(3):
-                    try:
-                        response = client.post(endpoint, headers=headers, json=body)
-                        if response.status_code in retryable:
-                            if attempt < 2:
-                                retry_after = response.headers.get("retry-after")
-                                try:
-                                    wait = min(2.0, max(0.0, float(retry_after))) if retry_after else 0.15 * (2**attempt) + random.random() * 0.05
-                                except ValueError:
-                                    wait = 0.15 * (2**attempt) + random.random() * 0.05
-                                time.sleep(wait)
-                                continue
-                            response.raise_for_status()
-                        # Fail fast on non-retryable client/configuration errors.
-                        response.raise_for_status()
-                        data = response.json()
-                        break
-                    except httpx.HTTPStatusError as exc:
-                        last_exc = exc
-                        status = exc.response.status_code
-                        if status not in retryable or attempt >= 2:
-                            raise ModelUnavailable(f"{provider} model request failed with HTTP {status}") from exc
-                    except (httpx.TransportError, ValueError) as exc:
-                        last_exc = exc
-                        if attempt >= 2:
-                            raise ModelUnavailable(f"{provider} model call failed") from exc
-                        time.sleep(0.15 * (2**attempt) + random.random() * 0.05)
-                else:  # pragma: no cover
-                    raise ModelUnavailable(f"{provider} model call failed") from last_exc
-        except ModelUnavailable:
+                response = client.post(endpoint, headers=headers, json=body)
+                response.raise_for_status()
+                data = response.json()
+        except httpx.HTTPStatusError as exc:
             self._circuit_failure()
-            raise
+            raise ModelUnavailable(f"{provider} model request failed with HTTP {exc.response.status_code}") from exc
+        except (httpx.TransportError, ValueError) as exc:
+            self._circuit_failure()
+            raise ModelUnavailable(f"{provider} model call failed") from exc
 
         try:
             text = data["choices"][0]["message"]["content"]

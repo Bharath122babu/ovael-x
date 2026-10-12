@@ -320,6 +320,10 @@ class DecisionKernel:
                 selected_question_id = str(row["question_id"])
                 reason_codes.append("REUSE_VERIFIED_QUESTION")
 
+        if not self.question_bank_allowed(course_id):
+            selected_question_id = None
+            reason_codes.append("COURSE_REQUIRES_SCOPED_ASSESSMENT")
+
         semantic_tier, semantic_requirement, model_budget = self._semantic_requirement(
             action=action,
             source_mode=source_mode,
@@ -373,6 +377,18 @@ class DecisionKernel:
             invariants=invariants,
             summary=summary,
         )
+
+    def question_bank_allowed(self, course_id: str | None) -> bool:
+        if not course_id:
+            return True
+        course = self.db.fetchone("SELECT course_kind FROM courses WHERE course_id=?", (course_id,))
+        if not course:
+            return False
+        row = self.db.fetchone("SELECT policy_json FROM source_constitutions WHERE course_id=?", (course_id,))
+        if row:
+            policy = self.db.loads(row["policy_json"], {})
+            return isinstance(policy, dict) and policy.get("external_sources_allowed") is True
+        return course["course_kind"] != "class"
 
     def _learning_ir_inventory(self, course_id: str, concept_id: str) -> dict[str, int]:
         counts: dict[str, int] = {}

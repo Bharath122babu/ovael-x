@@ -22,7 +22,7 @@ export async function api(path:string,method='GET',body?:unknown, idempotencyKey
       response.status===413?'The uploaded file exceeds the server limit.':
       response.status===503?'The requested model or extraction engine is unavailable.':
       `${response.status} ${response.statusText}`;
-    throw new Error(message);
+    throw Object.assign(new Error(message),{status:response.status});
   }
   return data;
 }

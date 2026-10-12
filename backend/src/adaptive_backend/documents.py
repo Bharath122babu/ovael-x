@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from starlette.concurrency import run_in_threadpool
+
 import mimetypes
 import re
 import zipfile
@@ -72,6 +74,12 @@ class DocumentService:
         course_id: str | None = None,
         auto_route: bool = False,
     ) -> dict[str, Any]:
+        if course_id:
+            allowed = self.db.fetchone("""SELECT 1 FROM courses c JOIN subjects s ON s.subject_id=c.subject_id
+                WHERE c.course_id=? AND c.owner_user_id=?
+                AND (c.subject_id NOT LIKE 'USR:%' OR s.owner_user_id=c.owner_user_id)""", (course_id, user_id))
+            if not allowed:
+                raise ValueError("Unknown or inaccessible course")
         filename = Path(upload.filename or "upload.bin").name
         ext = Path(filename).suffix.lower()
         if ext not in _ALLOWED_EXTENSIONS:
@@ -123,7 +131,7 @@ class DocumentService:
         # adapter. The durable job record preserves the contract for external workers.
         self.jobs.update(user_id, job["job_id"], status="running", progress=0.1, increment_attempt=True)
         try:
-            result = self._native_extract(user_id, document_id, auto_route=auto_route)
+            result = await run_in_threadpool(self._native_extract, user_id, document_id, auto_route=auto_route)
             self.jobs.update(user_id, job["job_id"], status="succeeded", progress=1.0, result=result)
         except Exception as exc:
             self.db.execute(
@@ -527,7 +535,7 @@ class DocumentService:
             FROM subjects s
             LEFT JOIN concepts c ON c.subject_id=s.subject_id
             WHERE s.subject_id NOT LIKE 'USR:%'
-               OR EXISTS(SELECT 1 FROM courses own WHERE own.owner_user_id=? AND own.subject_id=s.subject_id)
+               OR s.owner_user_id=?
             GROUP BY s.subject_id,s.name,s.description
             ORDER BY s.name
             """,
@@ -570,8 +578,8 @@ class DocumentService:
         now = _now()
         with self.db.transaction() as conn:
             conn.execute(
-                "INSERT INTO subjects(subject_id,name,description) VALUES(?,?,?)",
-                (subject_id, subject_name, f"Private material-led subject: {subject_name}"),
+                "INSERT INTO subjects(subject_id,name,description,owner_user_id) VALUES(?,?,?,?)",
+                (subject_id, subject_name, f"Private material-led subject: {subject_name}", user_id),
             )
             conn.execute(
                 "INSERT INTO concepts(concept_id,subject_id,name,description,bkt_params_json,metadata_json) VALUES(?,?,?,?,?,?)",
@@ -593,7 +601,7 @@ class DocumentService:
 
     def _focus_for_course(self, *, user_id: str, course_id: str, filename: str, text: str) -> dict[str, Any]:
         course = self.db.fetchone(
-            "SELECT c.subject_id,s.name AS subject_name FROM courses c JOIN subjects s ON s.subject_id=c.subject_id WHERE c.course_id=? AND c.owner_user_id=?",
+            "SELECT c.subject_id,s.name AS subject_name FROM courses c JOIN subjects s ON s.subject_id=c.subject_id WHERE c.course_id=? AND c.owner_user_id=? AND (c.subject_id NOT LIKE 'USR:%' OR s.owner_user_id=c.owner_user_id)",
             (course_id, user_id),
         )
         if not course:
@@ -852,6 +860,10 @@ class CourseGraphService:
         )
         if not course:
             raise ValueError("Unknown course")
+        if str(course["subject_id"] or "").startswith("USR:") and not self.db.fetchone(
+            "SELECT 1 FROM subjects WHERE subject_id=? AND owner_user_id=?", (course["subject_id"], user_id)
+        ):
+            raise ValueError("Private subject ownership required")
         if not document_ids:
             raise ValueError("At least one source document is required")
         placeholders = ",".join("?" for _ in document_ids)
@@ -986,6 +998,10 @@ class CourseGraphService:
         )
         graph = self._validate_graph(self.db.loads(row["graph_json"], {}), allowed_chunks={r["chunk_id"] for r in allowed_rows})
         subject_id = str(course["subject_id"] or "")
+        if subject_id.startswith("USR:") and not self.db.fetchone(
+            "SELECT 1 FROM subjects WHERE subject_id=? AND owner_user_id=?", (subject_id, user_id)
+        ):
+            raise ValueError("Private subject ownership required")
         prefix = f"cg:{course_id.replace('-', '')[:32]}:"
 
         # A reviewed textbook/course graph is private course authority. Never install
@@ -1007,8 +1023,8 @@ class CourseGraphService:
                 ).fetchone()
                 course_subject_name = str((source_subject["name"] if source_subject else None) or course["name"])
                 conn.execute(
-                    "INSERT OR IGNORE INTO subjects(subject_id,name,description) VALUES(?,?,?)",
-                    (subject_id, course_subject_name, f"Course-isolated OVAEL subject for {course['name']}"),
+                    "INSERT OR IGNORE INTO subjects(subject_id,name,description,owner_user_id) VALUES(?,?,?,?)",
+                    (subject_id, course_subject_name, f"Course-isolated OVAEL subject for {course['name']}", user_id),
                 )
                 conn.execute("UPDATE courses SET subject_id=?,updated_at=? WHERE course_id=?", (subject_id, now, course_id))
                 conn.execute("UPDATE knowledge_chunks SET subject_id=? WHERE owner_user_id=? AND course_id=?", (subject_id, user_id, course_id))

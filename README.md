@@ -36,6 +36,13 @@ If the topic has no usable source and no model configured, OVAEL explicitly says
 - Per-learning-turn model calls share a root `SemanticBudget` with child limits for grading and generation. This is *per process/per request*, not a distributed cost or token ceiling. The image OCR endpoint also has its own one-call budget.
 - A no-model explanation path returns a labelled source extract when available, or an explicit content-unavailable message. Neither is misrepresented as a generated lesson.
 - Resumable frontend stores only the teaching session ID in sessionStorage, not authentication tokens or raw answers. Lost-response retries reuse the same idempotency key when the turn is unchanged.
+- Evidence, calibration, proof and policy updates commit together with a pending turn. Next-move delivery and the session pointer commit together afterwards; failed delivery resumes without grading again. A key reused with a different answer is rejected. Browser reloads recover committed pending turns through the authenticated `/v1/learning/sessions/{id}/resume` endpoint; raw answers are not needed for recovery.
+- Provider invocations send one HTTP request per reserved slot, without hidden retries. Budgets remain per request, including resumed requests; they are not a distributed spend cap.
+- Personalization changes are checked at write boundaries. Paused answers still receive feedback, while learning/proof/policy/calibration updates stop and stored request payloads are redacted.
+- Private runtime subjects have explicit owners. Closed-source courses cannot fall back to the shared question bank; unavailable permitted content is labelled.
+- Temporary local-first shadows expire after 24 hours of inactivity. Startup and a 60-second background sweep handle absent owners; completion cleans immediately.
+
+Database schema v8 upgrades run in one SQLite transaction. Existing pre-v8 teaching databases receive a `*.pre-v8-<id>.bak` snapshot using SQLite's backup API before upgrade; keep these backups private. To roll back, stop all application workers, preserve the current database and WAL/SHM files, restore the snapshot at the configured database path, and run the compatible prior backend. Restore tests cover the v7 upgrade snapshot and failed-upgrade rollback; production disaster recovery remains untested.
 
 ## Current capabilities versus limits
 

@@ -6,6 +6,7 @@
 *.db-wal
 *.db-shm
 *.sqlite*
+*.pre-v8-*.bak
 backend/data/
 backend/runtime/
 backend/logs/

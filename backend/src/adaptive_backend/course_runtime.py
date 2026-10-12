@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from starlette.concurrency import run_in_threadpool
+
 import io
 import mimetypes
 import re
@@ -58,9 +60,10 @@ class CourseIntelligenceService:
     def _course_access(self, user_id: str, course_id: str) -> tuple[dict[str, Any], str]:
         row = self.db.fetchone(
             """SELECT c.*, CASE WHEN c.owner_user_id=? THEN 'owner' ELSE 'learner' END AS access_role
-               FROM courses c LEFT JOIN course_enrollments e
+               FROM courses c JOIN subjects s ON s.subject_id=c.subject_id LEFT JOIN course_enrollments e
                  ON e.course_id=c.course_id AND e.learner_user_id=? AND e.status='active'
-               WHERE c.course_id=? AND (c.owner_user_id=? OR e.learner_user_id=?)""",
+               WHERE c.course_id=? AND (c.owner_user_id=? OR e.learner_user_id=?)
+               AND (c.subject_id NOT LIKE 'USR:%' OR s.owner_user_id=c.owner_user_id)""",
             (user_id, user_id, course_id, user_id, user_id),
         )
         if not row:
@@ -262,7 +265,7 @@ class CourseIntelligenceService:
         filename = Path(upload.filename or "course.zip").name
         if Path(filename).suffix.lower() != ".zip":
             raise ValueError("Course package must be a ZIP archive")
-        raw = await upload.read()
+        raw = await upload.read(self.documents.max_upload_bytes + 1)
         if not raw:
             raise ValueError("Empty course package")
         if len(raw) > self.documents.max_upload_bytes:
@@ -296,7 +299,7 @@ class CourseIntelligenceService:
             total += info.file_size
             if total > self.MAX_ARCHIVE_UNCOMPRESSED:
                 raise ValueError("Course package expands beyond the safety limit")
-            data = archive.read(info)
+            data = await run_in_threadpool(archive.read, info)
             content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
             inner = UploadFile(
                 file=io.BytesIO(data),
@@ -310,7 +313,7 @@ class CourseIntelligenceService:
                 auto_route=False,
             )
             role_guess = self._infer_role(normalized)
-            self.set_document_role(
+            await run_in_threadpool(self.set_document_role,
                 user_id=user_id,
                 course_id=course_id,
                 document_id=record["document_id"],
@@ -326,7 +329,7 @@ class CourseIntelligenceService:
             "skipped_count": len(skipped),
             "imported": imported,
             "skipped": skipped,
-            "learning_ir_objects": self.learning_ir_summary(user_id=user_id, course_id=course_id),
+            "learning_ir_objects": await run_in_threadpool(self.learning_ir_summary, user_id=user_id, course_id=course_id),
         }
 
     @staticmethod
