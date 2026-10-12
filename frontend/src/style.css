@@ -171,14 +171,34 @@
   --z-modal: 50;
 
   /* --------------------------------------------------------------------------
-     1.10 Motion & Transitions
+     1.10 Motion & Transitions Design Tokens
      -------------------------------------------------------------------------- */
-  --duration-fast: 150ms;
-  --duration-normal: 200ms;
-  --duration-slow: 300ms;
+  /* Durations */
+  --motion-duration-fast: 120ms;      /* Micro-feedback: hover, focus, active press, switches */
+  --motion-duration-normal: 200ms;    /* Standard components: dropdowns, badges, buttons */
+  --motion-duration-medium: 300ms;    /* Panels, drawers, modal overlays, accordions */
+  --motion-duration-slow: 450ms;      /* Multi-step view transitions, large entrances */
 
-  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Backward-compatible legacy aliases */
+  --duration-fast: var(--motion-duration-fast);
+  --duration-normal: var(--motion-duration-normal);
+  --duration-slow: var(--motion-duration-medium);
+
+  /* Easings */
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);       /* Natural balanced deceleration */
+  --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);          /* Swift entrance deceleration */
+  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);           /* Accelerated exit */
+  --motion-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);      /* Restrained non-bouncy spring */
+
+  /* Backward-compatible legacy aliases */
+  --ease-standard: var(--motion-ease-standard);
+  --ease-in-out: var(--motion-ease-standard);
+
+  /* Motion Distances */
+  --motion-distance-xs: 1px;          /* Micro button press / tab active indicator shift */
+  --motion-distance-sm: 4px;          /* Nudge on card hover / popover entrance / chat turn */
+  --motion-distance-md: 8px;          /* Toast float / menu slide */
+  --motion-distance-lg: 16px;         /* Modal dialog / drawer slide offset */
 }
 
 /* ==========================================================================
@@ -8546,6 +8566,188 @@ p {
 }
 
 /* ==========================================================================
+   14. GLOBAL MOTION DESIGN SYSTEM & KEYFRAME UTILITIES (STEP 14)
+   ========================================================================== */
+
+/* Keyframe Primitives */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes drawerSlideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-md));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes chatTurnEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-sm));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popoverEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--motion-distance-xs)));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Microinteractions: Buttons and Clickable Controls */
+.ui-button:active:not(:disabled),
+.ui-icon-button:active:not(:disabled) {
+  transform: translateY(var(--motion-distance-xs));
+}
+
+.ui-button {
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
+              border-color var(--motion-duration-fast) var(--motion-ease-standard),
+              color var(--motion-duration-fast) var(--motion-ease-standard),
+              box-shadow var(--motion-duration-fast) var(--motion-ease-standard),
+              transform var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.ui-icon-button {
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
+              color var(--motion-duration-fast) var(--motion-ease-standard),
+              border-color var(--motion-duration-fast) var(--motion-ease-standard),
+              transform var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* Microinteractions: Form Inputs and Textareas */
+.ui-input,
+.ui-textarea {
+  transition: border-color var(--motion-duration-fast) var(--motion-ease-standard),
+              box-shadow var(--motion-duration-fast) var(--motion-ease-standard),
+              background-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* Microinteractions: Switches */
+.toggle-switch {
+  transition: background-color var(--motion-duration-normal) var(--motion-ease-standard);
+}
+
+.toggle-switch__thumb {
+  transition: transform var(--motion-duration-normal) var(--motion-ease-spring);
+}
+
+/* Microinteractions: Navigation and Sidebar */
+.app-sidebar {
+  transition: width var(--motion-duration-medium) var(--motion-ease-standard);
+}
+
+.nav-item,
+.app-nav__item {
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
+              color var(--motion-duration-fast) var(--motion-ease-standard),
+              border-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* Microinteractions: Course Cards and Items */
+.course-card {
+  transition: border-color var(--motion-duration-fast) var(--motion-ease-standard),
+              box-shadow var(--motion-duration-fast) var(--motion-ease-standard),
+              transform var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.course-card:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.course-detail-tab {
+  transition: color var(--motion-duration-fast) var(--motion-ease-standard),
+              border-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* Microinteractions: Active Tutoring Workspace Turns */
+.tutor-turn,
+.learner-turn,
+.session-message-bubble {
+  animation: chatTurnEntrance var(--motion-duration-normal) var(--motion-ease-enter);
+}
+
+.evidence-banner {
+  animation: fadeIn var(--motion-duration-normal) var(--motion-ease-enter);
+}
+
+/* Microinteractions: Dialogs, Backdrops, and Drawers */
+.settings-modal,
+.modal-dialog,
+.drawing-pad-modal,
+.document-preview-modal,
+.ui-modal__panel,
+.ui-dialog__content {
+  animation: modalEntrance var(--motion-duration-medium) var(--motion-ease-spring);
+}
+
+.settings-modal-backdrop,
+.modal-backdrop,
+.drawing-pad-backdrop,
+.decision-audit-backdrop {
+  animation: fadeIn var(--motion-duration-normal) var(--motion-ease-enter);
+}
+
+.decision-audit-panel {
+  animation: drawerSlideInRight var(--motion-duration-medium) var(--motion-ease-spring);
+}
+
+/* Microinteractions: Toast Notifications */
+.notification-toast {
+  animation: toastEntrance var(--motion-duration-medium) var(--motion-ease-spring);
+}
+
+/* Microinteractions: Assessment Selection Controls */
+.mcq-option,
+.choice-btn,
+.option-pill {
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
+              border-color var(--motion-duration-fast) var(--motion-ease-standard),
+              box-shadow var(--motion-duration-fast) var(--motion-ease-standard),
+              transform var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.mcq-option:active:not(:disabled),
+.choice-btn:active:not(:disabled) {
+  transform: translateY(var(--motion-distance-xs));
+}
+
+/* ==========================================================================
    18. ACCESSIBILITY: REDUCED MOTION PREFERENCE
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
@@ -8556,5 +8758,17 @@ p {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+    transform: none !important;
+  }
+
+  .ui-skeleton,
+  .skeleton-text,
+  .skeleton-block,
+  .skeleton-avatar,
+  .spin-icon,
+  .ui-spinner,
+  .speech-listening-indicator,
+  .typing-indicator span {
+    animation: none !important;
   }
 }
