@@ -47,9 +47,9 @@ export const SignInForm: React.FC<SignInFormProps> = ({
   return (
     <div className="auth-form-card">
       <div className="auth-form-card__header">
-        <h1 className="auth-form-card__title">Welcome back</h1>
+        <h1 className="auth-form-card__title">Welcome back.</h1>
         <p className="auth-form-card__subtitle">
-          Sign in to continue learning.
+          Continue your learning journey.
         </p>
       </div>
 

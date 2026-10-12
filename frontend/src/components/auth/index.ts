@@ -5,6 +5,7 @@
 
 export * from './AuthBranding';
 export * from './AuthMotionPath';
+export * from './AuthEditorialMotif';
 export * from './SignInForm';
 export * from './RegisterForm';
 export * from './RecoverForm';

@@ -1615,6 +1615,10 @@ p {
 .auth-page-root,
 .auth-page,
 .auth-page__stage,
+.auth-editorial-stage,
+.auth-editorial-body,
+.auth-editorial-visual,
+.auth-editorial-motif,
 .auth-page__companion,
 .auth-page__container,
 .auth-page__box,
@@ -1799,34 +1803,31 @@ p {
   background: var(--color-black-hole-border);
 }
 
-/* Composed Architectural Stage */
+/* ==========================================================================
+   13.A EDITORIAL AUTHENTICATION STAGE & FORM (REFINED ART DIRECTION)
+   ========================================================================== */
+
+/* Composed Architectural & Editorial Stage */
+.auth-editorial-stage,
 .auth-page__stage {
   width: 100%;
-  max-width: 980px;
+  max-width: 960px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
-  gap: clamp(32px, 5vw, 68px);
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 4vh, 36px);
   position: relative;
   z-index: 1;
   box-sizing: border-box;
+  animation: authEntrance 0.6s var(--motion-ease-enter) backwards;
 }
 
-/* Supporting Visual & Motion Storytelling Column */
-.auth-page__companion {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding-right: clamp(8px, 2vw, 20px);
-  animation: authEntrance 0.7s var(--motion-ease-enter) backwards;
-}
-
-/* Refined Brand Presentation */
+/* Editorial Brand Presentation */
 .auth-page__brand {
   display: flex;
   align-items: center;
-  margin-bottom: 6px;
+  justify-content: flex-start;
+  width: 100%;
 }
 
 .auth-brand {
@@ -1837,21 +1838,21 @@ p {
 }
 
 .auth-brand__mark {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   background: var(--color-primary);
   color: var(--color-black-hole);
-  border-radius: 10px;
+  border-radius: 9px;
   display: grid;
   place-items: center;
-  box-shadow: 0 2px 8px rgba(255, 109, 31, 0.25);
+  box-shadow: 0 1px 4px rgba(255, 109, 31, 0.2);
   flex-shrink: 0;
-  border: 1px solid rgba(34, 34, 34, 0.1);
+  border: 1px solid rgba(34, 34, 34, 0.12);
 }
 
 .auth-brand__mark svg {
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
   color: var(--color-black-hole);
 }
 
@@ -1868,7 +1869,7 @@ p {
 }
 
 .auth-brand__name {
-  font-size: 21px;
+  font-size: 20px;
   font-weight: var(--weight-extrabold);
   letter-spacing: -0.03em;
   color: var(--color-black-hole);
@@ -1945,186 +1946,51 @@ p {
   font-size: 13px;
 }
 
-/* Companion Story Content */
-.auth-companion__story {
+/* Editorial Body: Asymmetric desktop composition */
+.auth-editorial-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) 1px minmax(0, 1fr);
+  gap: clamp(28px, 4.5vw, 64px);
+  align-items: center;
+  width: 100%;
+}
+
+/* Visual Artwork Left Wing (Desktop) */
+.auth-editorial-visual {
   display: flex;
   flex-direction: column;
-}
-
-.auth-companion__eyebrow {
-  display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-size: 11px;
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.06em;
-  color: var(--color-black-hole);
-  background: rgba(245, 231, 198, 0.8);
-  border: 1px solid rgba(34, 34, 34, 0.12);
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  width: fit-content;
-  margin-bottom: 12px;
-}
-
-.auth-companion__eyebrow-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(255, 109, 31, 0.25);
-}
-
-.auth-companion__headline {
-  font-size: clamp(22px, 2.2vw, 28px);
-  font-weight: var(--weight-bold);
-  color: var(--color-black-hole);
-  letter-spacing: -0.025em;
-  line-height: 1.25;
-  margin: 0 0 8px;
-}
-
-.auth-companion__copy {
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--color-text-secondary);
-  margin: 0 0 16px;
-  max-width: 440px;
-}
-
-/* Abstract Learning-Path Motion Graphic */
-.auth-motion-motif {
+  justify-content: center;
   width: 100%;
-  background: rgba(245, 231, 198, 0.45);
-  border: 1px solid rgba(34, 34, 34, 0.12);
-  border-radius: 12px;
-  padding: 16px 18px 12px;
+  padding: 12px 0;
   box-sizing: border-box;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 18px;
 }
 
-.auth-motion-svg {
+.auth-editorial-motif {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-editorial-motif-svg {
   width: 100%;
   height: auto;
   display: block;
-  overflow: visible;
+  filter: drop-shadow(0 2px 8px rgba(34, 34, 34, 0.04));
 }
 
-.auth-motion-path {
-  stroke-dasharray: 600;
-  stroke-dashoffset: 600;
-  animation: drawPath 1.4s var(--motion-ease-enter) forwards;
+/* Hairline Editorial Divider */
+.auth-editorial-divider {
+  width: 1px;
+  height: 85%;
+  min-height: 280px;
+  background: rgba(34, 34, 34, 0.1);
+  align-self: center;
 }
 
-.auth-motion-guide {
-  stroke-dasharray: 4 4;
-  opacity: 0.85;
-}
-
-.auth-motion-marker {
-  offset-path: path('M 70 175 C 130 175, 165 75, 225 75 C 285 75, 320 125, 380 65');
-  animation: travelPath 1.6s var(--motion-ease-enter) forwards;
-  transform-origin: center;
-}
-
-.auth-motion-marker__halo {
-  animation: markerBreathe 5s ease-in-out 1.6s infinite;
-  transform-origin: center;
-}
-
-.auth-motion-node__text {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: var(--weight-bold);
-  fill: var(--color-black-hole);
-  letter-spacing: 0.04em;
-  opacity: 0.8;
-}
-
-.auth-motion-caption {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(34, 34, 34, 0.08);
-}
-
-.auth-motion-caption__dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  flex-shrink: 0;
-}
-
-.auth-motion-caption__text {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  font-weight: var(--weight-semibold);
-  color: var(--color-text-subtle);
-}
-
-.auth-companion__pillars {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.auth-companion__pillar {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  font-weight: var(--weight-medium);
-  color: var(--color-text-secondary);
-  background: #FFFFFF;
-  border: 1px solid rgba(34, 34, 34, 0.1);
-  padding: 5px 10px;
-  border-radius: 6px;
-}
-
-.auth-companion__pillar-icon {
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-}
-
-/* Keyframe Animations */
-@keyframes drawPath {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes travelPath {
-  0% {
-    offset-distance: 0%;
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-  100% {
-    offset-distance: 100%;
-    opacity: 1;
-  }
-}
-
-@keyframes markerBreathe {
-  0%, 100% {
-    opacity: 0.45;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.18);
-  }
-}
-
+/* Entrance Animation */
 @keyframes authEntrance {
   from {
     opacity: 0;
@@ -2136,7 +2002,7 @@ p {
   }
 }
 
-/* Focused Authentication Card Column */
+/* Focused Authentication Column */
 .auth-page__container,
 .auth-form-area {
   display: flex;
@@ -2145,7 +2011,7 @@ p {
   align-items: stretch;
   width: 100%;
   max-width: 410px;
-  margin: 0 auto;
+  margin: 0;
   background: transparent;
   border: none;
   box-shadow: none;
@@ -2156,22 +2022,18 @@ p {
   animation: authEntrance 0.7s var(--motion-ease-enter) 0.08s backwards;
 }
 
+/* Form Container directly on canvas (no heavy floating card) */
 .auth-page__box {
   width: 100%;
   display: flex;
   flex-direction: column;
-  background: #FFFFFF;
-  border: 1px solid rgba(34, 34, 34, 0.12);
-  border-radius: 14px;
-  padding: 32px 28px;
-  box-shadow: 0 4px 20px rgba(34, 34, 34, 0.04);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
   box-sizing: border-box;
   position: relative;
-}
-
-.auth-page__mobile-brand {
-  display: none;
-  margin-bottom: 20px;
 }
 
 .auth-page__alert {
@@ -2191,23 +2053,23 @@ p {
 }
 
 .auth-form-card__header {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
   text-align: left;
 }
 
 .auth-form-card__title {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: var(--weight-bold);
-  line-height: 1.25;
+  line-height: 1.2;
   color: var(--color-black-hole);
   margin: 0 0 6px;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   text-align: left;
 }
 
 .auth-form-card__subtitle {
-  font-size: 13px;
-  color: var(--color-text-muted);
+  font-size: 14px;
+  color: var(--color-text-secondary);
   line-height: var(--leading-normal);
   margin: 0;
   text-align: left;
@@ -2633,77 +2495,66 @@ p {
 
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
+  .auth-editorial-stage,
+  .auth-page__stage,
+  .auth-editorial-visual,
   .auth-page__companion,
-  .auth-page__container,
-  .auth-motion-path,
-  .auth-motion-marker,
-  .auth-motion-marker__halo {
+  .auth-page__container {
     animation: none !important;
     transform: none !important;
   }
-
-  .auth-motion-path {
-    stroke-dashoffset: 0 !important;
-  }
-
-  .auth-motion-marker {
-    offset-distance: 100% !important;
-    opacity: 1 !important;
-  }
 }
 
-/* Responsive Layout */
-@media (max-width: 960px) {
+/* Responsive Editorial Layout */
+@media (max-width: 860px) {
+  .auth-editorial-stage,
   .auth-page__stage {
-    grid-template-columns: 1fr;
-    max-width: 440px;
+    max-width: 480px;
     gap: 24px;
   }
 
-  .auth-companion__story {
+  .auth-editorial-body {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .auth-editorial-visual {
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  .auth-editorial-divider {
     display: none;
-  }
-
-  .auth-page__companion {
-    padding-right: 0;
-    align-items: center;
-    text-align: center;
-    gap: 12px;
-  }
-
-  .auth-page__brand {
-    justify-content: center;
-    margin-bottom: 0;
   }
 
   .auth-page__container {
     max-width: 100%;
+  }
+
+  .auth-page__brand {
+    justify-content: flex-start;
   }
 }
 
 @media (max-width: 640px) {
   .auth-page-root,
   .auth-page {
-    padding: 20px 16px;
+    padding: 24px 18px;
     justify-content: flex-start;
   }
 
+  .auth-editorial-stage,
   .auth-page__stage {
     max-width: 100%;
+    gap: 20px;
   }
 
-  .auth-page__companion {
+  .auth-editorial-visual {
     display: none;
   }
 
-  .auth-page__mobile-brand {
-    display: flex;
-    justify-content: flex-start;
-  }
-
-  .auth-page__box {
-    padding: 22px 18px;
-    border-radius: 12px;
+  .auth-editorial-divider {
+    display: none;
   }
 
   .auth-form-card__header {
@@ -2711,7 +2562,7 @@ p {
   }
 
   .auth-form-card__title {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .auth-form {
