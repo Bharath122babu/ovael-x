@@ -1804,8 +1804,18 @@ p {
 }
 
 /* ==========================================================================
-   13.A EDITORIAL AUTHENTICATION STAGE & FORM (REFINED ART DIRECTION)
+   13.A EDITORIAL AUTHENTICATION STAGE & FORM (PREMIUM MOTION & INTERACTIONS)
    ========================================================================== */
+
+/* Dedicated Authentication Motion Tokens */
+:root {
+  --auth-motion-draw: 1.25s;
+  --auth-motion-draw-echo: 1.1s;
+  --auth-motion-travel: 1.35s;
+  --auth-motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --auth-entrance-ease: cubic-bezier(0, 0, 0.2, 1);
+  --auth-spring-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
 /* Composed Architectural & Editorial Stage */
 .auth-editorial-stage,
@@ -1819,15 +1829,15 @@ p {
   position: relative;
   z-index: 1;
   box-sizing: border-box;
-  animation: authEntrance 0.6s var(--motion-ease-enter) backwards;
 }
 
-/* Editorial Brand Presentation */
+/* Sequence Step 1: Editorial Brand Masthead Entrance */
 .auth-page__brand {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   width: 100%;
+  animation: authEntranceHeader 0.45s var(--auth-entrance-ease) backwards;
 }
 
 .auth-brand {
@@ -1955,7 +1965,7 @@ p {
   width: 100%;
 }
 
-/* Visual Artwork Left Wing (Desktop) */
+/* Sequence Step 2: Visual Artwork Left Wing Entrance */
 .auth-editorial-visual {
   display: flex;
   flex-direction: column;
@@ -1964,6 +1974,7 @@ p {
   width: 100%;
   padding: 12px 0;
   box-sizing: border-box;
+  animation: authEntranceVisual 0.55s var(--auth-entrance-ease) 0.08s backwards;
 }
 
 .auth-editorial-motif {
@@ -1979,30 +1990,67 @@ p {
   height: auto;
   display: block;
   filter: drop-shadow(0 2px 8px rgba(34, 34, 34, 0.04));
+  overflow: visible;
 }
 
-/* Hairline Editorial Divider */
+/* ==========================================================================
+   SVG EDITORIAL MOTIF MOTION GRAPHICS
+   ========================================================================== */
+
+/* Delicate architectural alignment crosshairs */
+.auth-editorial-motif__grid {
+  animation: motifGridFade 0.7s var(--auth-entrance-ease) 0.05s backwards;
+}
+
+/* Secondary ghost contour (Recycled Cotton tone) */
+.auth-editorial-motif__echo {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawEcho var(--auth-motion-draw-echo) var(--auth-motion-ease) 0.12s forwards;
+}
+
+/* Primary flowing vector trajectory (stroke reveal) */
+.auth-editorial-motif__trajectory {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawTrajectory var(--auth-motion-draw) var(--auth-motion-ease) 0.1s forwards;
+}
+
+/* Controlled Tangerine Tracer (single trip along path, settles at focal point) */
+.auth-editorial-motif__tracer {
+  offset-path: path('M 40 205 C 110 205, 140 75, 215 75 C 275 75, 300 135, 330 100');
+  animation: tracerTravel var(--auth-motion-travel) var(--auth-motion-ease) 0.1s forwards;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+/* Geometric Anchors: Sequential Emergence */
+.auth-editorial-motif__anchor--origin {
+  animation: anchorOriginFade 0.45s var(--auth-entrance-ease) 0.08s backwards;
+  transform-origin: 40px 205px;
+}
+
+.auth-editorial-motif__anchor--inflection {
+  animation: anchorInflectionFade 0.55s var(--auth-entrance-ease) 0.55s backwards;
+  transform-origin: 215px 75px;
+}
+
+.auth-editorial-motif__anchor--destination {
+  animation: anchorDestinationSettle 0.65s var(--auth-spring-ease) 1.12s backwards;
+  transform-origin: 330px 100px;
+}
+
+/* Sequence Step 3: Hairline Editorial Divider Entrance */
 .auth-editorial-divider {
   width: 1px;
   height: 85%;
   min-height: 280px;
   background: rgba(34, 34, 34, 0.1);
   align-self: center;
+  animation: authEntranceDivider 0.6s var(--auth-entrance-ease) 0.15s backwards;
 }
 
-/* Entrance Animation */
-@keyframes authEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Focused Authentication Column */
+/* Sequence Step 4: Focused Authentication Column Entrance */
 .auth-page__container,
 .auth-form-area {
   display: flex;
@@ -2019,7 +2067,7 @@ p {
   padding: 0;
   min-height: auto;
   overflow-y: visible;
-  animation: authEntrance 0.7s var(--motion-ease-enter) 0.08s backwards;
+  animation: authEntranceForm 0.5s var(--auth-entrance-ease) 0.08s backwards;
 }
 
 /* Form Container directly on canvas (no heavy floating card) */
@@ -2065,6 +2113,7 @@ p {
   margin: 0 0 6px;
   letter-spacing: -0.03em;
   text-align: left;
+  animation: authEntranceTitle 0.45s var(--auth-entrance-ease) 0.05s backwards;
 }
 
 .auth-form-card__subtitle {
@@ -2073,14 +2122,206 @@ p {
   line-height: var(--leading-normal);
   margin: 0;
   text-align: left;
+  animation: authEntranceSubtitle 0.45s var(--auth-entrance-ease) 0.12s backwards;
 }
 
+/* Sequence Step 5: Form interactive controls entrance */
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
   text-align: left;
+  animation: authEntranceFormBody 0.5s var(--auth-entrance-ease) 0.16s backwards;
+}
+
+/* ==========================================================================
+   ANIMATION KEYFRAMES
+   ========================================================================== */
+
+/* SVG Trajectory Drawing */
+@keyframes drawTrajectory {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawEcho {
+  0% {
+    stroke-dashoffset: 100;
+    opacity: 0.3;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Controlled Tangerine Tracer Travel */
+@keyframes tracerTravel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+/* Alignment Crosshairs Fade */
+@keyframes motifGridFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.35;
+  }
+}
+
+/* Geometric Anchors Emergence */
+@keyframes anchorOriginFade {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes anchorInflectionFade {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes anchorDestinationSettle {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Coordinated Page Entrance Keyframes */
+@keyframes authEntranceHeader {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authEntranceVisual {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authEntranceDivider {
+  from {
+    opacity: 0;
+    transform: scaleY(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes authEntranceForm {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authEntranceTitle {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authEntranceSubtitle {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authEntranceFormBody {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authEntranceFooter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes errorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-1px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .auth-form .ui-field {
@@ -2131,7 +2372,9 @@ p {
   position: relative;
   box-sizing: border-box;
   transition: border-color var(--motion-duration-fast) var(--motion-ease-standard),
-              outline var(--motion-duration-fast) var(--motion-ease-standard);
+              outline var(--motion-duration-fast) var(--motion-ease-standard),
+              box-shadow var(--motion-duration-fast) var(--motion-ease-standard),
+              background-color var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .auth-form .ui-input-wrapper:hover:not(.ui-input-wrapper--disabled) {
@@ -2143,16 +2386,19 @@ p {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
   background: #FFFFFF;
+  box-shadow: 0 0 0 1px rgba(255, 109, 31, 0.15);
 }
 
 .auth-form .ui-input-wrapper:focus-within .ui-input-element--left {
   color: var(--color-black-hole);
+  transform: scale(1.04);
 }
 
 .auth-form .ui-input-wrapper--error {
   border-color: var(--color-error) !important;
   outline: 2px solid var(--color-error);
   outline-offset: 1px;
+  box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.12);
 }
 
 .auth-form .ui-input-wrapper--error:focus-within {
@@ -2196,7 +2442,8 @@ p {
   color: var(--color-text-subtle);
   margin-right: 8px;
   flex-shrink: 0;
-  transition: color var(--motion-duration-fast) var(--motion-ease-standard);
+  transition: color var(--motion-duration-fast) var(--motion-ease-standard),
+              transform var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .auth-form .ui-input-element--right {
@@ -2241,7 +2488,7 @@ p {
   color: var(--color-error-text, #dc2626);
   margin: 4px 0 0;
   line-height: var(--leading-normal);
-  animation: fadeIn var(--motion-duration-fast) var(--motion-ease-enter);
+  animation: errorFadeIn var(--motion-duration-fast) var(--motion-ease-enter);
   text-align: left;
 }
 
@@ -2499,8 +2746,49 @@ p {
   .auth-page__stage,
   .auth-editorial-visual,
   .auth-page__companion,
-  .auth-page__container {
+  .auth-page__container,
+  .auth-page__brand,
+  .auth-editorial-divider,
+  .auth-form-card__title,
+  .auth-form-card__subtitle,
+  .auth-form,
+  .auth-form-card__footer,
+  .auth-form__error,
+  .auth-editorial-motif__grid,
+  .auth-editorial-motif__echo,
+  .auth-editorial-motif__trajectory,
+  .auth-editorial-motif__anchor--origin,
+  .auth-editorial-motif__anchor--inflection,
+  .auth-editorial-motif__anchor--destination,
+  .auth-recovery-banner,
+  .auth-page__alert {
     animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .auth-editorial-motif__trajectory,
+  .auth-editorial-motif__echo {
+    stroke-dashoffset: 0 !important;
+    stroke-dasharray: none !important;
+  }
+
+  .auth-editorial-motif__grid {
+    opacity: 0.35 !important;
+  }
+
+  .auth-editorial-motif__tracer {
+    display: none !important;
+    animation: none !important;
+  }
+
+  .auth-form .ui-button--primary,
+  .auth-form .ui-input-wrapper,
+  .auth-form .ui-input-element--left,
+  .auth-role-option,
+  .auth-link {
+    transition: none !important;
     transform: none !important;
   }
 }
