@@ -134,7 +134,7 @@ class DynamicTeachingPolicy:
         # Causal evidence refines policy only when independent evidence is sufficient;
         # otherwise the learner-state diagnosis remains the fallback.
         top_source = str(
-            diagnosis.get("iris_cause_type")
+            diagnosis.get("causal_cause_type") or diagnosis.get("iris_cause_type")
             or (hypotheses[0].get("source") if hypotheses else "direct")
         )
         low_evidence = not bool(diagnosis.get("confident"))
@@ -343,7 +343,7 @@ class DynamicTeachingPolicy:
         context.setdefault("mode", mode)
         context.setdefault(
             "diagnosis_source",
-            str(diagnosis.get("iris_cause_type") or (hypotheses[0].get("source") if hypotheses else "unknown")),
+            str(diagnosis.get("causal_cause_type") or diagnosis.get("iris_cause_type") or (hypotheses[0].get("source") if hypotheses else "unknown")),
         )
         context.setdefault("goal_kind", "repair" if requested_action == "prerequisite_rewind" else "primary")
         candidates = self._compose_candidates(

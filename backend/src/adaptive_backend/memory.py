@@ -577,13 +577,31 @@ class MemoryService:
         )
 
     # ---------- Visible map ----------
+    # A subject is visible when it is a shared built-in subject, or a private
+    # ("USR:") subject belonging to a course the user owns or is enrolled in.
+    _VISIBLE_SUBJECTS_SQL = """(
+        {col} NOT LIKE 'USR:%'
+        OR {col} IN (
+            SELECT c.subject_id FROM courses c
+            LEFT JOIN course_enrollments e
+              ON e.course_id=c.course_id AND e.learner_user_id=? AND e.status='active'
+            WHERE c.subject_id IS NOT NULL AND (c.owner_user_id=? OR e.learner_user_id=?)
+        )
+    )"""
+
     def learning_map(self, user_id: str, subject_id: str | None = None) -> LearningMap:
+        visible_concept = self._VISIBLE_SUBJECTS_SQL.format(col="subject_id")
+        visible_params = (user_id, user_id, user_id)
         if subject_id:
             concept_rows = self.db.fetchall(
-                "SELECT * FROM concepts WHERE subject_id=? ORDER BY name", (subject_id,)
+                f"SELECT * FROM concepts WHERE subject_id=? AND {visible_concept} ORDER BY name",
+                (subject_id, *visible_params),
             )
         else:
-            concept_rows = self.db.fetchall("SELECT * FROM concepts ORDER BY subject_id,name")
+            concept_rows = self.db.fetchall(
+                f"SELECT * FROM concepts WHERE {visible_concept} ORDER BY subject_id,name",
+                visible_params,
+            )
 
         state_rows = {
             r["concept_id"]: r
@@ -597,6 +615,9 @@ class MemoryService:
             )
             for r in concept_rows
         ]
+        # Edges are limited to the visible concepts so relationships cannot leak
+        # the existence of concepts the caller is not allowed to see.
+        visible_ids = {node.id for node in nodes}
         if subject_id:
             rows = self.db.fetchall(
                 """
@@ -612,6 +633,7 @@ class MemoryService:
         edges = [
             MemoryMapEdge(source=r["source_concept_id"], target=r["target_concept_id"], relation=r["relation"])
             for r in rows
+            if r["source_concept_id"] in visible_ids and r["target_concept_id"] in visible_ids
         ]
         return LearningMap(nodes=nodes, edges=edges)
 

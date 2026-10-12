@@ -52,6 +52,7 @@ class CausalGapEngine:
         subject_id: str | None = None,
         max_cases: int = 6,
         persist: bool = True,
+        concept_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         case_owner_user_id = case_owner_user_id or user_id
         clauses = ["s.user_id=?"]
@@ -59,6 +60,10 @@ class CausalGapEngine:
         if subject_id:
             clauses.append("c.subject_id=?")
             params.append(subject_id)
+        if concept_ids:
+            wanted = list(dict.fromkeys(concept_ids))
+            clauses.append(f"s.concept_id IN ({','.join('?' for _ in wanted)})")
+            params.extend(wanted)
         states = self.db.fetchall(
             f"""
             SELECT s.*, c.name AS concept_name, c.subject_id
