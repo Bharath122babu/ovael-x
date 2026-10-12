@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Copy, Check, Sparkles, KeyRound } from 'lucide-react';
+import { KeyRound, Copy, Check } from 'lucide-react';
 import { Alert, Button } from '../ui';
 import { Brand } from '../layout';
-import { AuthBranding } from './AuthBranding';
 import { SignInForm } from './SignInForm';
 import { RegisterForm } from './RegisterForm';
 import { RecoverForm } from './RecoverForm';
@@ -91,10 +90,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
         Skip to authentication form
       </a>
 
-      {/* Desktop Secondary Brand Panel */}
-      <AuthBranding />
-
-      {/* Main Authentication Card Region */}
+      {/* Main Single-Column Focused Authentication Area */}
       <main id="auth-main-card" className="auth-page__container" tabIndex={-1}>
         <div className="auth-page__box">
           {/* Brand header */}
@@ -126,8 +122,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({
               <div className="auth-recovery-banner__head">
                 <KeyRound size={18} className="auth-recovery-banner__icon" />
                 <div>
-                  <strong>Important: Save your recovery key</strong>
-                  <p>If you lose your password, this 192-bit key is the only way to recover your account.</p>
+                  <strong>Save your account recovery key</strong>
+                  <p>Keep this key in a secure place to restore access if you ever reset your password.</p>
                 </div>
               </div>
               <div className="auth-recovery-banner__keybox">
@@ -142,7 +138,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                 </Button>
               </div>
               <Button
-                size="sm"
+                size="md"
                 variant="primary"
                 fullWidth
                 onClick={() => setIssuedRecoveryKey(null)}
@@ -186,10 +182,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({
             </>
           )}
 
-          {/* Privacy & Trust Footer */}
-          <footer className="auth-secure-footer">
-            <ShieldCheck size={16} />
-            <span>Local-first learning • Evidence, not transcripts • Secure Argon2id encryption</span>
+          {/* Quiet, unobtrusive footer */}
+          <footer className="auth-page__footer">
+            <p>OVAEL-X v5.0.0 • Adaptive Learning Platform</p>
           </footer>
         </div>
       </main>

@@ -78,10 +78,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   return (
     <div className="auth-form-card">
       <div className="auth-form-card__header">
-        <div className="eyebrow">CREATE WORKSPACE</div>
-        <h2 className="auth-form-card__title">Create your account</h2>
+        <h1 className="auth-form-card__title">Create an account</h1>
         <p className="auth-form-card__subtitle">
-          Begin your structured learning environment with full privacy and evidence-driven progress.
+          Enter your details to create an account.
         </p>
       </div>
 
@@ -236,7 +235,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           disabled={busy}
           loading={busy}
           loadingText="Creating account..."
-          rightIcon={<ArrowRight size={17} />}
         >
           Create workspace account
         </Button>

@@ -72,10 +72,9 @@ export const RecoverForm: React.FC<RecoverFormProps> = ({
   return (
     <div className="auth-form-card">
       <div className="auth-form-card__header">
-        <div className="eyebrow">ACCOUNT RECOVERY</div>
-        <h2 className="auth-form-card__title">Reset your password</h2>
+        <h1 className="auth-form-card__title">Reset your password</h1>
         <p className="auth-form-card__subtitle">
-          Use the 192-bit recovery key issued when your account was created to set a new password.
+          Enter your learner ID and recovery key to set a new password.
         </p>
       </div>
 
@@ -201,7 +200,6 @@ export const RecoverForm: React.FC<RecoverFormProps> = ({
           disabled={busy}
           loading={busy}
           loadingText="Recovering account..."
-          rightIcon={<ArrowRight size={17} />}
         >
           Reset password & continue
         </Button>

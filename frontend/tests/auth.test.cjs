@@ -54,14 +54,14 @@ test('SignInForm renders username, password, password toggle, and submit button'
     })
   );
 
-  assert.match(html, /Sign in to OVAEL/);
+  assert.match(html, /Welcome back/);
   assert.match(html, /Learner ID \/ Username/);
   assert.match(html, /id="signin-username"/);
   assert.match(html, /id="signin-password"/);
   assert.match(html, /type="password"/);
   assert.match(html, /aria-label="Show password"/);
   assert.match(html, /Forgot password\?/);
-  assert.match(html, /Sign in to workspace/);
+  assert.match(html, /Sign in/);
   assert.match(html, /Create an account/);
 });
 
@@ -89,7 +89,7 @@ test('RegisterForm renders username, password, confirm password, and role select
     })
   );
 
-  assert.match(html, /Create your account/);
+  assert.match(html, /Create an account/);
   assert.match(html, /Learner ID \/ Username/);
   assert.match(html, /At least 10 characters/);
   assert.match(html, /id="register-password"/);
@@ -109,7 +109,7 @@ test('RecoverForm renders username, recovery key input, and reset button', () =>
     })
   );
 
-  assert.match(html, /Reset your password/);
+  assert.match(html, /Reset password/);
   assert.match(html, /Recovery Key/);
   assert.match(html, /id="recover-key"/);
   assert.match(html, /id="recover-new-password"/);
@@ -117,7 +117,7 @@ test('RecoverForm renders username, recovery key input, and reset button', () =>
   assert.match(html, /Reset password &amp; continue|Reset password & continue/);
 });
 
-test('AuthPage renders skip link, branding, default sign-in form, and trust footer', () => {
+test('AuthPage renders skip link, brand header, default sign-in form, and quiet footer', () => {
   const html = ReactDOMServer.renderToStaticMarkup(
     React.createElement(AuthPage, {
       onLogin: async () => {},
@@ -131,10 +131,10 @@ test('AuthPage renders skip link, branding, default sign-in form, and trust foot
 
   assert.match(html, /href="#auth-main-card"/);
   assert.match(html, /Skip to authentication form/);
-  assert.match(html, /auth-branding/);
-  assert.match(html, /Sign in to OVAEL/);
-  assert.match(html, /Local-first learning/);
-  assert.match(html, /Argon2id encryption/);
+  assert.match(html, /auth-page__brand/);
+  assert.match(html, /Welcome back/);
+  assert.match(html, /OVAEL-X v5\.0\.0/);
+  assert.match(html, /Adaptive Learning Platform/);
 });
 
 test('AuthPage displays error alert when error is provided', () => {

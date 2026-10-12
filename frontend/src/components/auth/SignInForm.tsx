@@ -47,10 +47,9 @@ export const SignInForm: React.FC<SignInFormProps> = ({
   return (
     <div className="auth-form-card">
       <div className="auth-form-card__header">
-        <div className="eyebrow">WELCOME BACK</div>
-        <h2 className="auth-form-card__title">Sign in to OVAEL</h2>
+        <h1 className="auth-form-card__title">Welcome back</h1>
         <p className="auth-form-card__subtitle">
-          Continue your adaptive learning sessions and track evidence-backed progress.
+          Sign in to continue learning.
         </p>
       </div>
 
@@ -130,15 +129,14 @@ export const SignInForm: React.FC<SignInFormProps> = ({
           disabled={busy}
           loading={busy}
           loadingText="Authenticating..."
-          rightIcon={<ArrowRight size={17} />}
         >
-          Sign in to workspace
+          Sign in
         </Button>
       </form>
 
       <div className="auth-form-card__footer">
         <p className="auth-switch">
-          <span>New to OVAEL?</span>{' '}
+          <span>Don't have an account?</span>{' '}
           <button
             type="button"
             className="auth-link"
