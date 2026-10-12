@@ -10,6 +10,8 @@ import {ActiveSessionWorkspace} from './components/session';
 import {AnswerComposer} from './components/composer';
 import {DrawingPadModal} from './components/multimodal';
 import {CourseLibrary} from './components/courses';
+import {LearningEvidenceView} from './components/evidence';
+import {SettingsView} from './components/settings';
 
 type Obj=Record<string,any>;
 type View='learn'|'courses'|'insights'|'settings';
@@ -122,7 +124,7 @@ async function uploadAnswer(file:File){
 }
 async function uploadCourse(file:File){setBusy(true);setError('');try{const data=new FormData();data.append('file',file);await api(`/v1/documents/upload?course_id=${encodeURIComponent(activeCourse)}&auto_route=true`,'POST',data);setNotice('Material accepted. You can check its processing status in the backend document list.')}catch(e){fail(e)}finally{setBusy(false)}}
 function speech(){if(mic){recognition.current?.stop();setMic(false);return}const w=window as any;const SR=w.SpeechRecognition||w.webkitSpeechRecognition;if(!SR)return setError('This browser does not support speech recognition; use typed answers or upload a photo.');if(!window.confirm('Browser speech recognition may send audio to your browser vendor. Do not use this for confidential answers. Continue?'))return;const r=new SR();r.lang=navigator.language||'en-US';r.interimResults=false;r.onresult=(e:any)=>{setAnswer(a=>a+(a?' ':'')+e.results[0][0].transcript);setSpeechAnswer(true)};r.onerror=()=>{setMic(false);setError('Speech recognition failed. You can type instead.')};r.onend=()=>setMic(false);recognition.current=r;r.start();setMic(true)}
-async function showInsights(){setView('insights');try{setInsights(await api('/v1/proof-learning'))}catch(e){fail(e)}}
+async function showInsights(){setView('insights');setBusy(true);setError('');try{setInsights(await api('/v1/proof-learning'))}catch(e){fail(e)}finally{setBusy(false)}}
 if(!user)return <AuthPage onLogin={handleLogin} onRegister={handleRegister} onRecover={handleRecover} error={error} onClearError={()=>setError('')} busy={busy}/>;
 return <><AppShell view={view} user={user} activeCourseName={currentCourse?.name} activeConceptName={currentConcept?.name} isSessionActive={Boolean(session)} onNavigate={v=>v==='insights'?showInsights():setView(v)} onLogout={logout}>{notice&&<Alert variant="success" onDismiss={()=>setNotice('')}>{notice}</Alert>}{error&&<Alert variant="error" onDismiss={()=>setError('')}>{error}</Alert>}
 {view==='learn'&&(!session?(
@@ -203,6 +205,29 @@ return <><AppShell view={view} user={user} activeCourseName={currentCourse?.name
   onUploadMaterial={uploadCourse}
   busy={busy}
 />}
-{view==='insights'&&<><PageHeader eyebrow="EVIDENCE OVER GUESSWORK" title="Learning evidence" description="Your acquired, independent, transfer, and retention signals." actions={<Button variant="secondary" size="sm" onClick={showInsights} leftIcon={<RefreshCw size={15}/>}>Refresh</Button>}/><div className="insights-wrap"><section className="settings-card"><h3><Activity size={20}/> Proof of learning</h3><p>Derived learning signals from assessed work, not raw transcripts.</p><pre className="insights-data">{insights?JSON.stringify(insights,null,2):'No recorded evidence yet. Complete a learning session to begin.'}</pre></section></div></>}
-{view==='settings'&&<><PageHeader eyebrow="WORKSPACE PREFERENCES" title="Settings" description="Keep your environment simple and under your control."/><div className="settings-card"><h3><ShieldCheck size={20}/> Account & privacy</h3><p>Signed in as <strong>{user.username}</strong> · {user.role}</p><p>The learning backend supports local-first derived state, with server settings controlling storage and retention.</p><Button variant="secondary" onClick={logout} leftIcon={<LogOut size={16}/>}>Sign out</Button></div></>}
+{view==='insights'&&<LearningEvidenceView
+  snapshot={insights as any}
+  loading={busy}
+  error={error}
+  onRefresh={async () => {
+    try {
+      setBusy(true);
+      const res = await api('/v1/proof-learning');
+      setInsights(res);
+    } catch(e) {
+      fail(e);
+    } finally {
+      setBusy(false);
+    }
+  }}
+  onStudyConcept={(conceptId) => {
+    setConcept(conceptId);
+    setView('learn');
+  }}
+/>}
+{view==='settings'&&<SettingsView
+  user={user as any}
+  onLogout={logout}
+  onNotice={(msg) => setNotice(msg)}
+/>}
 </AppShell>{showDraw&&<DrawingPadModal onCancel={()=>setShowDraw(false)} onDone={blob=>{setShowDraw(false);uploadAnswer(new File([blob],'drawing.png',{type:'image/png'}))}}/>}</>}
