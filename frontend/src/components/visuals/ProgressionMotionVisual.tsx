@@ -10,20 +10,33 @@ export interface ProgressionMotionVisualProps {
 }
 
 /**
+ * Single source of truth for the learning-track node coordinates and cubic Bézier curve.
+ * - Origin: (40, 205) — curve start point
+ * - Inflection: (215, 75) — exact C1 junction between the first and second cubic Bézier segments
+ * - Destination: (330, 100) — curve endpoint
+ */
+const TRACK_NODES = {
+  origin: { x: 40, y: 205 },
+  inflection: { x: 215, y: 75 },
+  destination: { x: 330, y: 100 },
+} as const;
+
+const CURVE_PATH = `M ${TRACK_NODES.origin.x} ${TRACK_NODES.origin.y} C 110 205, 140 75, ${TRACK_NODES.inflection.x} ${TRACK_NODES.inflection.y} C 275 75, 300 135, ${TRACK_NODES.destination.x} ${TRACK_NODES.destination.y}`;
+
+/**
  * OVAEL-X Signature Curved Learning-Path Illustration (PROGRESSION).
  *
- * Preserves the editorial curved pathway composition, charcoal outlines, warm
- * Recycled Cotton supporting track, and three geometric nodes at (40, 205),
- * (215, 75), and (330, 100).
- *
- * Coordinated Entrance Sequence (~1.06s total, runs once and settles):
- * 1. Base charcoal and Recycled Cotton track layers establish the calm pathway structure.
- * 2. Primary Electric Tangerine path (.auth-editorial-motif__trajectory) draws progressively
- *    from the origin node to the destination node via normalized stroke-dashoffset.
- * 3. A compact Electric Tangerine accent (.auth-editorial-motif__tracer) travels once along
- *    the exact cubic Bézier curve and docks coaxially at the destination node (330, 100).
- * 4. The three nodes (.auth-editorial-motif__anchor--origin, --inflection, --destination)
- *    activate sequentially in natural order as the path reaches each station.
+ * Geometry & Alignment Architecture:
+ * - Every track layer (shadow, lower bevel, charcoal outline, Recycled Cotton bed,
+ *   centerline groove, and animated orange trajectory) references `CURVE_PATH`.
+ * - Each of the three nodes uses a strict two-group hierarchy:
+ *   1. Outer `<g transform="translate(x y)">` positions the node on the curve centerline
+ *      and is never animated by CSS.
+ *   2. Inner `<g className="auth-editorial-motif__anchor ...">` handles subtle opacity
+ *      and scale activation around local `(0, 0)`.
+ * - The traveling orange marker uses SVG-native `<animateMotion>` with `<mpath>`
+ *   referencing the trajectory `<path id={curveId}>`, guaranteeing exact SVG
+ *   coordinate-space alignment across all viewport sizes.
  */
 export const ProgressionMotionVisual: React.FC<ProgressionMotionVisualProps> = ({
   variant = 'editorial',
@@ -31,7 +44,7 @@ export const ProgressionMotionVisual: React.FC<ProgressionMotionVisualProps> = (
   ariaLabel = 'Geometric curved learning-path motif representing structured progression',
 }) => {
   const uid = useId().replace(/:/g, '');
-  const curvePath = 'M 40 205 C 110 205, 140 75, 215 75 C 275 75, 300 135, 330 100';
+  const curveId = `learningPathCurve-${uid}`;
 
   return (
     <div
@@ -48,34 +61,55 @@ export const ProgressionMotionVisual: React.FC<ProgressionMotionVisualProps> = (
       >
         <defs>
           {/* Warm Recycled Cotton (#F5E7C6) Channel Bed */}
-          <linearGradient id={`progBed-${uid}`} x1="40" y1="215" x2="330" y2="90" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id={`progBed-${uid}`}
+            x1={TRACK_NODES.origin.x}
+            y1={TRACK_NODES.origin.y}
+            x2={TRACK_NODES.destination.x}
+            y2={TRACK_NODES.destination.y}
+            gradientUnits="userSpaceOnUse"
+          >
             <stop offset="0%" stopColor="#F5E7C6" />
             <stop offset="55%" stopColor="#EFE0BC" />
             <stop offset="100%" stopColor="#F5E7C6" />
           </linearGradient>
 
           {/* Subtle Lower Depth Rim */}
-          <linearGradient id={`progWall-${uid}`} x1="40" y1="220" x2="330" y2="105" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#222222" stopOpacity="0.22" />
+          <linearGradient
+            id={`progWall-${uid}`}
+            x1={TRACK_NODES.origin.x}
+            y1={TRACK_NODES.origin.y}
+            x2={TRACK_NODES.destination.x}
+            y2={TRACK_NODES.destination.y}
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0%" stopColor="#222222" stopOpacity="0.24" />
             <stop offset="55%" stopColor="#FF6D1F" stopOpacity="0.45" />
-            <stop offset="100%" stopColor="#FF6D1F" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#FF6D1F" stopOpacity="0.68" />
           </linearGradient>
 
           {/* Primary Progressive Orange Trajectory Gradient */}
-          <linearGradient id={`editorialGrad-${uid}`} x1="40" y1="205" x2="330" y2="100" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#222222" />
-            <stop offset="28%" stopColor="#FF6D1F" />
-            <stop offset="100%" stopColor="#FF6D1F" />
+          <linearGradient
+            id={`editorialGrad-${uid}`}
+            x1={TRACK_NODES.origin.x}
+            y1={TRACK_NODES.origin.y}
+            x2={TRACK_NODES.destination.x}
+            y2={TRACK_NODES.destination.y}
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0%" stopColor="#FF6D1F" />
+            <stop offset="50%" stopColor="#FF6D1F" />
+            <stop offset="100%" stopColor="#E55B10" />
           </linearGradient>
 
-          {/* Studio-Lit Travelling Accent Sphere */}
+          {/* Studio-Lit Travelling Accent Collar */}
           <radialGradient id={`progSphere-${uid}`} cx="35%" cy="32%" r="68%">
             <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="48%" stopColor="#FAF3E1" />
+            <stop offset="55%" stopColor="#FAF3E1" />
             <stop offset="100%" stopColor="#E5D5B2" />
           </radialGradient>
 
-          {/* Destination Plinth Cap */}
+          {/* Destination Node Outer Ring Fill */}
           <radialGradient id={`progTangerineCap-${uid}`} cx="36%" cy="32%" r="68%">
             <stop offset="0%" stopColor="#FF8542" />
             <stop offset="55%" stopColor="#FF6D1F" />
@@ -83,158 +117,221 @@ export const ProgressionMotionVisual: React.FC<ProgressionMotionVisualProps> = (
           </radialGradient>
         </defs>
 
-        {/* 1. Delicate Architectural Registration Crosshairs & Baselines */}
-        <g opacity="0.35" stroke="rgba(34, 34, 34, 0.25)" strokeWidth="1" className="auth-editorial-motif__grid ovael-progression__grid">
+        {/* 1. Delicate Architectural Registration Crosshairs & Station Datum Lines */}
+        <g
+          opacity="0.35"
+          stroke="rgba(34, 34, 34, 0.25)"
+          strokeWidth="1"
+          className="auth-editorial-motif__grid ovael-progression__grid"
+        >
           <path d="M 36 40 H 44 M 40 36 V 44" />
-          <path d="M 316 240 H 324 M 320 236 V 244" />
-          <line x1="40" y1="250" x2="320" y2="250" strokeDasharray="3 6" stroke="rgba(34, 34, 34, 0.14)" />
-          <line x1="40" y1="216" x2="40" y2="250" strokeDasharray="2 3" stroke="rgba(34, 34, 34, 0.16)" />
-          <line x1="215" y1="90" x2="215" y2="250" strokeDasharray="2 4" stroke="rgba(34, 34, 34, 0.12)" />
-          <line x1="330" y1="116" x2="330" y2="250" strokeDasharray="2 3" stroke="rgba(34, 34, 34, 0.16)" />
+          <path d="M 326 240 H 334 M 330 236 V 244" />
+          <line
+            x1={TRACK_NODES.origin.x}
+            y1="250"
+            x2={TRACK_NODES.destination.x}
+            y2="250"
+            strokeDasharray="3 6"
+            stroke="rgba(34, 34, 34, 0.14)"
+          />
+          <line
+            x1={TRACK_NODES.origin.x}
+            y1={TRACK_NODES.origin.y + 13}
+            x2={TRACK_NODES.origin.x}
+            y2="250"
+            strokeDasharray="2 3"
+            stroke="rgba(34, 34, 34, 0.16)"
+          />
+          <line
+            x1={TRACK_NODES.inflection.x}
+            y1={TRACK_NODES.inflection.y + 13}
+            x2={TRACK_NODES.inflection.x}
+            y2="250"
+            strokeDasharray="2 4"
+            stroke="rgba(34, 34, 34, 0.12)"
+          />
+          <line
+            x1={TRACK_NODES.destination.x}
+            y1={TRACK_NODES.destination.y + 15}
+            x2={TRACK_NODES.destination.x}
+            y2="250"
+            strokeDasharray="2 3"
+            stroke="rgba(34, 34, 34, 0.16)"
+          />
         </g>
 
-        {/* 2. Secondary Supporting Echo Contour (Recycled Cotton & Charcoal hairline) */}
+        {/* 2. Secondary Supporting Echo Contour (parallel reference offset from CURVE_PATH) */}
         <path
           className="auth-editorial-motif__echo"
-          d="M 45 225 C 115 225, 145 115, 215 115 C 265 115, 295 155, 325 140"
-          stroke="rgba(34, 34, 34, 0.16)"
+          d={CURVE_PATH}
+          transform="translate(0 16)"
+          stroke="rgba(34, 34, 34, 0.15)"
           strokeWidth="1.25"
           strokeDasharray="4 6"
         />
 
-        {/* 3. Static Supporting Track Layers (Charcoal Outline + Warm Recycled Cotton Bed) */}
+        {/* 3. Static Supporting Track Layers (All sharing CURVE_PATH as single geometric reference) */}
         {/* Soft contact shadow beneath the track */}
         <path
-          d="M 40 212 C 110 212, 140 82, 215 82 C 275 82, 300 142, 330 107"
-          stroke="rgba(34, 34, 34, 0.06)"
-          strokeWidth="18"
+          d={CURVE_PATH}
+          transform="translate(0 5)"
+          stroke="rgba(34, 34, 34, 0.07)"
+          strokeWidth="16"
           strokeLinecap="round"
         />
-        {/* Lower bevel accent */}
+        {/* Lower 2.5D bevel accent */}
         <path
-          d="M 40 208 C 110 208, 140 78, 215 78 C 275 78, 300 138, 330 103"
+          d={CURVE_PATH}
+          transform="translate(0 2)"
           stroke={`url(#progWall-${uid})`}
-          strokeWidth="13.5"
+          strokeWidth="14"
           strokeLinecap="round"
           className="ovael-progression__wall"
         />
         {/* Charcoal structural track outline (#222222) */}
         <path
-          d={curvePath}
+          d={CURVE_PATH}
           stroke="#222222"
           strokeWidth="14"
           strokeLinecap="round"
-          strokeOpacity="0.86"
+          strokeOpacity="0.9"
         />
         {/* Warm Recycled Cotton (#F5E7C6) inner track bed */}
         <path
-          d={curvePath}
+          d={CURVE_PATH}
           stroke={`url(#progBed-${uid})`}
           strokeWidth="11.5"
           strokeLinecap="round"
           className="ovael-progression__bed"
         />
-        {/* Subtle static guide groove */}
+        {/* Subtle static centerline guide groove */}
         <path
-          d={curvePath}
-          stroke="rgba(34, 34, 34, 0.18)"
+          d={CURVE_PATH}
+          stroke="rgba(34, 34, 34, 0.16)"
           strokeWidth="1.25"
           strokeLinecap="round"
           strokeDasharray="2 4"
         />
 
-        {/* 4. Primary Animated Orange Path (Draws progressively from origin node to final node) */}
+        {/* 4. Primary Animated Orange Trajectory (Draws progressively from origin to destination) */}
         <path
-          id={`learningPathCurve-${uid}`}
+          id={curveId}
           className="auth-editorial-motif__trajectory ovael-progression__rail"
-          d={curvePath}
+          d={CURVE_PATH}
           stroke={`url(#editorialGrad-${uid})`}
-          strokeWidth="3.25"
+          strokeWidth="3.5"
           strokeLinecap="round"
           pathLength="100"
         />
 
-        {/* 5. Node 1: Origin Station (40, 205) — Activates first as path begins */}
-        <g className="auth-editorial-motif__anchor auth-editorial-motif__anchor--origin">
-          <ellipse cx="40" cy="208" rx="11.5" ry="8" fill="rgba(34, 34, 34, 0.12)" />
-          <circle cx="40" cy="205" r="10" fill="#F5E7C6" stroke="#222222" strokeWidth="1.4" />
-          <circle cx="40" cy="205" r="5.5" fill="#FAF3E1" stroke="#222222" strokeWidth="1.25" />
-          <circle cx="40" cy="205" r="2.2" fill="#222222" className="ovael-progression__node-core ovael-progression__node-core--origin" />
+        {/* 5. Node 1: Origin Node at (40, 205) — Outer positioning group + Inner animation group */}
+        <g
+          className="ovael-progression__node-pos ovael-progression__node-pos--origin"
+          transform={`translate(${TRACK_NODES.origin.x} ${TRACK_NODES.origin.y})`}
+        >
+          <circle cx="0" cy="2" r="10.5" fill="rgba(34, 34, 34, 0.14)" />
+          <g className="auth-editorial-motif__anchor auth-editorial-motif__anchor--origin">
+            <circle cx="0" cy="0" r="10" fill="#F5E7C6" stroke="#222222" strokeWidth="1.5" />
+            <circle cx="0" cy="0" r="5.6" fill="#FAF3E1" stroke="#222222" strokeWidth="1.25" />
+            <circle
+              cx="0"
+              cy="0"
+              r="2.6"
+              fill="#FF6D1F"
+              className="ovael-progression__node-core ovael-progression__node-core--origin"
+            />
+          </g>
         </g>
 
-        {/* 6. Node 2: Inflection Diamond Node (215, 75) — Activates second as orange path reaches curve apex */}
-        <g className="auth-editorial-motif__anchor auth-editorial-motif__anchor--inflection" transform="translate(215, 75)">
-          <ellipse cx="0" cy="2.5" rx="10.5" ry="7" fill="rgba(34, 34, 34, 0.12)" />
-          <rect
-            x="-7.5"
-            y="-7.5"
-            width="15"
-            height="15"
-            rx="3"
-            fill="#FAF3E1"
-            stroke="#222222"
-            strokeWidth="1.4"
-            transform="rotate(45)"
-          />
-          <rect
-            x="-3.8"
-            y="-3.8"
-            width="7.6"
-            height="7.6"
-            rx="1.2"
-            fill="#FF6D1F"
-            stroke="#222222"
-            strokeWidth="1"
-            transform="rotate(45)"
-            className="ovael-progression__node-core ovael-progression__node-core--inflection"
-          />
-          <circle cx="0" cy="0" r="1.5" fill="#FAF3E1" />
+        {/* 6. Node 2: Intermediate Node at (215, 75) — Outer positioning group + Inner animation group */}
+        <g
+          className="ovael-progression__node-pos ovael-progression__node-pos--inflection"
+          transform={`translate(${TRACK_NODES.inflection.x} ${TRACK_NODES.inflection.y})`}
+        >
+          <circle cx="0" cy="2" r="10.5" fill="rgba(34, 34, 34, 0.14)" />
+          <g className="auth-editorial-motif__anchor auth-editorial-motif__anchor--inflection">
+            <circle cx="0" cy="0" r="9.5" fill="#F5E7C6" stroke="#222222" strokeWidth="1.5" />
+            <path
+              d="M 0 -6.6 L 6.6 0 L 0 6.6 L -6.6 0 Z"
+              fill="#FAF3E1"
+              stroke="#222222"
+              strokeWidth="1.25"
+              strokeLinejoin="round"
+            />
+            <circle
+              cx="0"
+              cy="0"
+              r="2.6"
+              fill="#FF6D1F"
+              className="ovael-progression__node-core ovael-progression__node-core--inflection"
+            />
+          </g>
         </g>
 
-        {/* 7. Node 3: Destination Focal Node (330, 100) — Activates third as path and orange accent arrive */}
-        <g className="auth-editorial-motif__anchor auth-editorial-motif__anchor--destination" transform="translate(330, 100)">
-          <circle
-            r="16"
-            fill="none"
-            stroke="#FF6D1F"
-            strokeWidth="1.1"
-            strokeDasharray="2.5 3.5"
-            opacity="0.5"
-            className="ovael-progression__dest-ring"
-          />
-          <ellipse cx="0" cy="3" rx="13" ry="9" fill="rgba(34, 34, 34, 0.15)" />
-          <circle cx="0" cy="0" r="11.5" fill={`url(#progTangerineCap-${uid})`} stroke="#222222" strokeWidth="1.4" />
-          <circle cx="0" cy="0" r="6.8" fill="#FAF3E1" stroke="#222222" strokeWidth="1.25" />
-          <circle cx="0" cy="0" r="2.8" fill="#FF6D1F" className="ovael-progression__node-core ovael-progression__node-core--destination" />
+        {/* 7. Node 3: Destination Node at (330, 100) — Outer positioning group + Inner animation group */}
+        <g
+          className="ovael-progression__node-pos ovael-progression__node-pos--destination"
+          transform={`translate(${TRACK_NODES.destination.x} ${TRACK_NODES.destination.y})`}
+        >
+          <circle cx="0" cy="2.2" r="11.5" fill="rgba(34, 34, 34, 0.16)" />
+          <g className="auth-editorial-motif__anchor auth-editorial-motif__anchor--destination">
+            <circle
+              cx="0"
+              cy="0"
+              r="15"
+              fill="none"
+              stroke="#FF6D1F"
+              strokeWidth="1.1"
+              strokeDasharray="2.5 3.5"
+              opacity="0.48"
+              className="ovael-progression__dest-ring"
+            />
+            <circle
+              cx="0"
+              cy="0"
+              r="11"
+              fill={`url(#progTangerineCap-${uid})`}
+              stroke="#222222"
+              strokeWidth="1.5"
+            />
+            <circle cx="0" cy="0" r="6.2" fill="#FAF3E1" stroke="#222222" strokeWidth="1.25" />
+            <circle
+              cx="0"
+              cy="0"
+              r="2.6"
+              fill="#FF6D1F"
+              className="ovael-progression__node-core ovael-progression__node-core--destination"
+            />
+          </g>
         </g>
 
-        {/* 8. Travelling Electric Tangerine Accent (Follows exact curve once and settles coaxially at 330, 100) */}
+        {/* 8. Traveling Orange Accent — Follows #learningPathCurve via native SVG animateMotion + mpath */}
         <g className="auth-editorial-motif__tracer ovael-progression__sphere-rig" aria-hidden="true">
-          {/* Subtle contact shadow on track */}
-          <ellipse
-            cx="1"
-            cy="2.8"
-            rx="6"
-            ry="3.6"
-            fill="rgba(34, 34, 34, 0.18)"
-            className="ovael-progression__sphere-shadow"
-          />
-          {/* Crisp Linen Collar */}
+          <animateMotion
+            dur="0.86s"
+            begin="0s"
+            fill="freeze"
+            calcMode="spline"
+            keyPoints="0;1"
+            keyTimes="0;1"
+            keySplines="0.22 1 0.36 1"
+          >
+            <mpath href={`#${curveId}`} />
+          </animateMotion>
           <circle
             cx="0"
             cy="0"
-            r="5.6"
+            r="6.2"
             fill={`url(#progSphere-${uid})`}
             stroke="#222222"
             strokeWidth="1.25"
           />
-          {/* Rotating Inner Seam & Electric Tangerine Core */}
           <g className="ovael-progression__sphere-roll">
-            <circle cx="0" cy="0" r="2.8" fill="#FF6D1F" />
-            <circle cx="-1.4" cy="-1.4" r="1" fill="#FAF3E1" fillOpacity="0.9" />
+            <circle cx="0" cy="0" r="2.6" fill="#FF6D1F" />
           </g>
         </g>
       </svg>
     </div>
   );
 };
+

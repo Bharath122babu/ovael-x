@@ -138,17 +138,22 @@ test('Signature Motion Concept A (OrbitMotionVisual): Renders 2.5D elliptical tr
   assert.match(htmlStatus, /aria-label="Evaluating turn"/);
 });
 
-test('Signature Motion Concept B (ProgressionMotionVisual): Renders 2.5D curved channel, stations, and rolling sphere without fake metrics', () => {
+test('Signature Motion Concept B (ProgressionMotionVisual): Renders 2.5D curved channel, separated node positioning wrappers, and native SVG mpath motion without fake metrics', () => {
   const html = ReactDOMServer.renderToStaticMarkup(
-    React.createElement(ProgressionMotionVisual, { variant: 'editorial', active: false })
+    React.createElement(ProgressionMotionVisual, { variant: 'editorial' })
   );
   assert.match(html, /ovael-progression--editorial/);
   assert.match(html, /auth-editorial-motif__trajectory/);
   assert.match(html, /ovael-progression__sphere-rig/);
   assert.match(html, /ovael-progression__sphere-roll/);
+  assert.match(html, /transform="translate\(40 205\)"/);
+  assert.match(html, /transform="translate\(215 75\)"/);
+  assert.match(html, /transform="translate\(330 100\)"/);
   assert.match(html, /auth-editorial-motif__anchor--origin/);
   assert.match(html, /auth-editorial-motif__anchor--inflection/);
   assert.match(html, /auth-editorial-motif__anchor--destination/);
+  assert.match(html, /<animateMotion[^>]*dur="0\.86s"/);
+  assert.match(html, /<mpath href="#learningPathCurve-/);
   assert.doesNotMatch(html, /<text|mastery|score/i);
 });
 
@@ -178,13 +183,14 @@ test('Custom Login SVG Cursor: Compact 20x20 solid Electric Tangerine pointer wi
   assert.match(cssContent, /cursor:\s*url\("\/assets\/ovael-login-cursor-pointer\.svg"\)\s*1\s+1,\s*pointer;/);
 });
 
-test('Login Page SVG Motion Overhaul: Sub-1.1s entrance choreography, single-layer orange stroke draw, and auth-state independence', () => {
-  assert.match(cssContent, /--auth-motion-draw:\s*0\.84s;/);
-  assert.match(cssContent, /--auth-motion-travel:\s*0\.84s;/);
+test('Login Page SVG Motion Overhaul: Sub-1.1s entrance choreography, single-layer orange stroke draw, and separated local node transform-origin', () => {
+  assert.match(cssContent, /--auth-motion-draw:\s*0\.86s;/);
+  assert.match(cssContent, /--auth-motion-travel:\s*0\.86s;/);
   assert.match(cssContent, /\.auth-editorial-motif__trajectory\s*\{[^}]*stroke-dasharray:\s*100;[^}]*animation:\s*drawTrajectory/s);
-  assert.match(cssContent, /\.auth-editorial-motif__anchor--origin\s*\{[^}]*0\.06s\s+backwards;/s);
-  assert.match(cssContent, /\.auth-editorial-motif__anchor--inflection\s*\{[^}]*0\.42s\s+backwards;/s);
-  assert.match(cssContent, /\.auth-editorial-motif__anchor--destination\s*\{[^}]*0\.82s\s+backwards;/s);
+  assert.match(cssContent, /\.auth-editorial-motif__anchor--origin\s*\{[^}]*0\.02s\s+backwards;[^}]*transform-origin:\s*0px\s+0px;/s);
+  assert.match(cssContent, /\.auth-editorial-motif__anchor--inflection\s*\{[^}]*0\.38s\s+backwards;[^}]*transform-origin:\s*0px\s+0px;/s);
+  assert.match(cssContent, /\.auth-editorial-motif__anchor--destination\s*\{[^}]*0\.78s\s+backwards;[^}]*transform-origin:\s*0px\s+0px;/s);
 });
+
 
 

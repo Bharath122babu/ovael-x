@@ -1816,8 +1816,8 @@ p {
 
 /* Dedicated Authentication Motion Tokens (700–1100ms total entrance sequence) */
 :root {
-  --auth-motion-draw: 0.84s;
-  --auth-motion-travel: 0.84s;
+  --auth-motion-draw: 0.86s;
+  --auth-motion-travel: 0.86s;
   --auth-motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --auth-entrance-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --auth-spring-ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -2008,31 +2008,26 @@ p {
   animation: motifGridFade 0.45s var(--auth-entrance-ease) 0.04s backwards;
 }
 
-/* Supporting contour (Recycled Cotton / Black Hole track bed) remains static */
+/* Supporting contour remains static */
 .auth-editorial-motif__echo {
   opacity: 1;
 }
 
-/* A. Path-Drawing Animation: Primary orange stroke draws progressively (80ms–920ms) */
+/* A. Path-Drawing Animation: Primary orange stroke draws progressively (0ms–860ms) */
 .auth-editorial-motif__trajectory {
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
-  animation: drawTrajectory var(--auth-motion-draw) var(--auth-motion-ease) 0.08s forwards;
+  animation: drawTrajectory var(--auth-motion-draw) var(--auth-motion-ease) 0s forwards;
 }
 
-/* B. Orange Accent Travelling Along the Curve (80ms–920ms, docks at destination node) */
+/* B. Orange Accent Travelling Along the Curve (native SVG animateMotion + mpath) */
 .auth-editorial-motif__tracer,
 .ovael-progression__sphere-rig {
-  offset-path: path('M 40 205 C 110 205, 140 75, 215 75 C 275 75, 300 135, 330 100');
-  offset-rotate: 0deg;
-  animation: tracerTravel var(--auth-motion-travel) var(--auth-motion-ease) 0.08s forwards;
-  transform-origin: center;
   pointer-events: none;
 }
 
 .ovael-progression__sphere-roll {
   transform-origin: 0px 0px;
-  animation: ovaelProgressionRoll var(--auth-motion-travel) var(--auth-motion-ease) 0.08s forwards;
 }
 
 .ovael-progression--active .ovael-progression__dest-ring {
@@ -2040,20 +2035,20 @@ p {
   animation: ovaelIndexSpin 3.2s linear infinite;
 }
 
-/* C. Sequential Node Activation (activates in natural order as path reaches each station) */
+/* C. Sequential Node Activation (applied strictly to inner node groups centered at local 0,0) */
 .auth-editorial-motif__anchor--origin {
-  animation: anchorOriginFade 0.24s var(--auth-entrance-ease) 0.06s backwards;
-  transform-origin: 40px 205px;
+  animation: anchorOriginFade 0.24s var(--auth-entrance-ease) 0.02s backwards;
+  transform-origin: 0px 0px;
 }
 
 .auth-editorial-motif__anchor--inflection {
-  animation: anchorInflectionFade 0.24s var(--auth-entrance-ease) 0.42s backwards;
-  transform-origin: 215px 75px;
+  animation: anchorInflectionFade 0.24s var(--auth-entrance-ease) 0.38s backwards;
+  transform-origin: 0px 0px;
 }
 
 .auth-editorial-motif__anchor--destination {
-  animation: anchorDestinationSettle 0.24s var(--auth-entrance-ease) 0.82s backwards;
-  transform-origin: 330px 100px;
+  animation: anchorDestinationSettle 0.24s var(--auth-entrance-ease) 0.78s backwards;
+  transform-origin: 0px 0px;
 }
 
 /* Sequence Step 3: Hairline Editorial Divider Entrance */
@@ -2162,21 +2157,6 @@ p {
   }
 }
 
-/* Controlled Orange Accent Travel (travels once along curve and settles into destination node) */
-@keyframes tracerTravel {
-  0% {
-    offset-distance: 0%;
-    opacity: 0;
-  }
-  6% {
-    opacity: 1;
-  }
-  100% {
-    offset-distance: 100%;
-    opacity: 1;
-  }
-}
-
 @keyframes ovaelProgressionRoll {
   0% {
     transform: rotate(0deg);
@@ -2205,11 +2185,11 @@ p {
   }
 }
 
-/* Sequential Node Activation Keyframes (smooth opacity + restrained scale, no bounce/overshoot) */
+/* Sequential Node Activation Keyframes (applied to inner group around local 0,0; outer translate untouched) */
 @keyframes anchorOriginFade {
   from {
-    opacity: 0.55;
-    transform: scale(0.92);
+    opacity: 0.45;
+    transform: scale(0.88);
   }
   to {
     opacity: 1;
@@ -2219,8 +2199,8 @@ p {
 
 @keyframes anchorInflectionFade {
   from {
-    opacity: 0.55;
-    transform: scale(0.92);
+    opacity: 0.45;
+    transform: scale(0.88);
   }
   to {
     opacity: 1;
@@ -2230,8 +2210,8 @@ p {
 
 @keyframes anchorDestinationSettle {
   from {
-    opacity: 0.55;
-    transform: scale(0.92);
+    opacity: 0.45;
+    transform: scale(0.88);
   }
   to {
     opacity: 1;
@@ -2724,7 +2704,6 @@ p {
   .auth-form-card__footer,
   .auth-form__error,
   .auth-editorial-motif__grid,
-  .auth-editorial-motif__echo,
   .auth-editorial-motif__trajectory,
   .auth-editorial-motif__anchor--origin,
   .auth-editorial-motif__anchor--inflection,
@@ -2737,8 +2716,7 @@ p {
     opacity: 1 !important;
   }
 
-  .auth-editorial-motif__trajectory,
-  .auth-editorial-motif__echo {
+  .auth-editorial-motif__trajectory {
     stroke-dashoffset: 0 !important;
     stroke-dasharray: none !important;
   }
@@ -2749,9 +2727,8 @@ p {
 
   .auth-editorial-motif__tracer,
   .ovael-progression__sphere-rig {
+    display: none !important;
     animation: none !important;
-    offset-distance: 100% !important;
-    opacity: 1 !important;
   }
 
   .ovael-progression__sphere-roll,
@@ -10074,7 +10051,6 @@ p {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-    transform: none !important;
   }
 
   .ui-skeleton,
@@ -10103,8 +10079,7 @@ p {
   }
 
   .ovael-progression__sphere-rig {
-    offset-distance: 100% !important;
-    opacity: 1 !important;
+    display: none !important;
   }
 
   .ovael-mechanism--settled .ovael-mechanism__sphere,
@@ -10133,16 +10108,13 @@ p {
     transform: translate(96px, 43px) rotate(-22deg) !important;
   }
 
-  .auth-editorial-motif__anchor--inflection {
-    transform: translate(215px, 75px) !important;
-  }
-
-  .auth-editorial-motif__anchor--destination {
-    transform: translate(330px, 100px) !important;
-  }
-
   .adaptive-motif__scene,
-  .adaptive-motif {
+  .adaptive-motif,
+  .motif-pulse-node,
+  .auth-editorial-motif__anchor,
+  .ui-button,
+  .ui-icon-button,
+  .course-card {
     transform: none !important;
     transition: none !important;
   }
