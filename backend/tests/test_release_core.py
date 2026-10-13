@@ -164,7 +164,7 @@ def test_learning_turn_idempotency(settings, tmp_path):
         two = client.post(
             f"/v1/learning/sessions/{sid}/turns",
             headers=h,
-            json={"response": "This retry must not double count."},
+            json={"response": "It modifies, sorts and packages proteins."},
         )
         assert one.status_code == two.status_code == 200
         assert two.json()["idempotent_replay"] is True

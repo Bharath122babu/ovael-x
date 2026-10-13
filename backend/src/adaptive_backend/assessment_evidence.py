@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import math
 from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 from .inference import SemanticBudget
@@ -10,7 +11,7 @@ Modality = Literal["text", "image", "handwriting", "diagram", "audio", "code", "
 
 
 class EvidencePart(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
     modality: Modality
     text: str = Field(default="", max_length=200_000)
     labels: list[str] = Field(default_factory=list, max_length=200)
@@ -34,6 +35,7 @@ class AnswerSubmission(BaseModel):
 
 
 class EvaluationResult(BaseModel):
+    model_config = ConfigDict(allow_inf_nan=False)
     score: float | None = Field(default=None, ge=0, le=1)
     correct: bool | None = None
     confidence: float = Field(default=0, ge=0, le=1)
@@ -129,6 +131,8 @@ class AssessmentEvidenceEngine:
         if low_conf:
             return review("OCR/transcription/vision extraction confidence below safe grading threshold")
         def graded(score: float, confidence: float = 1., criterion: dict[str,float|None] | None = None) -> EvaluationResult:
+            if not math.isfinite(score) or not math.isfinite(confidence) or not 0 <= score <= 1 or not 0 <= confidence <= 1:
+                return review("Evaluator returned an invalid score or confidence")
             score = max(0., min(1., score))
             return EvaluationResult(score=score, correct=score >= float(item.get("pass_threshold", .75)), confidence=confidence, status="graded", feedback="Assessment evaluated against the available answer key.", criterion_results=criterion or {}, modalities=modalities)
         if kind == "mcq":
@@ -145,14 +149,16 @@ class AssessmentEvidenceEngine:
                 return review("Boolean response or key is ambiguous")
             return graded(1. if (answer == "true") == key else 0.)
         if kind == "numeric":
-            import math
             val = next((p.numeric_value for p in parts if p.numeric_value is not None), None)
             if val is None:
                 return review("Numeric value not supplied")
             try:
                 expected = float(key)
                 tolerance = float(item.get("absolute_tolerance", max(1e-6, abs(expected)*1e-4)))
-                return graded(1. if math.isclose(val, expected, rel_tol=float(item.get("relative_tolerance", 1e-4)), abs_tol=tolerance) else 0.)
+                relative = float(item.get("relative_tolerance", 1e-4))
+                if not all(math.isfinite(v) for v in (expected, tolerance, relative)) or tolerance < 0 or relative < 0:
+                    return review("Numeric answer key or tolerance is invalid")
+                return graded(1. if math.isclose(val, expected, rel_tol=relative, abs_tol=tolerance) else 0.)
             except (ValueError, TypeError):
                 return review("Numeric answer key invalid")
         if kind == "code":

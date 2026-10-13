@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {api} from './api';
 import {makeAnswerTurn, type Transcription} from './assessment';
+import {MIN_PASSWORD_LENGTH,passwordMinLength} from './auth';
 import {Activity,ArrowRight,BookOpen,Check,ChevronDown,Code2,FileText,GraduationCap,Image as ImageIcon,Layers3,LoaderCircle,LockKeyhole,LogOut,Mic,MoreHorizontal,Plus,RefreshCw,Send,ShieldCheck,Sparkles,UploadCloud,X,PenLine,Square,BrainCircuit,PanelLeftClose,Info,Network} from 'lucide-react';
 import {Button,IconButton,Alert,Badge,EmptyState} from './components/ui';
 import {AppShell,PageHeader} from './components/layout';
@@ -20,7 +21,7 @@ function Brand(){return <div className="brand"><div className="brand-mark"><Laye
 function AppRoot(){
   const {notifySuccess, notifyError}=useNotification();
   const[user,setUser]=useState<Obj|null>(null),[view,setView]=useState<View>('learn'),[courses,setCourses]=useState<Obj[]>([]),[activeCourse,setActiveCourse]=useState(''),[concepts,setConcepts]=useState<Obj[]>([]),[concept,setConcept]=useState(''),[newCourse,setNewCourse]=useState(''),[newConcept,setNewConcept]=useState(''),[session,setSession]=useState(''),[move,setMove]=useState<Obj|null>(null),[evidence,setEvidence]=useState<Obj|null>(null),[answer,setAnswer]=useState(''),[choice,setChoice]=useState<number|null>(null),[mode,setMode]=useState<'text'|'code'>('text'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[messages,setMessages]=useState<{who:'system'|'user',text:string}[]>([]),[showDraw,setShowDraw]=useState(false),[ocr,setOcr]=useState<Transcription|null>(null),[ocrConfirmed,setOcrConfirmed]=useState(false),[speechAnswer,setSpeechAnswer]=useState(false),[showTrace,setShowTrace]=useState(false),[goal,setGoal]=useState(''),[activeFile,setActiveFile]=useState<File|null>(null),[insights,setInsights]=useState<Obj|null>(null),[mic,setMic]=useState(false);
-  const uploads=useRef<HTMLInputElement>(null),chatBottom=useRef<HTMLDivElement>(null),recognition=useRef<any>(null),pendingTurn=useRef<{signature:string,key:string}|null>(null);const currentCourse=courses.find(c=>c.course_id===activeCourse);const currentConcept=concepts.find(c=>c.concept_id===concept);
+  const uploads=useRef<HTMLInputElement>(null),chatBottom=useRef<HTMLDivElement>(null),recognition=useRef<any>(null),pendingTurn=useRef<{signature:string,key:string,payload:Obj}|null>(null);const currentCourse=courses.find(c=>c.course_id===activeCourse);const currentConcept=concepts.find(c=>c.concept_id===concept);
   function notify(msg:string){setNotice(msg);notifySuccess(msg)}
   function fail(e:any){const info=formatApiError(e);setError(info.message);notifyError(info.message)}
   async function reloadCourses(){const c=await api('/v1/courses');setCourses(c);setActiveCourse(old=>old&&c.some((i:Obj)=>i.course_id===old)?old:c[0]?.course_id||'')}
@@ -28,7 +29,7 @@ useEffect(()=>{api('/v1/auth/me').then(u=>{setUser(u);reloadCourses().catch(fail
 useEffect(()=>{if(!user||!activeCourse){setConcepts([]);return}api(`/v1/courses/${activeCourse}/concepts`).then((c:Obj[])=>{setConcepts(c);setConcept(old=>old&&c.some(x=>x.concept_id===old)?old:c[0]?.concept_id||'')}).catch(fail)},[user,activeCourse]);
 useEffect(()=>{chatBottom.current?.scrollIntoView({behavior:'smooth'})},[messages,move,evidence]);
 useEffect(()=>{if(!user)return;const previous=sessionStorage.getItem('ovael_session_id');if(!previous||session)return;
-  api(`/v1/learning/sessions/${previous}`).then(s=>{if(s.status!=='active'){sessionStorage.removeItem('ovael_session_id');return;}setSession(previous);if(s.course_id)setActiveCourse(s.course_id);if(s.concept_id)setConcept(s.concept_id);setMove(s.move);setMode(s.move?.answer_type==='code'?'code':'text');setMessages(s.move?.content?[{who:'system',text:s.move.content}]:[])}).catch(()=>{sessionStorage.removeItem('ovael_session_id')});
+  api(`/v1/learning/sessions/${previous}`).then(async s=>{if(s.status!=='active'){sessionStorage.removeItem('ovael_session_id');return;}setSession(previous);if(s.course_id)setActiveCourse(s.course_id);if(s.concept_id)setConcept(s.concept_id);if(s.pending_turn){const recovered=await api(`/v1/learning/sessions/${previous}/resume`,'POST',undefined,s.pending_turn_key);s.move=recovered.move;setEvidence(recovered.evidence);setNotice('Your previous answer was recovered. Continue with the next question.')}setMove(s.move);setMode(s.move?.answer_type==='code'?'code':'text');setMessages(s.move?.content?[{who:'system',text:s.move.content}]:[])}).catch(fail);
 },[user]);
 async function handleLogin(credentials:{username:string;password:string}){setBusy(true);setError('');try{await api('/v1/auth/login','POST',credentials);const u=await api('/v1/auth/me');setUser(u);await reloadCourses()}catch(e:any){fail(e);throw e}finally{setBusy(false)}}
 async function handleRegister(data:{username:string;password:string;role:'learner'|'teacher';teacher_invite_code?:string}){setBusy(true);setError('');try{const res=await api('/v1/auth/register','POST',data);const u=await api('/v1/auth/me');setUser(u);await reloadCourses();return res}catch(e:any){fail(e);throw e}finally{setBusy(false)}}
@@ -105,14 +106,19 @@ async function send(intent:'answer'|'ask_question'|'need_explanation'|'example'|
   }catch(e){fail(e);return;}
   setBusy(true);
   try{
-    if(intent==='answer'||answer.trim())setMessages(x=>[...x,{who:'user',text:answer.trim()||(ocr?.text||`Option ${(choice??0)+1}`)}]);
     const signature=JSON.stringify({session,intent,payload});
-    if(pendingTurn.current?.signature!==signature)pendingTurn.current={signature,key:crypto.randomUUID()};
-    const out=await api(`/v1/learning/sessions/${session}/turns`,'POST',payload,pendingTurn.current.key);
+    const recovering=!!pendingTurn.current && pendingTurn.current.signature!==signature;
+    if(!pendingTurn.current){if(intent==='answer'||answer.trim())setMessages(x=>[...x,{who:'user',text:answer.trim()||(ocr?.text||`Option ${(choice??0)+1}`)}]);pendingTurn.current={signature,key:crypto.randomUUID(),payload};}
+    const out=await api(`/v1/learning/sessions/${session}/turns`,'POST',pendingTurn.current.payload,pendingTurn.current.key);
+    if(recovering)setNotice('Your previous answer was recovered. Continue with the next question.');
     pendingTurn.current=null;
     setEvidence(out.evidence);
     present(out.move);
-  }catch(e){fail(e)}finally{setBusy(false)}
+  }catch(e){
+    const status=(e as {status?:number}).status;
+    if(status===400||status===422){const state=await api(`/v1/learning/sessions/${session}`).catch(()=>null);if(state&&!state.pending_turn)pendingTurn.current=null;}
+    fail(e);
+  }finally{setBusy(false)}
 }
 async function uploadAnswer(file:File){
   if(!file.type.startsWith('image/'))return setError('Please select an image file.');

@@ -8,6 +8,7 @@ from .inference import SemanticBudget
 from .models import ModelGateway, ModelUnavailable
 from .rlm import HybridKnowledgeEngine
 from .subject_runtime import SubjectRuntimeFactory
+from .model_contracts import GradeVerdict
 
 
 class SemanticCoprocessor:
@@ -269,8 +270,7 @@ class SemanticCoprocessor:
                 verdict = self.models.route_json(
                     "validation", system=system, payload=payload, max_tokens=250, temperature=0.0
                 )
-            score = max(0.0, min(1.0, float(verdict.get("score"))))
-            confidence = max(0.0, min(1.0, float(verdict.get("confidence", 0.6))))
-            return score, confidence
+            grade = GradeVerdict.model_validate(verdict)
+            return grade.score, grade.confidence
         except (ModelUnavailable, TypeError, ValueError):
             return None

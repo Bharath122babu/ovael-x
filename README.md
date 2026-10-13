@@ -33,7 +33,7 @@ An adaptive learning engine in which deterministic code makes every teaching dec
 
 OVAEL-X is a tutoring system. A learner chooses a course and a topic. The system then teaches, asks questions, marks the answers, keeps a running picture of what the learner has demonstrated, and decides what to do next: explain again, give a hint, show an example, step back to an earlier idea, or test again.
 
-Its defining choice is **where AI is allowed to act**. Every decision about what happens next is made by ordinary, inspectable code. A language model is consulted only for work that code cannot do itself, such as writing a fresh explanation or judging an ambiguous written answer, and each learner turn may make at most three such calls. When the system cannot verify an answer, it says so instead of guessing, and an unverified answer never changes the learner's recorded progress.
+Its defining choice is **where AI is allowed to act**. Every decision about what happens next is made by ordinary, inspectable code. A language model is consulted only for work that code cannot do itself, such as writing a fresh explanation or judging an ambiguous written answer, and each learner-turn request may make at most three such calls. When the system cannot verify an answer, it says so instead of guessing, and an unverified answer never changes the learner's recorded progress.
 
 **An illustration.** The system works like a small tutoring centre with four roles, each of which is a real component:
 
@@ -53,7 +53,7 @@ Each principle below is enforced in code, not merely documented.
 | Principle | What it means in practice | Enforced in |
 | --- | --- | --- |
 | Code decides, AI assists | Planning the next move makes zero model calls. | `decision.py` (`DecisionKernel.plan`) |
-| Hard call ceiling | Each learner turn shares a budget of three model calls across grading and the next move. Every call must reserve a slot first; an exhausted budget falls back to non-AI behaviour. | `inference.py` (`SemanticBudget`), `teaching.py` |
+| Hard call ceiling | Each learner-turn request shares a budget of three model calls across grading and the next move. Every call must reserve a slot first; an exhausted budget falls back to non-AI behaviour. | `inference.py` (`SemanticBudget`), `teaching.py` |
 | Abstain rather than guess | Answers that cannot be verified are returned as "needs review", not marked right or wrong. | `assessment_evidence.py` |
 | Only graded evidence counts | An answer with no score is never written to the mastery, difficulty, or proof-of-learning state. | `teaching.py` (`_evaluate_current`) |
 | Help is not failure | Asking for an explanation or an example is not recorded as an incorrect attempt. | `teaching.py` (`turn`) |
@@ -258,11 +258,11 @@ On the first turn of a study session, when there is little evidence, the kernel 
 
 ### Budgets
 
-- Each learner turn opens a root budget of **3 calls**, shared by grading the answer and preparing the next move.
+- Each learner-turn request opens a root budget of **3 calls**, shared by grading the answer and preparing the next move.
 - The decision frame's own ceiling is applied as a child budget, so it can only narrow the root budget, never extend it.
 - Ambiguous free-text grading draws at most **1 call** from the turn budget.
 - The image-transcription endpoint has its own **1-call** budget.
-- Budgets count calls within one process. Tokens and cost are not metered.
+- Each provider invocation sends one HTTP request without hidden retries. Resumed requests receive a fresh request budget; there is no distributed spend cap. Tokens and cost are not metered.
 
 ---
 
@@ -443,10 +443,20 @@ stateDiagram-v2
     [*] --> Active: Start session<br/>temporary learner identity created
     Active --> Active: Turn<br/>derived evidence only, state summary returned
     Active --> Completed: Learner completes session
-    Active --> Expired: Idle for 24 hours<br/>cleaned up when the owner starts a new session
+    Active --> Expired: Idle for 24 hours<br/>startup and background cleanup
     Completed --> [*]: Temporary state deleted<br/>pointer and summary kept
     Expired --> [*]: Temporary state deleted
 ```
+
+### Persistence and recovery
+
+- Evidence, calibration, proof and policy updates commit together with a pending turn. Next-move delivery and the session pointer commit together afterwards; failed delivery resumes without grading again. A key reused with a different answer is rejected. Browser reloads recover committed pending turns through the authenticated `/v1/learning/sessions/{id}/resume` endpoint; raw answers are not needed for recovery.
+- Provider invocations send one HTTP request per reserved slot, without hidden retries. Budgets remain per request, including resumed requests; they are not a distributed spend cap.
+- Personalization changes are checked at write boundaries. Paused answers still receive feedback, while learning/proof/policy/calibration updates stop and stored request payloads are redacted.
+- Private runtime subjects have explicit owners. Closed-source courses cannot fall back to the shared question bank; unavailable permitted content is labelled.
+- Temporary local-first shadows expire after 24 hours of inactivity. Startup and a 60-second background sweep handle absent owners; completion cleans immediately.
+
+Database schema v8 upgrades run in one SQLite transaction. Existing pre-v8 teaching databases receive a `*.pre-v8-<id>.bak` snapshot using SQLite's backup API before upgrade; keep these backups private. To roll back, stop all application workers, preserve the current database and WAL/SHM files, restore the snapshot at the configured database path, and run the compatible prior backend. Restore tests cover the v7 upgrade snapshot and failed-upgrade rollback; production disaster recovery remains untested.
 
 ### Learner controls
 
@@ -708,6 +718,8 @@ The built-in subjects are seeded at start-up, unless disabled with `ADAPTIVE_SEE
 ---
 
 ## Further reading
+
+- [Backend audit remediation](backend/audits/2026-10-12/REMEDIATION.md) — confirmed repairs and verification limits.
 
 - [`backend/ARCHITECTURE_DECISION_AI.md`](backend/ARCHITECTURE_DECISION_AI.md): the decision-first architecture and its escalation rules
 - [`RELEASE_AUDIT.md`](RELEASE_AUDIT.md): release verification, scope, and remaining risks

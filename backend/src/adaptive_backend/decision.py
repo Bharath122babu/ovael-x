@@ -173,7 +173,24 @@ class DecisionKernel:
         )
         cases = list(causal.get("cases") or [])
         supported_cases = [case for case in cases if not bool(case.get("abstained"))]
-        cause = str(supported_cases[0].get("cause_type") or "") if supported_cases else ""
+        # The subject-wide projection above is informational. The cause that steers
+        # the action and the teaching program must describe the concept actually
+        # being taught, not whichever gap ranks highest elsewhere in the subject.
+        scoped = self.causal_gaps.analyze(
+            user_id=user_id,
+            case_owner_user_id=content_user_id,
+            subject_id=subject_id,
+            max_cases=2,
+            persist=False,
+            concept_ids=[target, concept_id],
+        )
+        scoped_supported = {
+            str(case.get("target_concept_id")): case
+            for case in (scoped.get("cases") or [])
+            if not bool(case.get("abstained"))
+        }
+        chosen_case = scoped_supported.get(target) or scoped_supported.get(concept_id)
+        cause = str(chosen_case.get("cause_type") or "") if chosen_case else ""
         diagnosis["causal"] = {
             "headline": (causal.get("summary") or {}).get("headline"),
             "cases": cases[:4],
@@ -320,6 +337,10 @@ class DecisionKernel:
                 selected_question_id = str(row["question_id"])
                 reason_codes.append("REUSE_VERIFIED_QUESTION")
 
+        if not self.question_bank_allowed(course_id):
+            selected_question_id = None
+            reason_codes.append("COURSE_REQUIRES_SCOPED_ASSESSMENT")
+
         semantic_tier, semantic_requirement, model_budget = self._semantic_requirement(
             action=action,
             source_mode=source_mode,
@@ -373,6 +394,18 @@ class DecisionKernel:
             invariants=invariants,
             summary=summary,
         )
+
+    def question_bank_allowed(self, course_id: str | None) -> bool:
+        if not course_id:
+            return True
+        course = self.db.fetchone("SELECT course_kind FROM courses WHERE course_id=?", (course_id,))
+        if not course:
+            return False
+        row = self.db.fetchone("SELECT policy_json FROM source_constitutions WHERE course_id=?", (course_id,))
+        if row:
+            policy = self.db.loads(row["policy_json"], {})
+            return isinstance(policy, dict) and policy.get("external_sources_allowed") is True
+        return course["course_kind"] != "class"
 
     def _learning_ir_inventory(self, course_id: str, concept_id: str) -> dict[str, int]:
         counts: dict[str, int] = {}

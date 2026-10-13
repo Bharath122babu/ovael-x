@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import json
-import sqlite3
 import math
 import hashlib
-from threading import RLock
 from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
-from uuid import NAMESPACE_URL, uuid4, uuid5
+from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -17,6 +15,9 @@ from .subject_runtime import SubjectRuntimeFactory
 from .semantic import SemanticCoprocessor
 from .inference import SemanticBudget
 from .assessment_evidence import AssessmentEvidenceEngine, AnswerSubmission, EvaluationResult
+from .model_contracts import AssessmentVerdict
+from .turn_runtime import SessionLocks
+from .learning_transactions import run_turn
 from .database import Database
 from .memory import MemoryService
 from .models import ModelGateway, ModelUnavailable
@@ -83,7 +84,7 @@ class LearningSessionStart(BaseModel):
 
 
 class LearningTurnInput(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
     response: str = Field(default="", max_length=200_000)
     selected_option: int | None = Field(default=None, ge=0, le=20)
     numeric_value: float | None = None
@@ -132,9 +133,7 @@ class TeachingService:
         if memory_mode not in {"local_first", "server"}:
             raise ValueError("memory_mode must be local_first or server")
         self.memory_mode = memory_mode
-        # Serializes same-process turn commits. Durable event IDs derived from the
-        # idempotency key provide an additional cross-worker duplicate boundary.
-        self._turn_lock = RLock()
+        self._session_locks = SessionLocks()
         self.evidence_engine = AssessmentEvidenceEngine(self.semantic, self.code)
 
     def respond_legacy(self, request: TutorRequest) -> TutorResponse:
@@ -197,9 +196,10 @@ class TeachingService:
             raise ValueError("User-created subjects require an accessible course")
         if request.course_id:
             course = self.db.fetchone(
-                """SELECT c.subject_id FROM courses c
+                """SELECT c.subject_id FROM courses c JOIN subjects s ON s.subject_id=c.subject_id
                    LEFT JOIN course_enrollments e ON e.course_id=c.course_id AND e.learner_user_id=? AND e.status='active'
-                   WHERE c.course_id=? AND (c.owner_user_id=? OR e.learner_user_id=?)""",
+                   WHERE c.course_id=? AND (c.owner_user_id=? OR e.learner_user_id=?)
+                   AND (c.subject_id NOT LIKE 'USR:%' OR s.owner_user_id=c.owner_user_id)""",
                 (user_id, request.course_id, user_id, user_id),
             )
             if not course:
@@ -208,67 +208,68 @@ class TeachingService:
                 raise ValueError("Course does not belong to the requested subject")
 
         session_id = str(uuid4())
-        persist_personalization = self.memory.personalization_enabled(user_id)
-        capsule = self._bounded_capsule(request.context_capsule) if persist_personalization else {}
-        learner_user_id = (
-            user_id if self.memory_mode == "server" else f"lf:{user_id}:{session_id}"
-        )
-        if self.memory_mode == "local_first":
-            self._hydrate_local_first_state(
-                learner_user_id=learner_user_id,
-                subject_id=request.subject_id,
-                capsule=capsule,
+        with self.memory.write_lock, self.db.transaction():
+            persist_personalization = self.memory.personalization_enabled(user_id)
+            capsule = self._bounded_capsule(request.context_capsule) if persist_personalization else {}
+            learner_user_id = (
+                user_id if self.memory_mode == "server" else f"lf:{user_id}:{session_id}"
             )
-        legacy = self.memory.start_session(
-            user_id=learner_user_id,
-            subject_id=request.subject_id,
-            goal=request.goal,
-            source="system",
-        )
-        state = {
-            "memory_session_id": legacy.session_id,
-            "engine_user_id": learner_user_id,
-            "memory_mode": self.memory_mode,
-            "persist_personalization": persist_personalization,
-            "context_capsule": capsule,
-            "current_move": None,
-            "turn_count": 0,
-            "goal_stack": [
-                {
-                    "concept_id": request.concept_id,
-                    "kind": "root",
-                    "reason": request.goal or f"Learn {concept['name']}",
-                    "success_criterion": "independent verified evidence",
-                    "attempt_budget": 12,
-                }
-            ],
-            "policy_context": {
-                "mode": request.mode,
-                "goal": request.goal,
-                "source_client": request.source_client,
-            },
-            "state_delta": self._state_delta_for_client(learner_user_id, request.subject_id, persist_personalization),
-        }
-        now = _now()
-        self.db.execute(
-            """
-            INSERT INTO teaching_sessions(teaching_session_id,owner_user_id,subject_id,course_id,concept_id,goal,mode,source_client,state_json,created_at,updated_at)
-            VALUES(?,?,?,?,?,?,?,?,?,?,?)
-            """,
-            (
-                session_id,
-                user_id,
-                request.subject_id,
-                request.course_id,
-                request.concept_id,
-                request.goal,
-                request.mode,
-                request.source_client,
-                self.db.dumps(state),
-                now,
-                now,
-            ),
-        )
+            if self.memory_mode == "local_first":
+                self._hydrate_local_first_state(
+                    learner_user_id=learner_user_id,
+                    subject_id=request.subject_id,
+                    capsule=capsule,
+                )
+            legacy = self.memory.start_session(
+                user_id=learner_user_id,
+                subject_id=request.subject_id,
+                goal=request.goal,
+                source="system",
+            )
+            state = {
+                "memory_session_id": legacy.session_id,
+                "engine_user_id": learner_user_id,
+                "memory_mode": self.memory_mode,
+                "persist_personalization": persist_personalization,
+                "context_capsule": capsule,
+                "current_move": None,
+                "turn_count": 0,
+                "goal_stack": [
+                    {
+                        "concept_id": request.concept_id,
+                        "kind": "root",
+                        "reason": request.goal or f"Learn {concept['name']}",
+                        "success_criterion": "independent verified evidence",
+                        "attempt_budget": 12,
+                    }
+                ],
+                "policy_context": {
+                    "mode": request.mode,
+                    "goal": request.goal,
+                    "source_client": request.source_client,
+                },
+                "state_delta": self._state_delta_for_client(learner_user_id, request.subject_id, persist_personalization),
+            }
+            now = _now()
+            self.db.execute(
+                """
+                INSERT INTO teaching_sessions(teaching_session_id,owner_user_id,subject_id,course_id,concept_id,goal,mode,source_client,state_json,created_at,updated_at)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?)
+                """,
+                (
+                    session_id,
+                    user_id,
+                    request.subject_id,
+                    request.course_id,
+                    request.concept_id,
+                    request.goal,
+                    request.mode,
+                    request.source_client,
+                    self.db.dumps(state),
+                    now,
+                    now,
+                ),
+            )
         move, plan = self._next_move(
             learner_user_id=learner_user_id,
             content_user_id=user_id,
@@ -281,8 +282,15 @@ class TeachingService:
         )
         self._sync_goal_stack_from_plan(state, plan, root_concept_id=request.concept_id)
         state["current_move"] = move.model_dump(mode="json")
-        state["state_delta"] = self._state_delta_for_client(learner_user_id, request.subject_id, persist_personalization)
-        self._save_state(session_id, user_id, state)
+        with self.memory.write_lock, self.db.transaction():
+            enabled = self.memory.personalization_enabled(user_id)
+            state["persist_personalization"] = enabled
+            if learner_user_id != user_id:
+                self.memory.set_personalization(learner_user_id, enabled)
+            if not enabled:
+                state["context_capsule"] = {}
+            state["state_delta"] = self._state_delta_for_client(learner_user_id, request.subject_id, enabled)
+            self._save_state(session_id, user_id, state)
         return {
             "teaching_session_id": session_id,
             "status": "active",
@@ -291,236 +299,31 @@ class TeachingService:
             "decision_summary": plan.summary,
         }
 
-    def turn(
-        self,
-        *,
-        user_id: str,
-        session_id: str,
-        turn: LearningTurnInput,
-        idempotency_key: str,
-    ) -> dict[str, Any]:
-        if not idempotency_key or len(idempotency_key) > 128:
-            raise ValueError("Invalid idempotency key")
-        with self._turn_lock:
+    def turn(self, *, user_id: str, session_id: str, turn: LearningTurnInput,
+             idempotency_key: str) -> dict[str, Any]:
+        return run_turn(self, user_id=user_id, session_id=session_id,
+                        turn=turn, idempotency_key=idempotency_key)
+
+    def resume(self, *, user_id: str, session_id: str, idempotency_key: str | None = None) -> dict[str, Any]:
+        """Deliver committed evidence after a browser reload without retaining raw answers."""
+        with self._session_locks.hold(session_id):
             row = self._session(user_id, session_id)
-            if row["status"] != "active":
-                raise ValueError("Teaching session is not active")
-            prior = self.db.fetchone(
-                "SELECT move_json,evidence_json,turn_id FROM teaching_turns WHERE teaching_session_id=? AND idempotency_key=?",
-                (session_id, idempotency_key),
-            )
-            if prior:
-                replay_state = self.db.loads(row["state_json"], {})
-                replay_evidence = self.db.loads(prior["evidence_json"], {})
-                return {
-                    "teaching_session_id": session_id,
-                    "turn_id": prior["turn_id"],
-                    "idempotent_replay": True,
-                    "evidence": replay_evidence,
-                    "gap_update": replay_evidence.get("gap_update"),
-                    "move": self.db.loads(prior["move_json"], {}),
-                    "state_delta": replay_state.get("state_delta", {}),
-                    "decision_summary": None,
-                }
-
-            # Shared across grading and the subsequent move; the DecisionFrame
-            # additionally constrains generation via a child sub-budget.
-            turn_budget = SemanticBudget(3, decision_id=f"turn:{session_id}:{idempotency_key}")
-            state = self.db.loads(row["state_json"], {})
-            learner_user_id = str(state.get("engine_user_id") or user_id)
-            current = state.get("current_move") or {}
-            deterministic_event_id = str(
-                uuid5(NAMESPACE_URL, f"ovael:{user_id}:{session_id}:{idempotency_key}")
-            )
-            normalized = self.io.learning_turn(
-                user_id=user_id, course_id=row["course_id"], subject_id=row["subject_id"],
-                concept_id=str(current.get("target_concept_id") or row["concept_id"]),
-                input_mode=turn.input_mode, response=turn.response, selected_option=turn.selected_option,
-                numeric_value=turn.numeric_value, code=turn.code, learner_intent=turn.learner_intent,
-                metadata={"hint_count": turn.hint_count, "attempt_count": turn.attempt_count, "response_seconds": turn.response_seconds},
-                event_id=deterministic_event_id,
-            )
-            # Keep only the modality/control envelope in resumable state; raw learner
-            # text remains governed by the existing local-first/server memory policy.
-            normalized_public = normalized.model_dump(mode="json")
-            normalized_public.pop("content", None)
-            state["last_normalized_event"] = normalized_public
-            current_teaching_plan = current.get("teaching_plan") if isinstance(current, dict) else {}
-            if not isinstance(current_teaching_plan, dict):
-                current_teaching_plan = {}
-            state_before_policy = {
-                "goal_stack": list(state.get("goal_stack") or []),
-                "current_move": {
-                    "action": current.get("action"),
-                    "target_concept_id": current.get("target_concept_id"),
-                    "target_difficulty": current.get("target_difficulty"),
-                },
-                # This is the bounded learner-state snapshot used when the teaching program
-                # was chosen.  It makes later policy reuse state-conditioned, not
-                # merely concept/mode-conditioned.
-                "learner_state": dict(current_teaching_plan.get("learner_state") or {}),
-            }
-            try:
-                if turn.learner_intent == "answer":
-                    evidence = self._evaluate_current(
-                        user_id, learner_user_id, row, state, current, turn,
-                        event_id=deterministic_event_id, budget=turn_budget,
-                    )
-                else:
-                    # A request for a hint/explanation is NOT a failed attempt.
-                    evidence = {"evaluation": None, "score": None, "correct": None,
-                                "evaluator_confidence": 0.0, "non_assessment_turn": True}
-            except (ValueError, sqlite3.IntegrityError) as exc:
-                if isinstance(exc, sqlite3.IntegrityError) or "already been recorded" in str(exc):
-                    replay = self.db.fetchone(
-                        "SELECT move_json,evidence_json,turn_id FROM teaching_turns WHERE teaching_session_id=? AND idempotency_key=?",
-                        (session_id, idempotency_key),
-                    )
-                    if replay:
-                        replay_state = self.db.loads(row["state_json"], {})
-                        replay_evidence = self.db.loads(replay["evidence_json"], {})
-                        return {
-                            "teaching_session_id": session_id,
-                            "turn_id": replay["turn_id"],
-                            "idempotent_replay": True,
-                            "evidence": replay_evidence,
-                            "gap_update": replay_evidence.get("gap_update"),
-                            "move": self.db.loads(replay["move_json"], {}),
-                            "state_delta": replay_state.get("state_delta", {}),
-                            "decision_summary": None,
-                        }
-                    raise ValueError("A matching learner turn is already being processed") from exc
-                raise
-
-            # The causal-gap engine observes the same newly committed evidence and writes
-            # only a derived, privacy-safe case projection to the owning account.
-            # In local-first mode the evidence identity is session-scoped, so the
-            # explicit case owner keeps Gap Forensics available across screens.
-            try:
-                gap_update = self.decision.forensics(
-                    user_id=learner_user_id,
-                    case_owner_user_id=user_id,
-                    subject_id=row["subject_id"],
-                    max_cases=6,
-                    persist=bool(state.get("persist_personalization", True)),
-                )
-            except Exception:
-                gap_update = {
-                    "subject_id": row["subject_id"],
-                    "generated_at": _now(),
-                    "summary": {
-                        "case_count": 0,
-                        "headline": "Gap analysis will retry after the next learning turn.",
-                    },
-                    "cases": [],
-                    "status": "temporarily_unavailable",
-                }
-            evidence["gap_update"] = gap_update
-
-            # Persist the outcome of the *previous* teaching program. This is the
-            # dynamic personalization signal: no static visual/story profile is
-            # written, only state/action/outcome evidence.
-            if bool(state.get("persist_personalization", True)) and evidence.get("score") is not None:
-                self.pedagogy_policy.record_outcome(
-                    user_id=user_id,
-                    subject_id=row["subject_id"],
-                    concept_id=str(current.get("target_concept_id") or row["concept_id"]),
-                    teaching_session_id=session_id,
-                    teaching_program=current.get("teaching_plan") if isinstance(current, dict) else None,
-                    score=evidence.get("score"),
-                    correct=evidence.get("correct"),
-                    independent=(turn.hint_count == 0 and turn.attempt_count == 1),
-                    context={
-                        "mode": row["mode"],
-                        "learner_intent": turn.learner_intent,
-                        "previous_action": current.get("action") if isinstance(current, dict) else None,
-                        "interaction_mode": turn.input_mode,
-                    },
-                    state_before=state_before_policy,
-                    state_after={"concept_states": evidence.get("states") or [], "gap_summary": (gap_update.get("summary") or {})},
-                    outcome_details={
-                        "immediate_score": evidence.get("score"), "correct": evidence.get("correct"),
-                        "hint_count": turn.hint_count, "attempt_count": turn.attempt_count,
-                        "response_seconds": turn.response_seconds, "input_mode": turn.input_mode,
-                    },
-                )
-
-            self._update_goal_stack_after_evidence(state, evidence, root_concept_id=row["concept_id"])
-            plan_concept = self._active_goal_concept(state, fallback=str(current.get("target_concept_id") or row["concept_id"]))
-            move, plan = self._next_move(
-                learner_user_id=learner_user_id,
-                content_user_id=user_id,
-                subject_id=row["subject_id"],
-                concept_id=plan_concept,
-                mode=row["mode"],
-                query=turn.response or plan_concept,
-                course_id=row["course_id"],
-                teaching_session_id=session_id,
-                learner_intent=turn.learner_intent,
-                budget=turn_budget,
-            )
-            evidence["inference"] = turn_budget.snapshot()
-            state["turn_count"] = int(state.get("turn_count", 0)) + 1
-            self._sync_goal_stack_from_plan(state, plan, root_concept_id=row["concept_id"])
-            state["current_move"] = move.model_dump(mode="json")
-            state_delta = self._state_delta_for_client(
-                learner_user_id, row["subject_id"], bool(state.get("persist_personalization", True))
-            )
-            state["state_delta"] = state_delta
-
-            turn_id = str(uuid4())
-            if self.memory_mode == "local_first":
-                response_payload = {
-                    "redacted": True,
-                    "sha256": hashlib.sha256(
-                        self.db.dumps(turn.model_dump(mode="json")).encode("utf-8")
-                    ).hexdigest(),
-                    "response_present": bool(turn.response or turn.code or turn.submission or turn.selected_option is not None or turn.numeric_value is not None),
-                }
+            if idempotency_key:
+                prior = self.db.fetchone("SELECT * FROM teaching_turns WHERE teaching_session_id=? AND idempotency_key=?",
+                                         (session_id, idempotency_key))
             else:
-                response_payload = turn.model_dump(mode="json")
-            try:
-                self.db.execute(
-                    """
-                    INSERT INTO teaching_turns(turn_id,teaching_session_id,owner_user_id,idempotency_key,learner_response_json,evidence_json,move_json,created_at)
-                    VALUES(?,?,?,?,?,?,?,?)
-                    """,
-                    (
-                        turn_id, session_id, user_id, idempotency_key,
-                        self.db.dumps(response_payload), self.db.dumps(evidence),
-                        self.db.dumps(move.model_dump(mode="json")), _now(),
-                    ),
-                )
-            except sqlite3.IntegrityError as exc:
-                replay = self.db.fetchone(
-                    "SELECT move_json,evidence_json,turn_id FROM teaching_turns WHERE teaching_session_id=? AND idempotency_key=?",
-                    (session_id, idempotency_key),
-                )
-                if replay:
-                    replay_state = self.db.loads(row["state_json"], {})
-                    return {
-                        "teaching_session_id": session_id,
-                        "turn_id": replay["turn_id"],
-                        "idempotent_replay": True,
-                        "evidence": self.db.loads(replay["evidence_json"], {}),
-                        "gap_update": self.db.loads(replay["evidence_json"], {}).get("gap_update"),
-                        "move": self.db.loads(replay["move_json"], {}),
-                        "state_delta": replay_state.get("state_delta", {}),
-                        "decision_summary": None,
-                    }
-                raise ValueError("A matching learner turn is already being processed") from exc
-
-            self._save_state(session_id, user_id, state)
-            return {
-                "teaching_session_id": session_id,
-                "turn_id": turn_id,
-                "idempotent_replay": False,
-                "evidence": evidence,
-                "gap_update": gap_update,
-                "move": move.model_dump(mode="json"),
-                "state_delta": state_delta,
-                "decision_summary": plan.summary,
-            }
+                prior = self.db.fetchone("SELECT * FROM teaching_turns WHERE teaching_session_id=? AND turn_id=?",
+                                         (session_id, row["pending_turn_id"]))
+            if not prior:
+                raise ValueError("No committed turn is available to resume")
+            if prior["status"] == "completed":
+                from .turn_runtime import replay
+                return replay(self.db, prior, row)
+            state = self.db.loads(row["state_json"], {})
+            intent = ((state.get("last_normalized_event") or {}).get("metadata") or {}).get("learner_intent", "answer")
+            return run_turn(self, user_id=user_id, session_id=session_id,
+                            turn=LearningTurnInput(learner_intent=intent),
+                            idempotency_key=prior["idempotency_key"], committed_request_hash=prior["request_hash"])
 
     @staticmethod
     def _active_goal_concept(state: dict[str, Any], *, fallback: str) -> str:
@@ -657,15 +460,21 @@ class TeachingService:
             }
 
     def complete(self, *, user_id: str, session_id: str) -> dict[str, Any]:
+        with self._session_locks.hold(session_id), self.memory.write_lock, self.db.transaction():
+            return self._complete(user_id=user_id, session_id=session_id)
+
+    def _complete(self, *, user_id: str, session_id: str) -> dict[str, Any]:
         row = self._session(user_id, session_id)
         state = self.db.loads(row["state_json"], {})
         learner_user_id = str(state.get("engine_user_id") or user_id)
-        persist_personalization = bool(state.get("persist_personalization", True))
+        persist_personalization = self.memory.personalization_enabled(user_id)
         state_delta = state.get("state_delta") or self._state_delta_for_client(
             learner_user_id, row["subject_id"], persist_personalization
         )
         if row["status"] == "completed":
             return {"teaching_session_id": session_id, "status": "completed", "state_delta": state_delta}
+        if row["pending_turn_id"]:
+            raise ValueError("Retry the pending turn before completing the session")
         memory_session_id = state.get("memory_session_id")
         if memory_session_id:
             try:
@@ -685,14 +494,14 @@ class TeachingService:
                 "state_delta": state_delta,
             }
             self.db.execute(
-                "UPDATE teaching_sessions SET status='completed',ended_at=?,updated_at=?,state_json=? WHERE teaching_session_id=? AND owner_user_id=?",
+                "UPDATE teaching_sessions SET version=version+1,status='completed',ended_at=?,updated_at=?,state_json=? WHERE teaching_session_id=? AND owner_user_id=?",
                 (now, now, self.db.dumps(public_state), session_id, user_id),
             )
             self._cleanup_shadow_state(learner_user_id)
         else:
             state["state_delta"] = state_delta
             self.db.execute(
-                "UPDATE teaching_sessions SET status='completed',ended_at=?,updated_at=?,state_json=? WHERE teaching_session_id=? AND owner_user_id=?",
+                "UPDATE teaching_sessions SET version=version+1,status='completed',ended_at=?,updated_at=?,state_json=? WHERE teaching_session_id=? AND owner_user_id=?",
                 (now, now, self.db.dumps(state), session_id, user_id),
             )
         return {"teaching_session_id": session_id, "status": "completed", "state_delta": state_delta}
@@ -700,6 +509,8 @@ class TeachingService:
     def get(self, *, user_id: str, session_id: str) -> dict[str, Any]:
         row = self._session(user_id, session_id)
         state = self.db.loads(row["state_json"], {})
+        pending = self.db.fetchone("SELECT idempotency_key FROM teaching_turns WHERE turn_id=? AND teaching_session_id=?",
+                                   (row["pending_turn_id"], session_id)) if row["pending_turn_id"] else None
         return {
             "teaching_session_id": row["teaching_session_id"],
             "subject_id": row["subject_id"],
@@ -709,6 +520,8 @@ class TeachingService:
             "mode": row["mode"],
             "source_client": row["source_client"],
             "status": row["status"],
+            "pending_turn": bool(row["pending_turn_id"]),
+            "pending_turn_key": pending["idempotency_key"] if pending else None,
             "turn_count": int(state.get("turn_count", 0)),
             "move": state.get("current_move"),
             "state_delta": state.get("state_delta"),
@@ -847,7 +660,7 @@ class TeachingService:
             "submission_contract": {
                 "modalities": ["text", "image", "handwriting", "diagram", "audio", "code", "numeric", "choice", "mixed"],
                 "required_modalities": item.get("required_modalities") or
-                    ((item.get("answer_key") or {}).get("required_modalities") if isinstance(item.get("answer_key"), dict) else []),
+                    ((item.get("answer_key") or {}).get("required_modalities") if isinstance(item.get("answer_key"), dict) else []) or [],
                 "supports_partial_credit": True,
                 "visual_topology_autograding": False,
             },
@@ -865,6 +678,7 @@ class TeachingService:
             required_modalities=assessment_payload["submission_contract"]["required_modalities"],
             expected_evidence=item.get("expected_evidence") or "Correctness and response behavior.",
             learner_reason=plan.learner_reason, citations=citations, validation_state=item["validation_state"],
+            content_status=item.get("content_status", "assessment"),
             generated_item_id=generated_item_id, decision_trace={**self._decision_trace(plan), "inference": budget.snapshot()},
             decision_frame=self._public_decision_frame(plan),
             teaching_plan=teaching_plan, output_intent=output_intent,
@@ -895,6 +709,15 @@ class TeachingService:
             f"[{str(h.get('source_role') or ('verified_global' if h.get('verified') else 'private_source')).upper()} | {h.get('citation_location') or h.get('source_id')}]\n{h.get('content', '')[:1000]}"
             for h in plan.source_hits[:4]
         )
+        bank_allowed = self.decision.question_bank_allowed(course_id)
+        if not bank_allowed and not source_excerpt.strip():
+            return {
+                "stem": f"No permitted assessment content is available for {concept_name}. Upload course material or approve an external question bank.",
+                "answer_type": "free_text", "options": [], "answer_key": None,
+                "required_modalities": [], "difficulty": plan.target_difficulty,
+                "validation_state": "generated_unvalidated",
+                "content_status": "unavailable",
+            }
 
         # If the adaptive engine selected an information-gain or calibrated practice item,
         # deliver that exact item. The previous architecture computed a useful
@@ -902,7 +725,7 @@ class TeachingService:
         diagnosis = plan.diagnosis or {}
         adaptive = plan.adaptive or {}
         selected_question_id = plan.selected_question_id
-        if selected_question_id:
+        if selected_question_id and bank_allowed:
             selected = self.db.fetchone(
                 "SELECT * FROM questions WHERE question_id=? AND subject_id=?",
                 (selected_question_id, subject_id),
@@ -960,7 +783,7 @@ class TeachingService:
             ORDER BY ABS(difficulty-?) ASC, is_diagnostic ASC LIMIT 1""",
             (subject_id, plan.target_concept_id, plan.target_difficulty),
         )
-        if anchor:
+        if anchor and bank_allowed:
             answer_type = str(anchor["answer_type"])
             answer_key = self.db.loads(anchor["answer_key_json"], None)
             options: list[str] = []
@@ -1018,12 +841,14 @@ class TeachingService:
             normalized = [str(o).strip().casefold() for o in options]
             if any(not value for value in normalized) or len(set(normalized)) != len(normalized):
                 raise ValueError("MCQ options must be non-empty and distinct")
-            if not isinstance(key, int) or not 0 <= key < len(options):
+            if type(key) is not int or not 0 <= key < len(options):
                 raise ValueError("MCQ answer key must be an option index")
         elif answer_type == "boolean":
             if not isinstance(key, bool):
                 raise ValueError("Boolean answer key must be true or false")
         elif answer_type == "numeric":
+            if isinstance(key, bool):
+                raise ValueError("Numeric answer key must be a number")
             try:
                 numeric_key = float(key)
             except (TypeError, ValueError) as exc:
@@ -1048,7 +873,9 @@ class TeachingService:
                 raise ValueError("Code task test specification is too large")
 
         requested = max(0.0, min(1.0, float(target_difficulty)))
-        candidate_difficulty = max(0.0, min(1.0, float(raw.get("difficulty", requested))))
+        candidate_difficulty = float(raw.get("difficulty", requested))
+        if not math.isfinite(candidate_difficulty) or not 0.0 <= candidate_difficulty <= 1.0:
+            raise ValueError("Generated item difficulty must be finite and within 0-1")
         if abs(candidate_difficulty - requested) > 0.20:
             raise ValueError("Generated item difficulty is outside the requested adaptive window")
         return {
@@ -1079,16 +906,16 @@ class TeachingService:
         )
         if verdict is None:
             raise ValueError("Generated item validation budget/provider unavailable")
-        accepted = bool(verdict.get("accepted"))
-        confidence = float(verdict.get("confidence", 0.0))
-        if not accepted or confidence < 0.55:
+        verdict = AssessmentVerdict.model_validate(verdict)
+        confidence = verdict.confidence
+        if not verdict.accepted or confidence < 0.55:
             raise ValueError("Generated item failed independent validation")
         validated = dict(item)
         validated["validation_state"] = "generated_validated"
         validated["validation"] = {
             "accepted": True,
             "confidence": max(0.0, min(1.0, confidence)),
-            "reason": str(verdict.get("reason") or "validated")[:1000],
+            "reason": (verdict.reason or "validated")[:1000],
         }
         return validated
 
@@ -1167,6 +994,7 @@ class TeachingService:
         *,
         event_id: str | None = None,
         budget: SemanticBudget | None = None,
+        evaluation_result: EvaluationResult | None = None,
     ) -> dict[str, Any]:
         item_id = move.get("generated_item_id")
         score: float | None = None
@@ -1182,13 +1010,16 @@ class TeachingService:
             )
             if item_row:
                 item = self.db.loads(item_row["item_json"], {})
-                result = self.evidence_engine.evaluate(item, self._normalize_submission(turn), budget=budget)
+                if evaluation_result is None:
+                    raise ValueError("Assessment changed during grading; reload before answering")
+                result = evaluation_result
                 score, correct, evaluator_confidence = result.score, result.correct, result.confidence
                 evaluation_public = result.public_dict()
                 # Use the best calibrated difficulty available for the learner
                 # update rather than always trusting requested generation difficulty.
                 effective_difficulty = float(item_row["difficulty_posterior"] or effective_difficulty)
-                self._calibrate_item(item_row, score, turn)
+                if state.get("persist_personalization", True):
+                    self._calibrate_item(item_row, score, turn)
 
         behavior = ResponseBehavior(
             response_seconds=turn.response_seconds,
@@ -1206,7 +1037,7 @@ class TeachingService:
         }
         # An unverified score is not evidence of proficiency. Do not feed it to
         # BKT/IRT, adaptive state, proof of learning, or durable evidence logs.
-        if memory_session_id and score is not None:
+        if memory_session_id and score is not None and state.get("persist_personalization", True):
             event = EvidenceEvent(
                 event_id=event_id or str(uuid4()),
                 session_id=memory_session_id,
@@ -1540,35 +1371,56 @@ class TeachingService:
             "generated_at": _now(),
         }
 
-    def _expire_stale_local_first_shadows(self, *, owner_user_id: str, ttl_hours: int = 24) -> int:
+    def set_personalization(self, user_id: str, enabled: bool) -> None:
+        # Privacy changes share the evidence write boundary and invalidate any
+        # in-flight delivery snapshot. A retry reuses its committed evidence.
+        with self.memory.write_lock, self.db.transaction():
+            self.memory.set_personalization(user_id, enabled)
+            for row in self.db.fetchall(
+                "SELECT * FROM teaching_sessions WHERE owner_user_id=? AND status='active'", (user_id,)
+            ):
+                state = self.db.loads(row["state_json"], {})
+                state["persist_personalization"] = enabled
+                if not enabled:
+                    state["context_capsule"] = {}
+                engine_id = str(state.get("engine_user_id") or user_id)
+                if engine_id != user_id:
+                    self.memory.set_personalization(engine_id, enabled)
+                self.db.execute("UPDATE teaching_sessions SET state_json=?,version=version+1 WHERE teaching_session_id=?",
+                                (self.db.dumps(state), row["teaching_session_id"]))
+            if not enabled:
+                self.db.execute("DELETE FROM mcp_context_relay WHERE user_id=?", (user_id,))
+
+    def _expire_stale_local_first_shadows(self, *, owner_user_id: str | None = None, ttl_hours: int = 24) -> int:
         cutoff = (datetime.now(timezone.utc) - timedelta(hours=max(1, ttl_hours))).isoformat()
-        rows = self.db.fetchall(
-            "SELECT teaching_session_id,state_json FROM teaching_sessions "
-            "WHERE owner_user_id=? AND status='active' AND updated_at<?",
-            (owner_user_id, cutoff),
-        )
+        sql = "SELECT * FROM teaching_sessions WHERE status='active' AND updated_at<?"
+        params = (cutoff,)
+        if owner_user_id is not None:
+            sql += " AND owner_user_id=?"
+            params += (owner_user_id,)
         expired = 0
-        for row in rows:
-            state = self.db.loads(row["state_json"], {})
-            engine_id = str(state.get("engine_user_id") or "")
-            if state.get("memory_mode") != "local_first" or not engine_id.startswith(f"lf:{owner_user_id}:"):
-                continue
-            state_delta = state.get("state_delta") or {"memory_mode": "local_first", "expired": True}
-            public_state = {
-                "memory_mode": "local_first",
-                "current_move": state.get("current_move"),
-                "turn_count": int(state.get("turn_count", 0)),
-                "state_delta": state_delta,
-                "expired": True,
-            }
-            now = _now()
-            self.db.execute(
-                "UPDATE teaching_sessions SET status='expired',ended_at=?,updated_at=?,state_json=? "
-                "WHERE teaching_session_id=? AND owner_user_id=? AND status='active'",
-                (now, now, self.db.dumps(public_state), row["teaching_session_id"], owner_user_id),
-            )
-            self._cleanup_shadow_state(engine_id)
-            expired += 1
+        for candidate in self.db.fetchall(sql, params):
+            sid = candidate["teaching_session_id"]
+            with self._session_locks.hold(sid), self.memory.write_lock, self.db.transaction():
+                row = self._session(candidate["owner_user_id"], sid)
+                if row["status"] != "active" or row["updated_at"] >= cutoff:
+                    continue
+                state = self.db.loads(row["state_json"], {})
+                engine_id = str(state.get("engine_user_id") or "")
+                if state.get("memory_mode") != "local_first" or not engine_id.startswith(f"lf:{row['owner_user_id']}:"):
+                    continue
+                public_state = {
+                    "memory_mode": "local_first", "current_move": state.get("current_move"),
+                    "turn_count": int(state.get("turn_count", 0)),
+                    "state_delta": state.get("state_delta") or {"memory_mode": "local_first", "expired": True},
+                    "expired": True,
+                }
+                now = _now()
+                self.db.execute("UPDATE teaching_sessions SET status='expired',ended_at=?,updated_at=?,state_json=?,"
+                                "pending_turn_id=NULL,version=version+1 WHERE teaching_session_id=?",
+                                (now, now, self.db.dumps(public_state), sid))
+                self._cleanup_shadow_state(engine_id)
+                expired += 1
         return expired
 
     def _cleanup_shadow_state(self, learner_user_id: str) -> None:
@@ -1596,10 +1448,12 @@ class TeachingService:
         return row
 
     def _save_state(self, session_id: str, user_id: str, state: dict[str, Any]) -> None:
-        self.db.execute(
-            "UPDATE teaching_sessions SET state_json=?,updated_at=? WHERE teaching_session_id=? AND owner_user_id=?",
+        changed = self.db.execute(
+            "UPDATE teaching_sessions SET state_json=?,updated_at=? WHERE teaching_session_id=? AND owner_user_id=? AND status='active'",
             (self.db.dumps(state), _now(), session_id, user_id),
         )
+        if changed != 1:
+            raise ValueError("Teaching session is no longer active")
 
     @staticmethod
     def _bounded_capsule(value: dict[str, Any]) -> dict[str, Any]:

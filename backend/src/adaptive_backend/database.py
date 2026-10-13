@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from pathlib import Path
-from threading import RLock
+from threading import RLock, local
+from uuid import uuid4
 from typing import Any, Iterator
 
 
@@ -16,7 +17,8 @@ PRAGMA synchronous = NORMAL;
 CREATE TABLE IF NOT EXISTS subjects (
     subject_id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    description TEXT
+    description TEXT,
+    owner_user_id TEXT
 );
 
 CREATE TABLE IF NOT EXISTS concepts (
@@ -357,6 +359,8 @@ CREATE TABLE IF NOT EXISTS teaching_sessions (
     source_client TEXT NOT NULL DEFAULT 'web',
     status TEXT NOT NULL DEFAULT 'active',
     state_json TEXT NOT NULL DEFAULT '{}',
+    version INTEGER NOT NULL DEFAULT 0,
+    pending_turn_id TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     ended_at TEXT
@@ -371,6 +375,9 @@ CREATE TABLE IF NOT EXISTS teaching_turns (
     learner_response_json TEXT NOT NULL DEFAULT '{}',
     evidence_json TEXT NOT NULL DEFAULT '{}',
     move_json TEXT NOT NULL DEFAULT '{}',
+    status TEXT NOT NULL DEFAULT 'completed',
+    request_hash TEXT,
+    response_json TEXT NOT NULL DEFAULT '{}',
     created_at TEXT NOT NULL,
     UNIQUE(teaching_session_id, idempotency_key)
 );
@@ -727,6 +734,7 @@ class Database:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = RLock()
+        self._transaction_state = local()
         self.fts_available = False
 
     def _connect(self) -> sqlite3.Connection:
@@ -739,11 +747,16 @@ class Database:
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON")
         conn.execute("PRAGMA journal_mode = WAL")
+        conn.execute("PRAGMA synchronous = NORMAL")
         conn.execute("PRAGMA busy_timeout = 30000")
         return conn
 
     @contextmanager
     def connection(self) -> Iterator[sqlite3.Connection]:
+        active = getattr(self._transaction_state, "connection", None)
+        if active is not None:
+            yield active
+            return
         conn = self._connect()
         try:
             yield conn
@@ -752,22 +765,58 @@ class Database:
 
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:
+        active = getattr(self._transaction_state, "connection", None)
+        if active is not None:
+            # Service-level writers participate in the enclosing transaction.
+            # Savepoints preserve inner rollback when a recoverable error is caught.
+            name = "nested_" + uuid4().hex
+            active.execute(f"SAVEPOINT {name}")
+            try:
+                yield active
+                active.execute(f"RELEASE SAVEPOINT {name}")
+            except BaseException:
+                active.execute(f"ROLLBACK TO SAVEPOINT {name}")
+                active.execute(f"RELEASE SAVEPOINT {name}")
+                raise
+            return
         with self._lock:
             conn = self._connect()
             try:
                 conn.execute("BEGIN IMMEDIATE")
+                self._transaction_state.connection = conn
                 yield conn
                 conn.commit()
-            except Exception:
+            except BaseException:
                 conn.rollback()
                 raise
             finally:
+                self._transaction_state.connection = None
                 conn.close()
 
     def initialize(self) -> None:
-        with self._lock, self._connect() as conn:
-            conn.executescript(CORE_SCHEMA)
-            conn.executescript(OVAEL_SCHEMA)
+        with self._lock, closing(self._connect()) as conn, conn:
+            version = conn.execute("PRAGMA user_version").fetchone()[0]
+            if version > 8:
+                raise ValueError("Database schema is newer than this backend; use a compatible release")
+            existing = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='teaching_sessions'").fetchone()
+            if existing and version < 8:
+                # SQLite's backup API includes committed WAL contents. Keep a
+                # distinct snapshot for each migration attempt, never overwrite.
+                backup_path = self.path.with_name(f"{self.path.name}.pre-v8-{uuid4().hex}.bak")
+                with closing(sqlite3.connect(backup_path)) as backup:
+                    conn.backup(backup)
+            conn.execute("BEGIN IMMEDIATE")
+            self._execute_schema(conn, CORE_SCHEMA, skip_pragmas=True)
+            self._execute_schema(conn, OVAEL_SCHEMA)
+            subject_columns = {row[1] for row in conn.execute("PRAGMA table_info(subjects)")}
+            if "owner_user_id" not in subject_columns:
+                conn.execute("ALTER TABLE subjects ADD COLUMN owner_user_id TEXT")
+            # Legacy private subjects inherit the original creator, never the
+            # owner of a subsequently grafted course. Built-ins remain shared.
+            conn.execute("""UPDATE subjects SET owner_user_id=(
+                SELECT c.owner_user_id FROM courses c WHERE c.subject_id=subjects.subject_id
+                ORDER BY c.created_at,c.course_id LIMIT 1)
+                WHERE subject_id LIKE 'USR:%' AND owner_user_id IS NULL""")
             # Forward-compatible local migration for databases created before the current OVAEL schema.
             columns = {row[1] for row in conn.execute("PRAGMA table_info(knowledge_chunks)").fetchall()}
             for name in ("owner_user_id", "course_id", "document_id"):
@@ -784,6 +833,18 @@ class Database:
             teaching_columns = {row[1] for row in conn.execute("PRAGMA table_info(teaching_sessions)").fetchall()}
             if "course_id" not in teaching_columns:
                 conn.execute("ALTER TABLE teaching_sessions ADD COLUMN course_id TEXT")
+            if "version" not in teaching_columns:
+                conn.execute("ALTER TABLE teaching_sessions ADD COLUMN version INTEGER NOT NULL DEFAULT 0")
+            if "pending_turn_id" not in teaching_columns:
+                conn.execute("ALTER TABLE teaching_sessions ADD COLUMN pending_turn_id TEXT")
+            turn_columns = {row[1] for row in conn.execute("PRAGMA table_info(teaching_turns)").fetchall()}
+            for name, definition in (
+                ("status", "TEXT NOT NULL DEFAULT 'completed'"),
+                ("request_hash", "TEXT"),
+                ("response_json", "TEXT NOT NULL DEFAULT '{}'"),
+            ):
+                if name not in turn_columns:
+                    conn.execute(f"ALTER TABLE teaching_turns ADD COLUMN {name} {definition}")
             generated_columns = {row[1] for row in conn.execute("PRAGMA table_info(generated_items)").fetchall()}
             if "calibration_bucket_key" not in generated_columns:
                 conn.execute("ALTER TABLE generated_items ADD COLUMN calibration_bucket_key TEXT")
@@ -801,7 +862,7 @@ class Database:
                     conn.execute(f"ALTER TABLE pedagogy_events ADD COLUMN {name} TEXT NOT NULL DEFAULT '{{}}'")
             self.fts_available = False
             try:
-                conn.executescript(FTS_SCHEMA)
+                self._execute_schema(conn, FTS_SCHEMA)
                 self.fts_available = True
                 # Backfill any chunks missing from FTS. Checking only for an
                 # entirely empty FTS table is insufficient after a runtime moves
@@ -824,7 +885,21 @@ class Database:
                 if "fts5" not in str(exc).lower() and "no such module" not in str(exc).lower():
                     raise
                 self.fts_available = False
-            conn.execute("PRAGMA user_version = 7")
+            conn.execute("PRAGMA user_version = 8")
+
+    @staticmethod
+    def _execute_schema(conn: sqlite3.Connection, script: str, *, skip_pragmas: bool = False) -> None:
+        # executescript implicitly commits, which would split a migration into
+        # partial schema changes. complete_statement also handles trigger bodies.
+        statement = ""
+        for line in script.splitlines(keepends=True):
+            statement += line
+            if sqlite3.complete_statement(statement):
+                if not (skip_pragmas and statement.strip().upper().startswith("PRAGMA")):
+                    conn.execute(statement)
+                statement = ""
+        if statement.strip():
+            conn.execute(statement)
 
     def execute(self, sql: str, params: tuple[Any, ...] = ()) -> int:
         with self.transaction() as conn:

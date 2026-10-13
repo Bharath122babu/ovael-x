@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from starlette.concurrency import run_in_threadpool
+
 from io import BytesIO
 import json
 import hmac
@@ -446,9 +448,10 @@ def subjects(request: Request) -> list[dict[str, Any]]:
     p = principal(request); s = _services(request)
     rows = s.subjects.list_subjects()
     accessible = {r["subject_id"] for r in s.db.fetchall(
-        """SELECT DISTINCT c.subject_id FROM courses c LEFT JOIN course_enrollments e
+        """SELECT DISTINCT c.subject_id FROM courses c JOIN subjects s ON s.subject_id=c.subject_id LEFT JOIN course_enrollments e
            ON e.course_id=c.course_id AND e.learner_user_id=? AND e.status='active'
-           WHERE c.owner_user_id=? OR e.learner_user_id=?""",
+           WHERE (c.owner_user_id=? OR e.learner_user_id=?)
+           AND (c.subject_id NOT LIKE 'USR:%' OR s.owner_user_id=c.owner_user_id)""",
         (p.user_id, p.user_id, p.user_id),
     )}
     return [row for row in rows if not str(row["subject_id"]).startswith("USR:") or row["subject_id"] in accessible]
@@ -464,14 +467,20 @@ def create_course(payload: CourseIn, request: Request) -> dict[str, Any]:
     if subject_id:
         if not s.db.fetchone("SELECT 1 FROM subjects WHERE subject_id=?", (subject_id,)):
             raise HTTPException(status_code=400, detail="Unknown subject")
+        if subject_id.startswith("USR:"):
+            # Private namespaces belong to their owning account. Enrollment is
+            # permission to learn in an existing course, not to own its catalog.
+            if not s.db.fetchone("SELECT 1 FROM subjects WHERE subject_id=? AND owner_user_id=?",
+                                 (subject_id, p.user_id)):
+                raise HTTPException(status_code=403, detail="Private subject ownership required")
     else:
         # Unlimited runtime subjects: a new course can create its own isolated
         # subject namespace without adding Python source files.
         subject_id = f"USR:{p.user_id[:8]}:{uuid4().hex[:10]}"
         subject_name = (payload.subject_name or payload.name).strip()
         s.db.execute(
-            "INSERT INTO subjects(subject_id,name,description) VALUES(?,?,?)",
-            (subject_id, subject_name, f"User-created OVAEL subject for {payload.name}"),
+            "INSERT INTO subjects(subject_id,name,description,owner_user_id) VALUES(?,?,?,?)",
+            (subject_id, subject_name, f"User-created OVAEL subject for {payload.name}", p.user_id),
         )
     course_id = str(uuid4())
     now = datetime.now(timezone.utc).isoformat()
@@ -595,9 +604,10 @@ async def import_course_package(course_id: str, request: Request, file: UploadFi
 @router.get("/v1/courses/{course_id}/concepts")
 def course_concepts(course_id: str, request: Request) -> list[dict[str, Any]]:
     p = principal(request); svc = _services(request)
-    course = svc.db.fetchone("""SELECT c.subject_id FROM courses c LEFT JOIN course_enrollments e
+    course = svc.db.fetchone("""SELECT c.subject_id FROM courses c JOIN subjects s ON s.subject_id=c.subject_id LEFT JOIN course_enrollments e
         ON c.course_id=e.course_id AND e.learner_user_id=? AND e.status='active'
-        WHERE c.course_id=? AND (c.owner_user_id=? OR e.learner_user_id=?)""",
+        WHERE c.course_id=? AND (c.owner_user_id=? OR e.learner_user_id=?)
+        AND (c.subject_id NOT LIKE 'USR:%' OR s.owner_user_id=c.owner_user_id)""",
         (p.user_id, course_id, p.user_id, p.user_id))
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
@@ -612,7 +622,8 @@ class ConceptCreateIn(_Strict):
 @router.post("/v1/courses/{course_id}/concepts")
 def create_course_concept(course_id: str, payload: ConceptCreateIn, request: Request) -> dict[str, Any]:
     p = principal(request); svc = _services(request)
-    course = svc.db.fetchone("SELECT subject_id FROM courses WHERE course_id=? AND owner_user_id=?", (course_id, p.user_id))
+    course = svc.db.fetchone("""SELECT c.subject_id FROM courses c JOIN subjects s ON s.subject_id=c.subject_id
+        WHERE c.course_id=? AND c.owner_user_id=? AND (c.subject_id NOT LIKE 'USR:%' OR s.owner_user_id=c.owner_user_id)""", (course_id, p.user_id))
     if not course:
         raise HTTPException(status_code=404, detail="Course not found or not owner")
     row = svc.db.fetchone("SELECT concept_id,name FROM concepts WHERE subject_id=? AND lower(name)=lower(?)", (course["subject_id"], payload.name.strip()))
@@ -633,7 +644,7 @@ async def extract_answer_image(request: Request, file: UploadFile = File(...)) -
         raise HTTPException(status_code=413, detail="Image exceeds limit")
     try:
         budget = SemanticBudget(1)
-        result = svc.ocr.extract(payload, budget=budget)
+        result = await run_in_threadpool(svc.ocr.extract, payload, budget=budget)
         return {"modality":"handwriting", "text":result.text, "extraction_confidence":result.confidence, "engine":result.engine,
                 "warning":"Text extraction only. Diagram topology is not verified. Review the transcript before grading.",
                 "inference": budget.snapshot()}
@@ -860,12 +871,17 @@ async def upload_document(
             course_id=course_id,
             auto_route=auto_route,
         )
+        # Post-processing applies to material with at least some extracted text.
+        # A duplicate was already processed on first upload, so it must not reset a
+        # source role the course owner has since changed.
+        usable = record.get("status") in {"ready", "ready_partial"} and not record.get("duplicate")
+
         # A direct teacher upload into a course is authoritative by default. The
         # teacher can lower it to supplementary/reference later; student-private
         # material is linked through the separate preferred-explanation path.
-        if course_id and record.get("status") in {"ready", "routed"}:
+        if course_id and usable:
             try:
-                s.course_intelligence.set_document_role(
+                await run_in_threadpool(s.course_intelligence.set_document_role,
                     user_id=p.user_id,
                     course_id=course_id,
                     document_id=record["document_id"],
@@ -877,9 +893,9 @@ async def upload_document(
 
         # Learning IR is a deterministic projection over successfully extracted
         # material. Failure to compile IR must not destroy an otherwise valid upload.
-        if record.get("status") in {"ready", "routed"}:
+        if usable:
             try:
-                s.course_intelligence.compile_document_ir(user_id=p.user_id, document_id=record["document_id"])
+                await run_in_threadpool(s.course_intelligence.compile_document_ir, user_id=p.user_id, document_id=record["document_id"])
             except (ValueError, RuntimeError):
                 pass
         return record
@@ -1193,6 +1209,16 @@ def learning_turn(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+@router.post("/v1/learning/sessions/{session_id}/resume")
+def resume_learning(session_id: str, request: Request,
+                    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key", max_length=128)) -> dict[str, Any]:
+    p = principal(request)
+    try:
+        return _services(request).teaching.resume(user_id=p.user_id, session_id=session_id, idempotency_key=idempotency_key)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @router.post("/v1/learning/sessions/{session_id}/complete")
 def complete_learning(session_id: str, request: Request) -> dict[str, Any]:
     p = principal(request)
@@ -1211,9 +1237,7 @@ def v1_memory_settings(request: Request) -> dict[str, bool]:
 @router.post("/v1/memory/personalization")
 def v1_set_personalization(payload: PersonalizationIn, request: Request) -> dict[str, bool]:
     p = principal(request)
-    _services(request).memory.set_personalization(p.user_id, payload.enabled)
-    if not payload.enabled:
-        _services(request).db.execute("DELETE FROM mcp_context_relay WHERE user_id=?", (p.user_id,))
+    _services(request).teaching.set_personalization(p.user_id, payload.enabled)
     _services(request).auth.audit(p.user_id, "memory.personalization", metadata={"enabled": payload.enabled})
     return {"personalization_enabled": payload.enabled}
 
@@ -1349,7 +1373,7 @@ async def mcp_transport(request: Request) -> dict[str, Any]:
         elif method == "tools/list":
             result = {"tools": services.mcp.tool_catalog()}
         elif method == "tools/call":
-            result_data = services.mcp.call_tool(
+            result_data = await run_in_threadpool(services.mcp.call_tool,
                 user_id=user_id,
                 scopes=scopes,
                 name=str(params.get("name") or ""),
@@ -1369,7 +1393,7 @@ async def mcp_transport(request: Request) -> dict[str, Any]:
         elif method == "resources/read":
             uri = str(params.get("uri") or "")
             if uri == "ovael://learner/summary":
-                data = services.mcp.get_context(user_id)
+                data = await run_in_threadpool(services.mcp.get_context, user_id)
             else:
                 raise ValueError("Unsupported resource URI")
             result = {"contents": [{"uri": uri, "mimeType": "application/json", "text": json.dumps(data, ensure_ascii=False)}]}
@@ -1660,9 +1684,10 @@ def approve_course_graph(course_id: str, revision_id: str, request: Request) -> 
 def course_runtime_spec(course_id: str, request: Request) -> dict[str, Any]:
     p = principal(request); s = _services(request)
     course = s.db.fetchone(
-        """SELECT c.* FROM courses c
-           LEFT JOIN course_enrollments e ON e.course_id=c.course_id AND e.learner_user_id=?
-           WHERE c.course_id=? AND (c.owner_user_id=? OR e.learner_user_id=?)""",
+        """SELECT c.* FROM courses c JOIN subjects s ON s.subject_id=c.subject_id
+           LEFT JOIN course_enrollments e ON e.course_id=c.course_id AND e.learner_user_id=? AND e.status='active'
+           WHERE c.course_id=? AND (c.owner_user_id=? OR e.learner_user_id=?)
+           AND (c.subject_id NOT LIKE 'USR:%' OR s.owner_user_id=c.owner_user_id)""",
         (p.user_id, course_id, p.user_id, p.user_id),
     )
     if not course:
@@ -1716,7 +1741,7 @@ async def voice_call_turn(
     if len(data) > 25 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="Audio exceeds voice-turn limit")
     try:
-        return _services(request).voice_calls.turn(
+        return await run_in_threadpool(_services(request).voice_calls.turn,
             user_id=p.user_id, call_id=call_id, audio=data,
             filename=audio.filename or "audio.wav", idempotency_key=idempotency_key,
         )
