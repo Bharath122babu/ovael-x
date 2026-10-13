@@ -192,5 +192,19 @@ test('Login Page SVG Motion Overhaul: Sub-1.1s entrance choreography, single-lay
   assert.match(cssContent, /\.auth-editorial-motif__anchor--destination\s*\{[^}]*0\.78s\s+backwards;[^}]*transform-origin:\s*0px\s+0px;/s);
 });
 
-
-
+test('Interactive Draggable SVG Nodes: Renders 44px hit-targets, slider accessibility semantics, touch-action, and grab cursor styling', () => {
+  const html = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(ProgressionMotionVisual, { variant: 'editorial' })
+  );
+  assert.match(html, /ovael-progression__hit-target/);
+  assert.match(html, /role="slider"/);
+  assert.match(html, /tabindex="0"|tabIndex="0"/);
+  assert.match(html, /aria-valuemin="0"/);
+  assert.match(html, /aria-valuemax="100"/);
+  assert.match(html, /aria-valuenow=/);
+  assert.match(html, /r="22"/);
+  assert.match(cssContent, /\.ovael-progression__node-pos\s*\{[^}]*cursor:\s*grab;/s);
+  assert.match(cssContent, /\.ovael-progression__node-pos\s*\{[^}]*touch-action:\s*none;/s);
+  assert.match(cssContent, /\.ovael-progression__node-pos--dragging\s*\{[^}]*cursor:\s*grabbing/s);
+  assert.match(cssContent, /\.ovael-progression__hit-target:focus-visible\s*\{[^}]*outline:\s*2px\s+solid/s);
+});

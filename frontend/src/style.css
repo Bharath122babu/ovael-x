@@ -2051,6 +2051,63 @@ p {
   transform-origin: 0px 0px;
 }
 
+/* ==========================================================================
+   INTERACTIVE DRAGGABLE SVG NODES ALONG CURVE
+   ========================================================================== */
+.ovael-progression__node-pos {
+  cursor: grab;
+  cursor: url("/assets/ovael-login-cursor-pointer.svg") 1 1, grab;
+  touch-action: none;
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.ovael-progression__node-pos--dragging {
+  cursor: grabbing !important;
+  cursor: url("/assets/ovael-login-cursor-pointer.svg") 1 1, grabbing !important;
+  transition: none !important;
+}
+
+.ovael-progression__hit-target {
+  cursor: grab;
+  cursor: url("/assets/ovael-login-cursor-pointer.svg") 1 1, grab;
+  touch-action: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ovael-progression__node-pos--dragging .ovael-progression__hit-target {
+  cursor: grabbing !important;
+  cursor: url("/assets/ovael-login-cursor-pointer.svg") 1 1, grabbing !important;
+}
+
+.ovael-progression__hit-target:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+}
+
+/* Tactile Hover Proximity on desktop/fine-pointer devices */
+@media (hover: hover) and (pointer: fine) {
+  .ovael-progression__node-pos:hover .auth-editorial-motif__anchor {
+    transform: scale(1.05);
+  }
+
+  .ovael-progression__node-pos:hover .ovael-progression__node-core {
+    fill: #FF6D1F;
+    filter: drop-shadow(0 0 3px rgba(255, 109, 31, 0.5));
+  }
+}
+
+/* Active Dragging Tactile Feedback */
+.ovael-progression__node-pos--dragging .auth-editorial-motif__anchor {
+  transform: scale(1.08);
+}
+
+.ovael-progression__node-pos--dragging .ovael-progression__node-core {
+  fill: #FF6D1F;
+  filter: drop-shadow(0 0 4px rgba(255, 109, 31, 0.7));
+}
+
 /* Sequence Step 3: Hairline Editorial Divider Entrance */
 .auth-editorial-divider {
   width: 1px;
@@ -2735,6 +2792,10 @@ p {
   .ovael-progression__dest-ring {
     animation: none !important;
     transform: none !important;
+  }
+
+  .ovael-progression__node-pos {
+    transition: none !important;
   }
 
   .auth-form .ui-button--primary,
