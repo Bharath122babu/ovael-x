@@ -112,3 +112,69 @@ test('AdaptiveLearningMotif: Supports standard and card variants with custom lab
   );
   assert.match(htmlCard, /adaptive-motif--card/);
 });
+
+const {
+  OrbitMotionVisual,
+  ProgressionMotionVisual,
+  MechanismMotionVisual,
+} = require('../src/components/visuals/index.ts');
+
+test('Signature Motion Concept A (OrbitMotionVisual): Renders 2.5D elliptical track, sphere, and synchronized shadow', () => {
+  const htmlDecorative = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(OrbitMotionVisual, { size: 'sm', active: true, loop: true, decorative: true })
+  );
+  assert.match(htmlDecorative, /ovael-orbit--sm/);
+  assert.match(htmlDecorative, /ovael-orbit--loop/);
+  assert.match(htmlDecorative, /aria-hidden="true"/);
+  assert.match(htmlDecorative, /ovael-orbit__traveler/);
+  assert.match(htmlDecorative, /ovael-orbit__seam/);
+  assert.match(htmlDecorative, /#FF6D1F/);
+  assert.match(htmlDecorative, /#FAF3E1/);
+
+  const htmlStatus = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(OrbitMotionVisual, { size: 'md', active: true, loop: true, decorative: false, label: 'Evaluating turn' })
+  );
+  assert.match(htmlStatus, /role="status"/);
+  assert.match(htmlStatus, /aria-label="Evaluating turn"/);
+});
+
+test('Signature Motion Concept B (ProgressionMotionVisual): Renders 2.5D curved channel, stations, and rolling sphere without fake metrics', () => {
+  const html = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(ProgressionMotionVisual, { variant: 'editorial', active: false })
+  );
+  assert.match(html, /ovael-progression--editorial/);
+  assert.match(html, /auth-editorial-motif__trajectory/);
+  assert.match(html, /ovael-progression__sphere-rig/);
+  assert.match(html, /ovael-progression__sphere-roll/);
+  assert.match(html, /auth-editorial-motif__anchor--origin/);
+  assert.match(html, /auth-editorial-motif__anchor--inflection/);
+  assert.match(html, /auth-editorial-motif__anchor--destination/);
+  assert.doesNotMatch(html, /<text|mastery|score/i);
+});
+
+test('Signature Motion Concept C (MechanismMotionVisual): Renders 2.5D channel, pivoting rocker bar, and sphere states', () => {
+  const htmlIdle = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(MechanismMotionVisual, { variant: 'compact', state: 'idle' })
+  );
+  assert.match(htmlIdle, /ovael-mechanism--compact/);
+  assert.match(htmlIdle, /ovael-mechanism--idle/);
+  assert.match(htmlIdle, /ovael-mechanism__rocker/);
+  assert.match(htmlIdle, /ovael-mechanism__sphere/);
+
+  const htmlSettled = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(MechanismMotionVisual, { variant: 'inline', state: 'settled' })
+  );
+  assert.match(htmlSettled, /ovael-mechanism--inline/);
+  assert.match(htmlSettled, /ovael-mechanism--settled/);
+});
+
+test('Custom Login SVG Cursor: Compact 20x20 solid Electric Tangerine pointer with 1 1 hotspot scoped to auth page', () => {
+  const cursorSvgPath = path.resolve(__dirname, '../public/assets/ovael-login-cursor.svg');
+  const cursorSvg = fs.readFileSync(cursorSvgPath, 'utf8');
+  assert.match(cursorSvg, /width="20"\s+height="20"\s+viewBox="0 0 20 20"/);
+  assert.match(cursorSvg, /fill="#FF6D1F"/);
+  assert.match(cursorSvg, /stroke-linejoin="round"/);
+  assert.match(cssContent, /cursor:\s*url\("\/assets\/ovael-login-cursor\.svg"\)\s*1\s+1,\s*default;/);
+  assert.match(cssContent, /cursor:\s*url\("\/assets\/ovael-login-cursor-pointer\.svg"\)\s*1\s+1,\s*pointer;/);
+});
+

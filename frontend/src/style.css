@@ -207,6 +207,13 @@
   --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);          /* Swift entrance deceleration */
   --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);           /* Accelerated exit */
   --motion-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);      /* Restrained non-bouncy spring */
+  --motion-ease-mechanical: cubic-bezier(0.22, 1, 0.36, 1); /* Controlled mechanical rolling deceleration */
+  --motion-ease-index: cubic-bezier(0.32, 0.08, 0.24, 1);   /* Precision mechanical indexing curve */
+
+  /* 2.5D Mechanical Motion Vocabulary Durations */
+  --motion-orbit-duration: 2.8s;
+  --motion-progression-duration: 1.45s;
+  --motion-mechanism-duration: 0.72s;
 
   /* Backward-compatible legacy aliases */
   --ease-standard: var(--motion-ease-standard);
@@ -1608,7 +1615,7 @@ p {
   overflow-x: hidden;
   padding: clamp(32px, 6vh, 64px) 24px;
   box-sizing: border-box;
-  cursor: url("/assets/ovael-login-cursor.svg") 2 2, default;
+  cursor: url("/assets/ovael-login-cursor.svg") 1 1, default;
 }
 
 /* Custom Cursor Scoped Exclusively to Authentication Page */
@@ -1623,7 +1630,7 @@ p {
 .auth-page__container,
 .auth-page__box,
 .auth-form-card {
-  cursor: url("/assets/ovael-login-cursor.svg") 2 2, default;
+  cursor: url("/assets/ovael-login-cursor.svg") 1 1, default;
 }
 
 /* Interactive Elements within Authentication Page */
@@ -1635,7 +1642,7 @@ p {
 .auth-page-root .auth-role-option,
 .auth-page-root .ui-button,
 .auth-page-root .ui-icon-button {
-  cursor: url("/assets/ovael-login-cursor-pointer.svg") 2 2, pointer;
+  cursor: url("/assets/ovael-login-cursor-pointer.svg") 1 1, pointer;
 }
 
 /* Text Inputs retain native text selection caret */
@@ -2016,12 +2023,24 @@ p {
   animation: drawTrajectory var(--auth-motion-draw) var(--auth-motion-ease) 0.1s forwards;
 }
 
-/* Controlled Tangerine Tracer (single trip along path, settles at focal point) */
-.auth-editorial-motif__tracer {
+/* 2.5D Rolling Sphere Assembly (single controlled journey along curved channel, docks at destination plinth) */
+.auth-editorial-motif__tracer,
+.ovael-progression__sphere-rig {
   offset-path: path('M 40 205 C 110 205, 140 75, 215 75 C 275 75, 300 135, 330 100');
-  animation: tracerTravel var(--auth-motion-travel) var(--auth-motion-ease) 0.1s forwards;
+  offset-rotate: 0deg;
+  animation: tracerTravel var(--motion-progression-duration, 1.45s) var(--motion-ease-mechanical) 0.1s forwards;
   transform-origin: center;
   pointer-events: none;
+}
+
+.ovael-progression__sphere-roll {
+  transform-origin: 0px 0px;
+  animation: ovaelProgressionRoll var(--motion-progression-duration, 1.45s) var(--motion-ease-mechanical) 0.1s forwards;
+}
+
+.ovael-progression--active .ovael-progression__dest-ring {
+  transform-origin: 0px 0px;
+  animation: ovaelIndexSpin 3.2s linear infinite;
 }
 
 /* Geometric Anchors: Sequential Emergence */
@@ -2160,21 +2179,39 @@ p {
   }
 }
 
-/* Controlled Tangerine Tracer Travel */
+/* Controlled 2.5D Sphere Travel (accelerates out of origin, decelerates and docks at destination plinth) */
 @keyframes tracerTravel {
   0% {
     offset-distance: 0%;
     opacity: 0;
   }
-  12% {
+  8% {
     opacity: 1;
   }
-  85% {
+  90% {
     opacity: 1;
   }
   100% {
     offset-distance: 100%;
-    opacity: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes ovaelProgressionRoll {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(540deg);
+  }
+}
+
+@keyframes ovaelIndexSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -2459,7 +2496,7 @@ p {
   color: var(--color-text-subtle);
   background: transparent;
   border: 0;
-  cursor: pointer;
+  cursor: url("/assets/ovael-login-cursor-pointer.svg") 1 1, pointer;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2523,7 +2560,7 @@ p {
   background: transparent;
   color: var(--color-text-muted);
   border-radius: calc(var(--radius-control) - 2px);
-  cursor: pointer;
+  cursor: url("/assets/ovael-login-cursor-pointer.svg") 1 1, pointer;
   transition: all var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
@@ -2561,7 +2598,7 @@ p {
   align-items: center;
   justify-content: center;
   width: 100%;
-  cursor: pointer;
+  cursor: url("/assets/ovael-login-cursor-pointer.svg") 1 1, pointer;
   margin-top: 4px;
 }
 
@@ -2601,7 +2638,7 @@ p {
   color: var(--color-text-secondary);
   font-weight: var(--weight-medium);
   font-size: 13px;
-  cursor: pointer;
+  cursor: url("/assets/ovael-login-cursor-pointer.svg") 1 1, pointer;
   display: inline-block;
   padding: 4px 0;
   text-decoration: underline;
@@ -2778,9 +2815,17 @@ p {
     opacity: 0.35 !important;
   }
 
-  .auth-editorial-motif__tracer {
-    display: none !important;
+  .auth-editorial-motif__tracer,
+  .ovael-progression__sphere-rig {
     animation: none !important;
+    offset-distance: 100% !important;
+    opacity: 1 !important;
+  }
+
+  .ovael-progression__sphere-roll,
+  .ovael-progression__dest-ring {
+    animation: none !important;
+    transform: none !important;
   }
 
   .auth-form .ui-button--primary,
@@ -9859,6 +9904,231 @@ p {
   .page-heading__actions .adaptive-motif--compact {
     display: none;
   }
+  .session-setup-panel__mechanism {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   17.5 SIGNATURE 2.5D MECHANICAL MOTION SYSTEM (ORBIT, PROGRESSION, MECHANISM)
+   ========================================================================== */
+
+/* --- A. ORBIT (Controlled circular/elliptical 2.5D orbital movement) --- */
+.ovael-orbit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.ovael-orbit__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.ovael-orbit--sm {
+  width: 38px;
+  height: 26px;
+}
+
+.ovael-orbit--md {
+  width: 88px;
+  height: 60px;
+}
+
+.ovael-orbit--lg {
+  width: 148px;
+  height: 100px;
+}
+
+.ovael-orbit__traveler {
+  offset-path: path('M 28 54 A 52 26 0 1 1 132 54 A 52 26 0 1 1 28 54');
+  offset-rotate: 0deg;
+  offset-distance: 18%;
+}
+
+.ovael-orbit--loop .ovael-orbit__traveler {
+  animation: ovaelOrbitTravel var(--motion-orbit-duration, 2.8s) linear infinite;
+}
+
+.ovael-orbit--once .ovael-orbit__traveler {
+  animation: ovaelOrbitTravel 2.1s var(--motion-ease-mechanical) 0.1s forwards;
+}
+
+.ovael-orbit__seam {
+  transform-origin: 0px 0px;
+}
+
+.ovael-orbit--loop .ovael-orbit__seam {
+  animation: ovaelSphereRoll var(--motion-orbit-duration, 2.8s) linear infinite;
+}
+
+.ovael-orbit--once .ovael-orbit__seam {
+  animation: ovaelSphereRoll 2.1s var(--motion-ease-mechanical) 0.1s forwards;
+}
+
+@keyframes ovaelOrbitTravel {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes ovaelSphereRoll {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- B. PROGRESSION (2.5D sphere travelling & rolling along curved guideway) --- */
+.ovael-progression {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+.ovael-progression--compact {
+  max-width: 240px;
+}
+
+.ovael-progression__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+/* --- C. MECHANISM (2.5D sphere, channel, and pivoting rocker bar interaction) --- */
+.ovael-mechanism {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.ovael-mechanism__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.ovael-mechanism--compact {
+  width: 96px;
+  height: 46px;
+}
+
+.ovael-mechanism--standard {
+  width: 164px;
+  height: 78px;
+}
+
+.ovael-mechanism--inline {
+  width: 72px;
+  height: 34px;
+}
+
+.ovael-mechanism__sphere {
+  offset-path: path('M 28 30 H 96 L 154 56');
+  offset-rotate: 0deg;
+  offset-distance: 0%;
+}
+
+.ovael-mechanism--idle .ovael-mechanism__sphere {
+  offset-distance: 0%;
+}
+
+.ovael-mechanism--settled .ovael-mechanism__sphere {
+  animation: ovaelMechanismSphere var(--motion-mechanism-duration, 0.72s) var(--motion-ease-mechanical) forwards;
+}
+
+.ovael-mechanism--active .ovael-mechanism__sphere {
+  animation: ovaelMechanismSphere 1.25s var(--motion-ease-mechanical) infinite alternate;
+}
+
+.ovael-mechanism__sphere-seam {
+  transform-origin: 0px 0px;
+}
+
+.ovael-mechanism--settled .ovael-mechanism__sphere-seam {
+  animation: ovaelSphereRoll var(--motion-mechanism-duration, 0.72s) var(--motion-ease-mechanical) forwards;
+}
+
+.ovael-mechanism--active .ovael-mechanism__sphere-seam {
+  animation: ovaelSphereRoll 1.25s var(--motion-ease-mechanical) infinite alternate;
+}
+
+.ovael-mechanism__rocker {
+  transform: translate(96px, 43px) rotate(0deg);
+}
+
+.ovael-mechanism--settled .ovael-mechanism__rocker {
+  animation: ovaelMechanismRocker var(--motion-mechanism-duration, 0.72s) var(--motion-ease-index) forwards;
+}
+
+.ovael-mechanism--active .ovael-mechanism__rocker {
+  animation: ovaelMechanismRocker 1.25s var(--motion-ease-index) infinite alternate;
+}
+
+@keyframes ovaelMechanismSphere {
+  0% {
+    offset-distance: 0%;
+  }
+  42% {
+    offset-distance: 48%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes ovaelMechanismRocker {
+  0%,
+  36% {
+    transform: translate(96px, 43px) rotate(0deg);
+  }
+  75%,
+  100% {
+    transform: translate(96px, 43px) rotate(-22deg);
+  }
+}
+
+/* Integration Layout Helpers for Session Setup & Decision Trace */
+.session-setup-panel__head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.decision-trace-viewer__mechanism-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  background: rgba(245, 231, 198, 0.45);
+  border: 1px solid rgba(34, 34, 34, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+.decision-trace-viewer__mechanism-caption {
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  color: var(--color-black-hole);
+  letter-spacing: 0.01em;
 }
 
 /* ==========================================================================
@@ -9884,8 +10154,59 @@ p {
   .speech-listening-indicator,
   .typing-indicator span,
   .motif-pulse-node,
-  .motif-data-link {
+  .motif-data-link,
+  .ovael-orbit__traveler,
+  .ovael-orbit__seam,
+  .ovael-progression__sphere-rig,
+  .ovael-progression__sphere-roll,
+  .ovael-progression__dest-ring,
+  .ovael-mechanism__sphere,
+  .ovael-mechanism__sphere-seam,
+  .ovael-mechanism__rocker {
     animation: none !important;
+  }
+
+  .ovael-orbit__traveler {
+    offset-distance: 18% !important;
+  }
+
+  .ovael-progression__sphere-rig {
+    offset-distance: 100% !important;
+    opacity: 1 !important;
+  }
+
+  .ovael-mechanism--settled .ovael-mechanism__sphere,
+  .ovael-mechanism--active .ovael-mechanism__sphere {
+    offset-distance: 100% !important;
+  }
+
+  .ovael-mechanism--idle .ovael-mechanism__sphere {
+    offset-distance: 0% !important;
+  }
+
+  /* Preserve SVG group positioning inside reduced-motion mode */
+  .ovael-orbit__hub {
+    transform: translate(80px, 54px) !important;
+  }
+
+  .ovael-mechanism__socket {
+    transform: translate(154px, 56px) !important;
+  }
+
+  .ovael-mechanism__rocker {
+    transform: translate(96px, 43px) rotate(0deg) !important;
+  }
+
+  .ovael-mechanism--settled .ovael-mechanism__rocker {
+    transform: translate(96px, 43px) rotate(-22deg) !important;
+  }
+
+  .auth-editorial-motif__anchor--inflection {
+    transform: translate(215px, 75px) !important;
+  }
+
+  .auth-editorial-motif__anchor--destination {
+    transform: translate(330px, 100px) !important;
   }
 
   .adaptive-motif__scene,

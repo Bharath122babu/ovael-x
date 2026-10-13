@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
+import { OrbitMotionVisual } from '../visuals';
 import { SessionHeader } from './SessionHeader';
 import { TutorTurn } from './TutorTurn';
 import { LearnerTurn } from './LearnerTurn';
@@ -82,6 +83,7 @@ export const ActiveSessionWorkspace: React.FC<ActiveSessionWorkspaceProps> = ({
 
             {messages.length === 0 && !busy && (
               <div className="conversation-timeline__empty">
+                <OrbitMotionVisual size="sm" active={true} loop={true} decorative={true} />
                 <p>Connecting to decision engine...</p>
               </div>
             )}
@@ -125,7 +127,8 @@ export const ActiveSessionWorkspace: React.FC<ActiveSessionWorkspaceProps> = ({
             {/* Asynchronous Loading / Evaluating Indicator */}
             {busy && (
               <div className="tutor-typing-indicator" role="status" aria-live="polite">
-                <LoaderCircle size={17} className="spin text-primary" aria-hidden="true" />
+                <OrbitMotionVisual size="sm" active={true} loop={true} decorative={true} />
+                <LoaderCircle size={17} className="spin text-primary sr-only" aria-hidden="true" />
                 <span>Evaluating answer &amp; planning next step...</span>
               </div>
             )}

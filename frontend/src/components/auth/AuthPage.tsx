@@ -113,7 +113,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
         <div className="auth-editorial-body">
           {/* Visual Artwork Wing (Desktop / Tablet) */}
           <aside className="auth-editorial-visual" aria-label="Brand Visual Motif">
-            <AuthEditorialMotif className="auth-editorial-visual__graphic" />
+            <AuthEditorialMotif className="auth-editorial-visual__graphic" active={busy} />
           </aside>
 
           {/* Hairline Editorial Divider */}

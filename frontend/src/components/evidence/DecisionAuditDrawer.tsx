@@ -11,6 +11,7 @@ import {
   Info,
 } from 'lucide-react';
 import { Button, IconButton, Badge, Alert, useFocusTrap } from '../ui';
+import { OrbitMotionVisual } from '../visuals';
 import { DecisionAuditData } from './types';
 
 export interface DecisionAuditDrawerProps {
@@ -106,7 +107,8 @@ export const DecisionAuditDrawer: React.FC<DecisionAuditDrawerProps> = ({
           </div>
 
           {loading ? (
-            <div className="decision-audit-loading">
+            <div className="decision-audit-loading" role="status" aria-live="polite">
+              <OrbitMotionVisual size="sm" active={true} loop={true} decorative={true} />
               <p>Fetching latest closed-loop transaction audit...</p>
             </div>
           ) : auditData?.status === 'no_session' ? (

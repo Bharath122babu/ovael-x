@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Network, ChevronDown, ChevronUp, Copy, Check, Terminal } from 'lucide-react';
 import { Button, Badge } from '../ui';
+import { MechanismMotionVisual } from '../visuals';
 
 export interface DecisionTraceViewerProps {
   decisionFrame?: Record<string, any>;
@@ -75,6 +76,10 @@ export const DecisionTraceViewer: React.FC<DecisionTraceViewerProps> = ({
 
       {isOpen && (
         <div id="decision-trace-content" className="decision-trace-viewer__content">
+          <div className="decision-trace-viewer__mechanism-bar">
+            <MechanismMotionVisual variant="inline" state="settled" decorative={true} />
+            <span className="decision-trace-viewer__mechanism-caption">Deterministic frame locked</span>
+          </div>
           {reason && (
             <div className="decision-trace-viewer__summary">
               <span className="decision-trace-viewer__summary-label">Decision Rationale:</span>

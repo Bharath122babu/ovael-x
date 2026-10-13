@@ -1,40 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-  <!-- OVAEL-X Premium Default Cursor (Hotspot: 2, 2) -->
-  <!-- Outer Dark Silhouette for Universal Contrast -->
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
   <path
-    d="M2.5 2.5L2.5 22.5L7.5 17.5L12 27L16 25L11.5 15.5L18.5 15.5L2.5 2.5Z"
-    fill="#222222"
-    stroke="#222222"
-    stroke-width="2.5"
+    d="M1.2 1.2L1.2 15.2L5.0 11.6L8.1 18.2L10.7 17.0L7.6 10.4L13.2 10.4L1.2 1.2Z"
+    fill="#FF6D1F"
+    stroke="#FF6D1F"
+    stroke-width="1.15"
     stroke-linejoin="round"
     stroke-linecap="round"
-  />
-
-  <!-- Primary Face (Sustainable Linen #FAF3E1) -->
-  <path
-    d="M2.5 2.5L2.5 22.5L7.5 17.5L12 27L16 25L11.5 15.5L18.5 15.5L2.5 2.5Z"
-    fill="#FAF3E1"
-  />
-
-  <!-- Subtle Depth Facet (Recycled Cotton #F5E7C6) -->
-  <path
-    d="M7.5 17.5L12 27L16 25L11.5 15.5L18.5 15.5L10 13L7.5 17.5Z"
-    fill="#F5E7C6"
-    opacity="0.8"
-  />
-
-  <!-- Signature OVAEL-X Accent Facet (Electric Tangerine #FF6D1F) -->
-  <path
-    d="M3.5 5L3.5 13L8 11.5L3.5 5Z"
-    fill="#FF6D1F"
-  />
-
-  <!-- Fine Inner Geometric Dividing Line -->
-  <path
-    d="M2.5 2.5L10 13"
-    stroke="#222222"
-    stroke-width="0.75"
-    stroke-linecap="round"
-    opacity="0.4"
   />
 </svg>

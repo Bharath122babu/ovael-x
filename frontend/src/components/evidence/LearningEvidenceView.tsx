@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button, Alert, Spinner } from '../ui';
 import { PageHeader } from '../layout';
+import { OrbitMotionVisual } from '../visuals';
 import { EvidenceMetricCard } from './EvidenceMetricCard';
 import { ConceptEvidenceTable } from './ConceptEvidenceTable';
 import { DecisionAuditDrawer } from './DecisionAuditDrawer';
@@ -104,8 +105,9 @@ export const LearningEvidenceView: React.FC<LearningEvidenceViewProps> = ({
 
       {/* 3. Loading State */}
       {loading && !snapshot ? (
-        <div className="learning-evidence-view__loading">
-          <Spinner size="lg" />
+        <div className="learning-evidence-view__loading" role="status" aria-live="polite">
+          <OrbitMotionVisual size="md" active={true} loop={true} decorative={true} />
+          <Spinner size="lg" className="sr-only" />
           <p>Loading learning evidence records and proof state...</p>
         </div>
       ) : (

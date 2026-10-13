@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BookOpen, Activity, ArrowRight, ShieldCheck, Target, Sparkles } from 'lucide-react';
 import { Button, Input, Field, Badge } from '../ui';
+import { MechanismMotionVisual } from '../visuals';
 
 export type LearningIntent = 'study' | 'practice';
 
@@ -24,12 +25,23 @@ export const SessionSetupPanel: React.FC<SessionSetupPanelProps> = ({
   busy = false,
 }) => {
   const [mode, setMode] = useState<LearningIntent>('study');
+  const mechanismState = busy ? 'active' : canStart ? 'settled' : 'idle';
 
   return (
     <aside className="session-setup-panel" aria-label="Learning session configuration">
       <div className="session-setup-panel__head">
-        <div className="eyebrow">SESSION WORKSPACE</div>
-        <h3 className="session-setup-panel__title">Ready to Begin</h3>
+        <div className="session-setup-panel__head-row">
+          <div>
+            <div className="eyebrow">SESSION WORKSPACE</div>
+            <h3 className="session-setup-panel__title">Ready to Begin</h3>
+          </div>
+          <MechanismMotionVisual
+            variant="compact"
+            state={mechanismState}
+            decorative={true}
+            className="session-setup-panel__mechanism"
+          />
+        </div>
         <p className="session-setup-panel__desc">
           Configure how the decision engine approaches this session.
         </p>
