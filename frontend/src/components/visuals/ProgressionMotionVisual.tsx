@@ -3,8 +3,6 @@ import React, { useId } from 'react';
 export interface ProgressionMotionVisualProps {
   /** Visual presentation variant */
   variant?: 'editorial' | 'compact';
-  /** Whether a real pending action is active (e.g. authenticating / starting session) */
-  active?: boolean;
   /** Optional custom CSS class */
   className?: string;
   /** Accessible description for conceptual illustration */
@@ -12,32 +10,32 @@ export interface ProgressionMotionVisualProps {
 }
 
 /**
- * OVAEL-X Signature Motion Concept B — PROGRESSION
+ * OVAEL-X Signature Curved Learning-Path Illustration (PROGRESSION).
  *
- * An original 2.5D sphere-and-track mechanical composition inspired by minimalist
- * orange-and-ivory UI motion design. A studio-lit Sustainable Linen (#FAF3E1) sphere
- * rolls along a sculpted Recycled Cotton (#F5E7C6) and Electric Tangerine (#FF6D1F)
- * curved channel from Origin through an Inflection Gate to a Destination Plinth.
+ * Preserves the editorial curved pathway composition, charcoal outlines, warm
+ * Recycled Cotton supporting track, and three geometric nodes at (40, 205),
+ * (215, 75), and (330, 100).
  *
- * Physical Choreography:
- * - Sphere translation uses controlled acceleration and deceleration along a cubic Bézier curve.
- * - Inner meridian band rotates proportionally (540 deg) to distance traveled.
- * - Grounded contact shadow travels synchronously beneath the sphere on the channel floor.
- * - Settles into a stable docked resting state without percentage labels or fake mastery metrics.
+ * Coordinated Entrance Sequence (~1.06s total, runs once and settles):
+ * 1. Base charcoal and Recycled Cotton track layers establish the calm pathway structure.
+ * 2. Primary Electric Tangerine path (.auth-editorial-motif__trajectory) draws progressively
+ *    from the origin node to the destination node via normalized stroke-dashoffset.
+ * 3. A compact Electric Tangerine accent (.auth-editorial-motif__tracer) travels once along
+ *    the exact cubic Bézier curve and docks coaxially at the destination node (330, 100).
+ * 4. The three nodes (.auth-editorial-motif__anchor--origin, --inflection, --destination)
+ *    activate sequentially in natural order as the path reaches each station.
  */
 export const ProgressionMotionVisual: React.FC<ProgressionMotionVisualProps> = ({
   variant = 'editorial',
-  active = false,
   className = '',
-  ariaLabel = 'Geometric 2.5D sphere and curved guideway representing structured learning progression',
+  ariaLabel = 'Geometric curved learning-path motif representing structured progression',
 }) => {
   const uid = useId().replace(/:/g, '');
+  const curvePath = 'M 40 205 C 110 205, 140 75, 215 75 C 275 75, 300 135, 330 100';
 
   return (
     <div
-      className={`ovael-progression ovael-progression--${variant} ${
-        active ? 'ovael-progression--active' : ''
-      } ${className}`.trim()}
+      className={`ovael-progression ovael-progression--${variant} ${className}`.trim()}
       role="img"
       aria-label={ariaLabel}
     >
@@ -49,205 +47,192 @@ export const ProgressionMotionVisual: React.FC<ProgressionMotionVisualProps> = (
         aria-hidden="true"
       >
         <defs>
-          {/* Channel Bed Surface Gradient (Recycled Cotton #F5E7C6 to Sustainable Linen #FAF3E1) */}
+          {/* Warm Recycled Cotton (#F5E7C6) Channel Bed */}
           <linearGradient id={`progBed-${uid}`} x1="40" y1="215" x2="330" y2="90" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#F5E7C6" />
             <stop offset="55%" stopColor="#EFE0BC" />
             <stop offset="100%" stopColor="#F5E7C6" />
           </linearGradient>
 
-          {/* Extruded 2.5D Channel Wall Gradient (Electric Tangerine #FF6D1F) */}
+          {/* Subtle Lower Depth Rim */}
           <linearGradient id={`progWall-${uid}`} x1="40" y1="220" x2="330" y2="105" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#E55B10" />
-            <stop offset="50%" stopColor="#FF6D1F" />
-            <stop offset="100%" stopColor="#D9530F" />
+            <stop offset="0%" stopColor="#222222" stopOpacity="0.22" />
+            <stop offset="55%" stopColor="#FF6D1F" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="#FF6D1F" stopOpacity="0.7" />
           </linearGradient>
 
-          {/* Centerline Guide Rail Gradient */}
-          <linearGradient id={`editorialGrad-${uid}`} x1="40" y1="210" x2="330" y2="80" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#222222" stopOpacity="0.45" />
-            <stop offset="60%" stopColor="#222222" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#FF6D1F" stopOpacity="0.95" />
+          {/* Primary Progressive Orange Trajectory Gradient */}
+          <linearGradient id={`editorialGrad-${uid}`} x1="40" y1="205" x2="330" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#222222" />
+            <stop offset="28%" stopColor="#FF6D1F" />
+            <stop offset="100%" stopColor="#FF6D1F" />
           </linearGradient>
 
-          {/* Studio-Lit Rolling Sphere (Sustainable Linen #FAF3E1) */}
-          <radialGradient id={`progSphere-${uid}`} cx="34%" cy="30%" r="68%">
+          {/* Studio-Lit Travelling Accent Sphere */}
+          <radialGradient id={`progSphere-${uid}`} cx="35%" cy="32%" r="68%">
             <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="42%" stopColor="#FAF3E1" />
-            <stop offset="82%" stopColor="#E5D5B2" />
-            <stop offset="100%" stopColor="#C4B18A" />
+            <stop offset="48%" stopColor="#FAF3E1" />
+            <stop offset="100%" stopColor="#E5D5B2" />
           </radialGradient>
 
-          {/* Electric Tangerine Plinth Surface */}
+          {/* Destination Plinth Cap */}
           <radialGradient id={`progTangerineCap-${uid}`} cx="36%" cy="32%" r="68%">
-            <stop offset="0%" stopColor="#FF8F52" />
-            <stop offset="50%" stopColor="#FF6D1F" />
-            <stop offset="100%" stopColor="#CC4E0A" />
+            <stop offset="0%" stopColor="#FF8542" />
+            <stop offset="55%" stopColor="#FF6D1F" />
+            <stop offset="100%" stopColor="#D9530F" />
           </radialGradient>
         </defs>
 
-        {/* 1. Delicate Architectural Registration Grid & Baselines */}
+        {/* 1. Delicate Architectural Registration Crosshairs & Baselines */}
         <g opacity="0.35" stroke="rgba(34, 34, 34, 0.25)" strokeWidth="1" className="auth-editorial-motif__grid ovael-progression__grid">
           <path d="M 36 40 H 44 M 40 36 V 44" />
           <path d="M 316 240 H 324 M 320 236 V 244" />
           <line x1="40" y1="250" x2="320" y2="250" strokeDasharray="3 6" stroke="rgba(34, 34, 34, 0.14)" />
-          {/* Vertical 2.5D elevation drop-lines from stations to baseline */}
-          <line x1="40" y1="216" x2="40" y2="250" strokeDasharray="2 3" stroke="rgba(34, 34, 34, 0.18)" />
-          <line x1="215" y1="90" x2="215" y2="250" strokeDasharray="2 4" stroke="rgba(34, 34, 34, 0.14)" />
-          <line x1="330" y1="116" x2="330" y2="250" strokeDasharray="2 3" stroke="rgba(34, 34, 34, 0.18)" />
+          <line x1="40" y1="216" x2="40" y2="250" strokeDasharray="2 3" stroke="rgba(34, 34, 34, 0.16)" />
+          <line x1="215" y1="90" x2="215" y2="250" strokeDasharray="2 4" stroke="rgba(34, 34, 34, 0.12)" />
+          <line x1="330" y1="116" x2="330" y2="250" strokeDasharray="2 3" stroke="rgba(34, 34, 34, 0.16)" />
         </g>
 
-        {/* 2. Grounded Ambient Shadow of the Curved Track */}
+        {/* 2. Secondary Supporting Echo Contour (Recycled Cotton & Charcoal hairline) */}
         <path
-          d="M 40 215 C 110 215, 140 85, 215 85 C 275 85, 300 145, 330 110"
-          stroke="rgba(34, 34, 34, 0.08)"
-          strokeWidth="22"
-          strokeLinecap="round"
+          className="auth-editorial-motif__echo"
+          d="M 45 225 C 115 225, 145 115, 215 115 C 265 115, 295 155, 325 140"
+          stroke="rgba(34, 34, 34, 0.16)"
+          strokeWidth="1.25"
+          strokeDasharray="4 6"
         />
 
-        {/* 3. 2.5D Extruded Lower Track Bevel (Electric Tangerine #FF6D1F) */}
+        {/* 3. Static Supporting Track Layers (Charcoal Outline + Warm Recycled Cotton Bed) */}
+        {/* Soft contact shadow beneath the track */}
         <path
-          d="M 40 209.5 C 110 209.5, 140 79.5, 215 79.5 C 275 79.5, 300 139.5, 330 104.5"
+          d="M 40 212 C 110 212, 140 82, 215 82 C 275 82, 300 142, 330 107"
+          stroke="rgba(34, 34, 34, 0.06)"
+          strokeWidth="18"
+          strokeLinecap="round"
+        />
+        {/* Lower bevel accent */}
+        <path
+          d="M 40 208 C 110 208, 140 78, 215 78 C 275 78, 300 138, 330 103"
           stroke={`url(#progWall-${uid})`}
-          strokeWidth="16"
+          strokeWidth="13.5"
           strokeLinecap="round"
           className="ovael-progression__wall"
         />
-
-        {/* 4. Milled Upper Channel Rim (Black Hole #222222 structural contrast) */}
+        {/* Charcoal structural track outline (#222222) */}
         <path
-          d="M 40 205 C 110 205, 140 75, 215 75 C 275 75, 300 135, 330 100"
+          d={curvePath}
           stroke="#222222"
-          strokeWidth="16.5"
-          strokeLinecap="round"
-          strokeOpacity="0.88"
-        />
-
-        {/* 5. Recessed Channel Bed (Recycled Cotton #F5E7C6) */}
-        <path
-          className="auth-editorial-motif__echo ovael-progression__bed"
-          d="M 40 205 C 110 205, 140 75, 215 75 C 275 75, 300 135, 330 100"
-          stroke={`url(#progBed-${uid})`}
           strokeWidth="14"
           strokeLinecap="round"
-          pathLength="100"
+          strokeOpacity="0.86"
+        />
+        {/* Warm Recycled Cotton (#F5E7C6) inner track bed */}
+        <path
+          d={curvePath}
+          stroke={`url(#progBed-${uid})`}
+          strokeWidth="11.5"
+          strokeLinecap="round"
+          className="ovael-progression__bed"
+        />
+        {/* Subtle static guide groove */}
+        <path
+          d={curvePath}
+          stroke="rgba(34, 34, 34, 0.18)"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+          strokeDasharray="2 4"
         />
 
-        {/* 6. Precision Centerline Guide Groove */}
+        {/* 4. Primary Animated Orange Path (Draws progressively from origin node to final node) */}
         <path
+          id={`learningPathCurve-${uid}`}
           className="auth-editorial-motif__trajectory ovael-progression__rail"
-          d="M 40 205 C 110 205, 140 75, 215 75 C 275 75, 300 135, 330 100"
+          d={curvePath}
           stroke={`url(#editorialGrad-${uid})`}
-          strokeWidth="2"
+          strokeWidth="3.25"
           strokeLinecap="round"
           pathLength="100"
         />
 
-        {/* 7. Station 1: Origin Launch Plinth (40, 205) */}
+        {/* 5. Node 1: Origin Station (40, 205) — Activates first as path begins */}
         <g className="auth-editorial-motif__anchor auth-editorial-motif__anchor--origin">
-          {/* 2.5D Plinth Base Shadow */}
-          <ellipse cx="40" cy="208.5" rx="13" ry="9" fill="rgba(34, 34, 34, 0.15)" />
-          {/* Extruded Charcoal Base */}
-          <circle cx="40" cy="206.5" r="11" fill="#222222" />
-          {/* Top Recessed Cotton Ring */}
-          <circle cx="40" cy="205" r="11" fill="#F5E7C6" stroke="#222222" strokeWidth="1.4" />
-          {/* Inner Origin Socket */}
+          <ellipse cx="40" cy="208" rx="11.5" ry="8" fill="rgba(34, 34, 34, 0.12)" />
+          <circle cx="40" cy="205" r="10" fill="#F5E7C6" stroke="#222222" strokeWidth="1.4" />
           <circle cx="40" cy="205" r="5.5" fill="#FAF3E1" stroke="#222222" strokeWidth="1.25" />
-          <circle cx="40" cy="205" r="2" fill="#222222" />
+          <circle cx="40" cy="205" r="2.2" fill="#222222" className="ovael-progression__node-core ovael-progression__node-core--origin" />
         </g>
 
-        {/* 8. Station 2: Inflection Mechanical Collar (215, 75) */}
+        {/* 6. Node 2: Inflection Diamond Node (215, 75) — Activates second as orange path reaches curve apex */}
         <g className="auth-editorial-motif__anchor auth-editorial-motif__anchor--inflection" transform="translate(215, 75)">
-          {/* Collar Shadow */}
-          <ellipse cx="0" cy="3" rx="12" ry="8" fill="rgba(34, 34, 34, 0.14)" />
-          {/* Rotated Mechanical Gate Frame */}
+          <ellipse cx="0" cy="2.5" rx="10.5" ry="7" fill="rgba(34, 34, 34, 0.12)" />
           <rect
-            x="-8.5"
-            y="-8.5"
-            width="17"
-            height="17"
-            rx="3.5"
+            x="-7.5"
+            y="-7.5"
+            width="15"
+            height="15"
+            rx="3"
             fill="#FAF3E1"
             stroke="#222222"
             strokeWidth="1.4"
             transform="rotate(45)"
           />
           <rect
-            x="-4.5"
-            y="-4.5"
-            width="9"
-            height="9"
-            rx="1.5"
+            x="-3.8"
+            y="-3.8"
+            width="7.6"
+            height="7.6"
+            rx="1.2"
             fill="#FF6D1F"
             stroke="#222222"
-            strokeWidth="1.1"
+            strokeWidth="1"
             transform="rotate(45)"
+            className="ovael-progression__node-core ovael-progression__node-core--inflection"
           />
-          <circle cx="0" cy="0" r="1.75" fill="#FAF3E1" />
+          <circle cx="0" cy="0" r="1.5" fill="#FAF3E1" />
         </g>
 
-        {/* 9. Station 3: Destination Receiving Plinth (330, 100) */}
+        {/* 7. Node 3: Destination Focal Node (330, 100) — Activates third as path and orange accent arrive */}
         <g className="auth-editorial-motif__anchor auth-editorial-motif__anchor--destination" transform="translate(330, 100)">
-          {/* Precision Outer Indexing Ring */}
           <circle
-            r="18"
+            r="16"
             fill="none"
             stroke="#FF6D1F"
-            strokeWidth="1.15"
-            strokeDasharray="3 4"
-            opacity="0.55"
+            strokeWidth="1.1"
+            strokeDasharray="2.5 3.5"
+            opacity="0.5"
             className="ovael-progression__dest-ring"
           />
-          {/* Plinth Contact Shadow */}
-          <ellipse cx="0" cy="4" rx="14.5" ry="10" fill="rgba(34, 34, 34, 0.18)" />
-          {/* 2.5D Extruded Tangerine Side Wall */}
-          <circle cx="0" cy="2" r="13" fill="#CC4E0A" stroke="#222222" strokeWidth="1.3" />
-          {/* Top Tangerine Plinth Face */}
-          <circle cx="0" cy="0" r="13" fill={`url(#progTangerineCap-${uid})`} stroke="#222222" strokeWidth="1.4" />
-          {/* Recessed Socket Pocket */}
-          <circle cx="0" cy="0" r="8" fill="#FAF3E1" stroke="#222222" strokeWidth="1.25" />
-          <circle cx="0" cy="0" r="3" fill="#FF6D1F" />
+          <ellipse cx="0" cy="3" rx="13" ry="9" fill="rgba(34, 34, 34, 0.15)" />
+          <circle cx="0" cy="0" r="11.5" fill={`url(#progTangerineCap-${uid})`} stroke="#222222" strokeWidth="1.4" />
+          <circle cx="0" cy="0" r="6.8" fill="#FAF3E1" stroke="#222222" strokeWidth="1.25" />
+          <circle cx="0" cy="0" r="2.8" fill="#FF6D1F" className="ovael-progression__node-core ovael-progression__node-core--destination" />
         </g>
 
-        {/* 10. Travelling 2.5D Rolling Sphere Assembly */}
+        {/* 8. Travelling Electric Tangerine Accent (Follows exact curve once and settles coaxially at 330, 100) */}
         <g className="auth-editorial-motif__tracer ovael-progression__sphere-rig" aria-hidden="true">
-          {/* Synchronized Contact Shadow on Track Floor */}
+          {/* Subtle contact shadow on track */}
           <ellipse
-            cx="1.8"
-            cy="5.2"
-            rx="9"
-            ry="5.2"
-            fill="rgba(34, 34, 34, 0.26)"
+            cx="1"
+            cy="2.8"
+            rx="6"
+            ry="3.6"
+            fill="rgba(34, 34, 34, 0.18)"
             className="ovael-progression__sphere-shadow"
           />
-
-          {/* Main Studio-Lit Linen Sphere (Lighting stays oriented top-left via offset-rotate: 0deg) */}
+          {/* Crisp Linen Collar */}
           <circle
             cx="0"
             cy="0"
-            r="8.5"
+            r="5.6"
             fill={`url(#progSphere-${uid})`}
             stroke="#222222"
-            strokeWidth="1.4"
+            strokeWidth="1.25"
           />
-
-          {/* Rolling Inner Meridian Seam (Rotates proportionally to path travel) */}
+          {/* Rotating Inner Seam & Electric Tangerine Core */}
           <g className="ovael-progression__sphere-roll">
-            <ellipse
-              cx="0"
-              cy="0"
-              rx="7.6"
-              ry="3"
-              fill="none"
-              stroke="#FF6D1F"
-              strokeWidth="1.35"
-            />
-            <circle cx="4.5" cy="0" r="1.5" fill="#222222" />
-            <circle cx="-4.5" cy="0" r="1.2" fill="#FF6D1F" />
+            <circle cx="0" cy="0" r="2.8" fill="#FF6D1F" />
+            <circle cx="-1.4" cy="-1.4" r="1" fill="#FAF3E1" fillOpacity="0.9" />
           </g>
-
-          {/* Studio Specular Highlight (Top-Left Light Source) */}
-          <circle cx="-2.8" cy="-2.8" r="2.2" fill="#FFFFFF" fillOpacity="0.92" />
         </g>
       </svg>
     </div>

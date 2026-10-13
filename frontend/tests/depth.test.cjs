@@ -178,3 +178,13 @@ test('Custom Login SVG Cursor: Compact 20x20 solid Electric Tangerine pointer wi
   assert.match(cssContent, /cursor:\s*url\("\/assets\/ovael-login-cursor-pointer\.svg"\)\s*1\s+1,\s*pointer;/);
 });
 
+test('Login Page SVG Motion Overhaul: Sub-1.1s entrance choreography, single-layer orange stroke draw, and auth-state independence', () => {
+  assert.match(cssContent, /--auth-motion-draw:\s*0\.84s;/);
+  assert.match(cssContent, /--auth-motion-travel:\s*0\.84s;/);
+  assert.match(cssContent, /\.auth-editorial-motif__trajectory\s*\{[^}]*stroke-dasharray:\s*100;[^}]*animation:\s*drawTrajectory/s);
+  assert.match(cssContent, /\.auth-editorial-motif__anchor--origin\s*\{[^}]*0\.06s\s+backwards;/s);
+  assert.match(cssContent, /\.auth-editorial-motif__anchor--inflection\s*\{[^}]*0\.42s\s+backwards;/s);
+  assert.match(cssContent, /\.auth-editorial-motif__anchor--destination\s*\{[^}]*0\.82s\s+backwards;/s);
+});
+
+

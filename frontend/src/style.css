@@ -1814,14 +1814,13 @@ p {
    13.A EDITORIAL AUTHENTICATION STAGE & FORM (PREMIUM MOTION & INTERACTIONS)
    ========================================================================== */
 
-/* Dedicated Authentication Motion Tokens */
+/* Dedicated Authentication Motion Tokens (700–1100ms total entrance sequence) */
 :root {
-  --auth-motion-draw: 1.25s;
-  --auth-motion-draw-echo: 1.1s;
-  --auth-motion-travel: 1.35s;
-  --auth-motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --auth-entrance-ease: cubic-bezier(0, 0, 0.2, 1);
-  --auth-spring-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --auth-motion-draw: 0.84s;
+  --auth-motion-travel: 0.84s;
+  --auth-motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --auth-entrance-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --auth-spring-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Composed Architectural & Editorial Stage */
@@ -1838,13 +1837,13 @@ p {
   box-sizing: border-box;
 }
 
-/* Sequence Step 1: Editorial Brand Masthead Entrance */
+/* Sequence Step 1: Editorial Brand Masthead Entrance (0ms–360ms) */
 .auth-page__brand {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   width: 100%;
-  animation: authEntranceHeader 0.45s var(--auth-entrance-ease) backwards;
+  animation: authEntranceHeader 0.36s var(--auth-entrance-ease) 0s backwards;
 }
 
 .auth-brand {
@@ -1862,9 +1861,9 @@ p {
   border-radius: 9px;
   display: grid;
   place-items: center;
-  box-shadow: 0 1px 4px rgba(255, 109, 31, 0.2);
+  box-shadow: none;
   flex-shrink: 0;
-  border: 1px solid rgba(34, 34, 34, 0.12);
+  border: 1px solid rgba(34, 34, 34, 0.14);
 }
 
 .auth-brand__mark svg {
@@ -1972,7 +1971,7 @@ p {
   width: 100%;
 }
 
-/* Sequence Step 2: Visual Artwork Left Wing Entrance */
+/* Sequence Step 2: Visual Artwork Left Wing Entrance (40ms–460ms) */
 .auth-editorial-visual {
   display: flex;
   flex-direction: column;
@@ -1981,7 +1980,7 @@ p {
   width: 100%;
   padding: 12px 0;
   box-sizing: border-box;
-  animation: authEntranceVisual 0.55s var(--auth-entrance-ease) 0.08s backwards;
+  animation: authEntranceVisual 0.42s var(--auth-entrance-ease) 0.04s backwards;
 }
 
 .auth-editorial-motif {
@@ -2001,41 +2000,39 @@ p {
 }
 
 /* ==========================================================================
-   SVG EDITORIAL MOTIF MOTION GRAPHICS
+   SVG EDITORIAL MOTIF MOTION GRAPHICS (Curved Learning-Path Illustration)
    ========================================================================== */
 
 /* Delicate architectural alignment crosshairs */
 .auth-editorial-motif__grid {
-  animation: motifGridFade 0.7s var(--auth-entrance-ease) 0.05s backwards;
+  animation: motifGridFade 0.45s var(--auth-entrance-ease) 0.04s backwards;
 }
 
-/* Secondary ghost contour (Recycled Cotton tone) */
+/* Supporting contour (Recycled Cotton / Black Hole track bed) remains static */
 .auth-editorial-motif__echo {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: drawEcho var(--auth-motion-draw-echo) var(--auth-motion-ease) 0.12s forwards;
+  opacity: 1;
 }
 
-/* Primary flowing vector trajectory (stroke reveal) */
+/* A. Path-Drawing Animation: Primary orange stroke draws progressively (80ms–920ms) */
 .auth-editorial-motif__trajectory {
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
-  animation: drawTrajectory var(--auth-motion-draw) var(--auth-motion-ease) 0.1s forwards;
+  animation: drawTrajectory var(--auth-motion-draw) var(--auth-motion-ease) 0.08s forwards;
 }
 
-/* 2.5D Rolling Sphere Assembly (single controlled journey along curved channel, docks at destination plinth) */
+/* B. Orange Accent Travelling Along the Curve (80ms–920ms, docks at destination node) */
 .auth-editorial-motif__tracer,
 .ovael-progression__sphere-rig {
   offset-path: path('M 40 205 C 110 205, 140 75, 215 75 C 275 75, 300 135, 330 100');
   offset-rotate: 0deg;
-  animation: tracerTravel var(--motion-progression-duration, 1.45s) var(--motion-ease-mechanical) 0.1s forwards;
+  animation: tracerTravel var(--auth-motion-travel) var(--auth-motion-ease) 0.08s forwards;
   transform-origin: center;
   pointer-events: none;
 }
 
 .ovael-progression__sphere-roll {
   transform-origin: 0px 0px;
-  animation: ovaelProgressionRoll var(--motion-progression-duration, 1.45s) var(--motion-ease-mechanical) 0.1s forwards;
+  animation: ovaelProgressionRoll var(--auth-motion-travel) var(--auth-motion-ease) 0.08s forwards;
 }
 
 .ovael-progression--active .ovael-progression__dest-ring {
@@ -2043,19 +2040,19 @@ p {
   animation: ovaelIndexSpin 3.2s linear infinite;
 }
 
-/* Geometric Anchors: Sequential Emergence */
+/* C. Sequential Node Activation (activates in natural order as path reaches each station) */
 .auth-editorial-motif__anchor--origin {
-  animation: anchorOriginFade 0.45s var(--auth-entrance-ease) 0.08s backwards;
+  animation: anchorOriginFade 0.24s var(--auth-entrance-ease) 0.06s backwards;
   transform-origin: 40px 205px;
 }
 
 .auth-editorial-motif__anchor--inflection {
-  animation: anchorInflectionFade 0.55s var(--auth-entrance-ease) 0.55s backwards;
+  animation: anchorInflectionFade 0.24s var(--auth-entrance-ease) 0.42s backwards;
   transform-origin: 215px 75px;
 }
 
 .auth-editorial-motif__anchor--destination {
-  animation: anchorDestinationSettle 0.65s var(--auth-spring-ease) 1.12s backwards;
+  animation: anchorDestinationSettle 0.24s var(--auth-entrance-ease) 0.82s backwards;
   transform-origin: 330px 100px;
 }
 
@@ -2066,10 +2063,10 @@ p {
   min-height: 280px;
   background: rgba(34, 34, 34, 0.1);
   align-self: center;
-  animation: authEntranceDivider 0.6s var(--auth-entrance-ease) 0.15s backwards;
+  animation: authEntranceDivider 0.4s var(--auth-entrance-ease) 0.06s backwards;
 }
 
-/* Sequence Step 4: Focused Authentication Column Entrance */
+/* Sequence Step 4: Focused Authentication Column Entrance (40ms–440ms, zero input shift) */
 .auth-page__container,
 .auth-form-area {
   display: flex;
@@ -2086,7 +2083,7 @@ p {
   padding: 0;
   min-height: auto;
   overflow-y: visible;
-  animation: authEntranceForm 0.5s var(--auth-entrance-ease) 0.08s backwards;
+  animation: authEntranceForm 0.4s var(--auth-entrance-ease) 0.04s backwards;
 }
 
 /* Form Container directly on canvas (no heavy floating card) */
@@ -2132,7 +2129,6 @@ p {
   margin: 0 0 6px;
   letter-spacing: -0.03em;
   text-align: left;
-  animation: authEntranceTitle 0.45s var(--auth-entrance-ease) 0.05s backwards;
 }
 
 .auth-form-card__subtitle {
@@ -2141,17 +2137,15 @@ p {
   line-height: var(--leading-normal);
   margin: 0;
   text-align: left;
-  animation: authEntranceSubtitle 0.45s var(--auth-entrance-ease) 0.12s backwards;
 }
 
-/* Sequence Step 5: Form interactive controls entrance */
+/* Form interactive controls (no separate staggered animations per input/label/button) */
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
   text-align: left;
-  animation: authEntranceFormBody 0.5s var(--auth-entrance-ease) 0.16s backwards;
 }
 
 /* ==========================================================================
@@ -2168,27 +2162,13 @@ p {
   }
 }
 
-@keyframes drawEcho {
-  0% {
-    stroke-dashoffset: 100;
-    opacity: 0.3;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-}
-
-/* Controlled 2.5D Sphere Travel (accelerates out of origin, decelerates and docks at destination plinth) */
+/* Controlled Orange Accent Travel (travels once along curve and settles into destination node) */
 @keyframes tracerTravel {
   0% {
     offset-distance: 0%;
     opacity: 0;
   }
-  8% {
-    opacity: 1;
-  }
-  90% {
+  6% {
     opacity: 1;
   }
   100% {
@@ -2202,7 +2182,7 @@ p {
     transform: rotate(0deg);
   }
   100% {
-    transform: rotate(540deg);
+    transform: rotate(360deg);
   }
 }
 
@@ -2225,11 +2205,11 @@ p {
   }
 }
 
-/* Geometric Anchors Emergence */
+/* Sequential Node Activation Keyframes (smooth opacity + restrained scale, no bounce/overshoot) */
 @keyframes anchorOriginFade {
   from {
-    opacity: 0;
-    transform: scale(0.5);
+    opacity: 0.55;
+    transform: scale(0.92);
   }
   to {
     opacity: 1;
@@ -2239,8 +2219,8 @@ p {
 
 @keyframes anchorInflectionFade {
   from {
-    opacity: 0;
-    transform: scale(0.5);
+    opacity: 0.55;
+    transform: scale(0.92);
   }
   to {
     opacity: 1;
@@ -2249,15 +2229,11 @@ p {
 }
 
 @keyframes anchorDestinationSettle {
-  0% {
-    opacity: 0;
-    transform: scale(0.6);
+  from {
+    opacity: 0.55;
+    transform: scale(0.92);
   }
-  70% {
-    opacity: 1;
-    transform: scale(1.08);
-  }
-  100% {
+  to {
     opacity: 1;
     transform: scale(1);
   }
@@ -2267,77 +2243,36 @@ p {
 @keyframes authEntranceHeader {
   from {
     opacity: 0;
-    transform: translateY(-3px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @keyframes authEntranceVisual {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @keyframes authEntranceDivider {
   from {
     opacity: 0;
-    transform: scaleY(0.7);
   }
   to {
     opacity: 1;
-    transform: scaleY(1);
   }
 }
 
 @keyframes authEntranceForm {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes authEntranceTitle {
-  from {
-    opacity: 0;
-    transform: translateY(3px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes authEntranceSubtitle {
-  from {
-    opacity: 0;
-    transform: translateY(2px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes authEntranceFormBody {
-  from {
-    opacity: 0;
-    transform: translateY(3px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -2353,11 +2288,9 @@ p {
 @keyframes errorFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-1px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -2397,7 +2330,7 @@ p {
   text-align: left;
 }
 
-/* Form Inputs: Single crisp control boundary, zero nested borders */
+/* Form Inputs: Single crisp control boundary, zero nested borders or glowing shadows */
 .auth-form .ui-input-wrapper {
   background: #FFFFFF;
   border: 1px solid rgba(34, 34, 34, 0.16);
@@ -2408,9 +2341,9 @@ p {
   align-items: center;
   position: relative;
   box-sizing: border-box;
+  box-shadow: none;
   transition: border-color var(--motion-duration-fast) var(--motion-ease-standard),
-              outline var(--motion-duration-fast) var(--motion-ease-standard),
-              box-shadow var(--motion-duration-fast) var(--motion-ease-standard),
+              outline-color var(--motion-duration-fast) var(--motion-ease-standard),
               background-color var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
@@ -2423,19 +2356,18 @@ p {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
   background: #FFFFFF;
-  box-shadow: 0 0 0 1px rgba(255, 109, 31, 0.15);
+  box-shadow: none;
 }
 
 .auth-form .ui-input-wrapper:focus-within .ui-input-element--left {
   color: var(--color-black-hole);
-  transform: scale(1.04);
 }
 
 .auth-form .ui-input-wrapper--error {
   border-color: var(--color-error) !important;
   outline: 2px solid var(--color-error);
   outline-offset: 1px;
-  box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.12);
+  box-shadow: none;
 }
 
 .auth-form .ui-input-wrapper--error:focus-within {
@@ -2479,8 +2411,7 @@ p {
   color: var(--color-text-subtle);
   margin-right: 8px;
   flex-shrink: 0;
-  transition: color var(--motion-duration-fast) var(--motion-ease-standard),
-              transform var(--motion-duration-fast) var(--motion-ease-standard);
+  transition: color var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .auth-form .ui-input-element--right {
@@ -2501,8 +2432,7 @@ p {
   align-items: center;
   justify-content: center;
   transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
-              color var(--motion-duration-fast) var(--motion-ease-standard),
-              transform var(--motion-duration-fast) var(--motion-ease-standard);
+              color var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .auth-form .ui-input-element--right .ui-icon-button:hover:not(:disabled) {
@@ -2511,7 +2441,7 @@ p {
 }
 
 .auth-form .ui-input-element--right .ui-icon-button:active:not(:disabled) {
-  transform: scale(0.94);
+  background: rgba(34, 34, 34, 0.12);
 }
 
 .auth-form .ui-input-element--right .ui-icon-button:focus-visible {
@@ -2561,7 +2491,8 @@ p {
   color: var(--color-text-muted);
   border-radius: calc(var(--radius-control) - 2px);
   cursor: url("/assets/ovael-login-cursor-pointer.svg") 1 1, pointer;
-  transition: all var(--motion-duration-fast) var(--motion-ease-standard);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
+              color var(--motion-duration-fast) var(--motion-ease-standard);
 }
 
 .auth-role-option:hover:not(:disabled) {
@@ -2580,11 +2511,11 @@ p {
   outline-offset: 1px;
 }
 
-/* Primary Action Button: Electric Tangerine (#FF6D1F), Black Hole (#222222) text (4.9:1 contrast), ~44px height */
+/* Primary Action Button: Electric Tangerine (#FF6D1F), Black Hole (#222222) text (4.9:1 contrast), 44px height */
 .auth-form .ui-button--primary {
   background: var(--color-primary);
   color: var(--color-black-hole);
-  border: 1px solid rgba(34, 34, 34, 0.12);
+  border: 1px solid rgba(34, 34, 34, 0.14);
   font-size: 14px;
   font-weight: var(--weight-bold);
   height: 44px;
@@ -2592,8 +2523,8 @@ p {
   border-radius: var(--radius-control);
   box-shadow: none;
   transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
-              transform var(--motion-duration-fast) var(--motion-ease-standard),
-              box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
+              border-color var(--motion-duration-fast) var(--motion-ease-standard),
+              transform 80ms var(--motion-ease-standard);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2605,12 +2536,13 @@ p {
 .auth-form .ui-button--primary:hover:not(:disabled) {
   background: var(--color-primary-hover, #E55B10);
   color: var(--color-black-hole);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(255, 109, 31, 0.25);
+  border-color: rgba(34, 34, 34, 0.24);
+  transform: none;
+  box-shadow: none;
 }
 
 .auth-form .ui-button--primary:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(1px);
   box-shadow: none;
   background: var(--color-primary-active, #CC4E0A);
 }
