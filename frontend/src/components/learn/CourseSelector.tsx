@@ -10,6 +10,7 @@ export interface Course {
   description?: string;
   course_kind?: string;
   created_at?: string;
+  concept_count?: number;
 }
 
 export interface CourseSelectorProps {
@@ -17,6 +18,7 @@ export interface CourseSelectorProps {
   selectedCourseId: string;
   onSelectCourse: (courseId: string) => void;
   onNavigateToCourses: () => void;
+  activeConceptCount?: number;
 }
 
 export const CourseSelector: React.FC<CourseSelectorProps> = ({
@@ -24,6 +26,7 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
   selectedCourseId,
   onSelectCourse,
   onNavigateToCourses,
+  activeConceptCount,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -36,6 +39,19 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
       (c.subject_name && c.subject_name.toLowerCase().includes(q))
     );
   });
+
+  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (filteredCourses.length === 0) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = (index + 1) % filteredCourses.length;
+      onSelectCourse(filteredCourses[nextIndex].course_id);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = (index - 1 + filteredCourses.length) % filteredCourses.length;
+      onSelectCourse(filteredCourses[prevIndex].course_id);
+    }
+  };
 
   return (
     <div className="course-selector">
@@ -96,16 +112,25 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
           role="radiogroup"
           aria-label="Available courses"
         >
-          {filteredCourses.map((c) => {
+          {filteredCourses.map((c, idx) => {
             const isSelected = c.course_id === selectedCourseId;
+            const topicCount =
+              c.concept_count !== undefined
+                ? c.concept_count
+                : isSelected && activeConceptCount !== undefined
+                ? activeConceptCount
+                : undefined;
+
             return (
               <button
                 type="button"
                 key={c.course_id}
                 role="radio"
                 aria-checked={isSelected}
+                tabIndex={isSelected || (!selectedCourseId && idx === 0) ? 0 : -1}
                 className={`course-card ${isSelected ? 'course-card--selected' : ''}`}
                 onClick={() => onSelectCourse(c.course_id)}
+                onKeyDown={(e) => handleKeyDown(e, idx)}
               >
                 <div className="course-card__badge-row">
                   <div className="course-card__letter" aria-hidden="true">
@@ -135,6 +160,7 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
                 <div className="course-card__footer">
                   <span className="course-card__meta">
                     {c.subject_name || c.subject_id || 'Adaptive Subject'}
+                    {topicCount !== undefined && ` • ${topicCount} ${topicCount === 1 ? 'topic' : 'topics'}`}
                   </span>
                   <span className="course-card__action">
                     {isSelected ? 'Active choice' : 'Select course →'}

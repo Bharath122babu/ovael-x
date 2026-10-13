@@ -3217,6 +3217,48 @@ p {
   flex-shrink: 0;
 }
 
+/* Topic Placeholder Card (Step 2 Guidance) */
+.learn-landing__topic-placeholder {
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.topic-placeholder-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 24px;
+  background: var(--color-surface-subtle);
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--radius-card);
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.topic-placeholder-card__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  display: grid;
+  place-items: center;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.topic-placeholder-card__text h4 {
+  margin: 0 0 4px;
+  font-size: var(--text-body);
+  font-weight: var(--weight-bold);
+  color: var(--color-navy-900);
+}
+
+.topic-placeholder-card__text p {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  color: var(--color-text-muted);
+}
+
 /* Session Setup Aside Panel */
 .session-setup-panel {
   background: var(--color-surface);

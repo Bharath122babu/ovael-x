@@ -1,4 +1,5 @@
 import React from 'react';
+import { BookOpen } from 'lucide-react';
 import { PageHeader } from '../layout';
 import { Alert } from '../ui';
 import { AdaptiveLearningMotif } from '../visuals';
@@ -20,6 +21,7 @@ export interface LearnLandingProps {
   busy?: boolean;
   error?: string;
   onClearError?: () => void;
+  conceptsLoading?: boolean;
 }
 
 export const LearnLanding: React.FC<LearnLandingProps> = ({
@@ -36,6 +38,7 @@ export const LearnLanding: React.FC<LearnLandingProps> = ({
   busy = false,
   error = '',
   onClearError,
+  conceptsLoading = false,
 }) => {
   const selectedCourse = courses.find((c) => c.course_id === activeCourseId);
   const selectedConcept = concepts.find((c) => c.concept_id === activeConceptId);
@@ -68,11 +71,12 @@ export const LearnLanding: React.FC<LearnLandingProps> = ({
               selectedCourseId={activeCourseId}
               onSelectCourse={onSelectCourse}
               onNavigateToCourses={onNavigateToCourses}
+              activeConceptCount={concepts.length}
             />
           </section>
 
           {/* Step 2: Topic Selection (active when course is selected) */}
-          {selectedCourse && (
+          {selectedCourse ? (
             <section
               aria-labelledby="topics-section-title"
               className="learn-landing__topics-section"
@@ -83,9 +87,22 @@ export const LearnLanding: React.FC<LearnLandingProps> = ({
                 selectedConceptId={activeConceptId}
                 onSelectConcept={onSelectConcept}
                 onNavigateToCourses={onNavigateToCourses}
+                loading={conceptsLoading}
               />
             </section>
-          )}
+          ) : courses.length > 0 ? (
+            <div className="learn-landing__topic-placeholder">
+              <div className="topic-placeholder-card">
+                <div className="topic-placeholder-card__icon" aria-hidden="true">
+                  <BookOpen size={20} />
+                </div>
+                <div className="topic-placeholder-card__text">
+                  <h4>Step 2: Topic Selection</h4>
+                  <p>Choose a course above to reveal its structured topics and learning objectives.</p>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </main>
 
         <div className="learn-landing__aside">

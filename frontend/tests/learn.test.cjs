@@ -209,3 +209,66 @@ test('LearnLanding displays error alert when error prop is passed', () => {
   assert.match(html, /Backend communication error: connection failed/);
   assert.match(html, /role="alert"/);
 });
+
+test('SessionSetupPanel provides Review & Retention mode and supports all three intents', () => {
+  const html = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(SessionSetupPanel, {
+      selectedCourseName: 'Cell Biology',
+      selectedConceptName: 'Mitochondrial Respiration',
+      canStart: true,
+      goal: '',
+      onGoalChange: () => {},
+      onStart: () => {},
+      busy: false,
+    })
+  );
+
+  assert.match(html, /Guided Study/);
+  assert.match(html, /Targeted Practice/);
+  assert.match(html, /Review &amp; Retention|Review & Retention/);
+  assert.match(html, /Spaced retrieval, edge-case probing, and retention consolidation/);
+});
+
+test('CourseSelector renders derived real topic count badge when present', () => {
+  const coursesWithCounts = [
+    {
+      course_id: 'c1',
+      name: 'Cell Biology',
+      description: 'Cellular processes',
+      concept_count: 5,
+    },
+  ];
+
+  const html = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(CourseSelector, {
+      courses: coursesWithCounts,
+      selectedCourseId: 'c1',
+      onSelectCourse: () => {},
+      onNavigateToCourses: () => {},
+      activeConceptCount: 5,
+    })
+  );
+
+  assert.match(html, /5 topics/);
+});
+
+test('LearnLanding displays Step 2 guidance placeholder when no course is active', () => {
+  const html = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(LearnLanding, {
+      courses: sampleCourses,
+      activeCourseId: '',
+      onSelectCourse: () => {},
+      concepts: [],
+      activeConceptId: '',
+      onSelectConcept: () => {},
+      goal: '',
+      onGoalChange: () => {},
+      onStartSession: () => {},
+      onNavigateToCourses: () => {},
+      busy: false,
+    })
+  );
+
+  assert.match(html, /Step 2: Topic Selection/);
+  assert.match(html, /Choose a course above to reveal its structured topics/);
+});

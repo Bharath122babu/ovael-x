@@ -30,6 +30,19 @@ export const TopicSelector: React.FC<TopicSelectorProps> = ({
     c.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
   );
 
+  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (filteredConcepts.length === 0) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = (index + 1) % filteredConcepts.length;
+      onSelectConcept(filteredConcepts[nextIndex].concept_id);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = (index - 1 + filteredConcepts.length) % filteredConcepts.length;
+      onSelectConcept(filteredConcepts[prevIndex].concept_id);
+    }
+  };
+
   return (
     <div className="topic-selector">
       <div className="topic-selector__head">
@@ -95,7 +108,7 @@ export const TopicSelector: React.FC<TopicSelectorProps> = ({
           role="radiogroup"
           aria-label={`Topics in ${courseName}`}
         >
-          {filteredConcepts.map((item) => {
+          {filteredConcepts.map((item, idx) => {
             const isSelected = item.concept_id === selectedConceptId;
             return (
               <button
@@ -103,8 +116,11 @@ export const TopicSelector: React.FC<TopicSelectorProps> = ({
                 key={item.concept_id}
                 role="radio"
                 aria-checked={isSelected}
+                tabIndex={isSelected || (!selectedConceptId && idx === 0) ? 0 : -1}
                 className={`topic-card ${isSelected ? 'topic-card--selected' : ''}`}
                 onClick={() => onSelectConcept(item.concept_id)}
+                onKeyDown={(e) => handleKeyDown(e, idx)}
+                title={item.name}
               >
                 <div className="topic-card__icon" aria-hidden="true">
                   <BookOpen size={16} />
