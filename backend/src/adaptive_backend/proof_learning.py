@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -17,8 +18,30 @@ def _iso(value: datetime) -> str:
     return value.astimezone(timezone.utc).isoformat()
 
 
+def _finite(value: Any) -> float:
+    """float() that rejects NaN/inf, which min/max would silently turn into 1.0."""
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError("non-finite value")
+    return number
+
+
 def _clamp(value: float) -> float:
-    return max(0.0, min(1.0, float(value)))
+    number = float(value)
+    return max(0.0, min(1.0, number)) if math.isfinite(number) else 0.0
+
+
+def _parse_ts(value: Any) -> str | None:
+    """Normalize a client-carried timestamp to aware UTC ISO text, or None if unusable."""
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return _iso(parsed)
 
 
 @dataclass(slots=True, frozen=True)
@@ -310,7 +333,7 @@ class ProofOfLearningService:
             try:
                 if datetime.fromisoformat(str(state["next_retention_check_at"])) <= _now():
                     return "retention"
-            except ValueError:
+            except (ValueError, TypeError):
                 pass
         masses = state.get("evidence_mass") or {}
         if float(masses.get("independent", 0.0) or 0.0) < 1.5:
@@ -388,21 +411,21 @@ class ProofOfLearningService:
             if cid not in valid:
                 continue
             def num(name: str, default: float = 0.0) -> float:
-                try: return _clamp(float(item.get(name, default)))
+                try: return _clamp(_finite(item.get(name, default)))
                 except (TypeError, ValueError): return default
             mass = item.get("evidence_mass") or {}
             if not isinstance(mass, dict): mass = {}
             def m(name: str) -> float:
-                try: return max(0.0, min(10000.0, float(mass.get(name, 0.0))))
+                try: return max(0.0, min(10000.0, _finite(mass.get(name, 0.0))))
                 except (TypeError, ValueError): return 0.0
             acq, indep, transfer, retention = num("acquisition"), num("independent"), num("transfer"), num("retention")
             am, im, tm, rm, asm = m("acquisition"), m("independent"), m("transfer"), m("retention"), m("assisted")
             gap = item.get("assistance_gap")
-            try: gap = None if gap is None else max(-1.0, min(1.0, float(gap)))
+            try: gap = None if gap is None else max(-1.0, min(1.0, _finite(gap)))
             except (TypeError, ValueError): gap = None
             assisted_perf = item.get("assisted_performance")
             try:
-                assisted_perf = None if assisted_perf is None else _clamp(float(assisted_perf))
+                assisted_perf = None if assisted_perf is None else _clamp(_finite(assisted_perf))
             except (TypeError, ValueError):
                 assisted_perf = None
             if assisted_perf is None and gap is not None:
@@ -411,6 +434,10 @@ class ProofOfLearningService:
                 # Preserve a bounded amount of browser-carried evidence without
                 # inventing a large effective sample size.
                 asm = 1.0
+            try:
+                interval_days = max(3, min(30, int(item.get("retention_interval_days", 3) or 3)))
+            except (TypeError, ValueError, OverflowError):
+                interval_days = 3
             self.db.execute(
                 """INSERT OR REPLACE INTO proof_learning_state(
                     user_id,subject_id,concept_id,acquisition,independent,transfer,retention,evidence_quality,uncertainty,assistance_gap,
@@ -420,8 +447,8 @@ class ProofOfLearningService:
                 (
                     user_id, subject_id, cid, acq, indep, transfer, retention, num("evidence_quality"), num("uncertainty", 1.0), gap,
                     acq*am, am, indep*im, im, transfer*tm, tm, retention*rm, rm,
-                    (float(assisted_perf) * asm) if assisted_perf is not None else 0.0, asm, item.get("last_evidence_at"), item.get("next_retention_check_at"),
-                    max(3, min(30, int(item.get("retention_interval_days", 3) or 3))), now,
+                    (float(assisted_perf) * asm) if assisted_perf is not None else 0.0, asm, _parse_ts(item.get("last_evidence_at")), _parse_ts(item.get("next_retention_check_at")),
+                    interval_days, now,
                 ),
             )
 
@@ -432,7 +459,7 @@ class ProofOfLearningService:
         retention_due = False
         if next_retention:
             try: retention_due = datetime.fromisoformat(str(next_retention)) <= _now()
-            except ValueError: retention_due = False
+            except (ValueError, TypeError): retention_due = False
         result = {
             "subject_id": row["subject_id"],
             "concept_id": row["concept_id"],

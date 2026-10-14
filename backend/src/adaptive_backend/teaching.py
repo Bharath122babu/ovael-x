@@ -22,11 +22,16 @@ from .database import Database
 from .memory import MemoryService
 from .models import ModelGateway, ModelUnavailable
 from .pedagogy import DynamicTeachingPolicy
-from .proof_learning import ProofOfLearningService
+from .proof_learning import ProofOfLearningService, _finite
 from .io_runtime import ModalityRuntime
 from .ir import TeachingPlanIR
 from .schemas import DiagnosisResult, EvidenceEvent, ResponseBehavior, TutorRequest, TutorResponse
 from .subjects import CodeReviewService
+
+
+def _difficulty_or(value: Any, default: float) -> float:
+    """A calibrated difficulty of 0.0 is real evidence; only a missing value falls back."""
+    return default if value is None else float(value)
 
 
 def _now() -> str:
@@ -1009,7 +1014,7 @@ class TeachingService:
         evaluator_confidence = 0.3
         item: dict[str, Any] = {}
         evaluation_public: dict[str, Any] | None = None
-        effective_difficulty = float(move.get("target_difficulty", 0.5) or 0.5)
+        effective_difficulty = _difficulty_or(move.get("target_difficulty"), 0.5)
         if item_id:
             item_row = self.db.fetchone(
                 "SELECT * FROM generated_items WHERE generated_item_id=? AND owner_user_id=?",
@@ -1024,7 +1029,7 @@ class TeachingService:
                 evaluation_public = result.public_dict()
                 # Use the best calibrated difficulty available for the learner
                 # update rather than always trusting requested generation difficulty.
-                effective_difficulty = float(item_row["difficulty_posterior"] or effective_difficulty)
+                effective_difficulty = _difficulty_or(item_row["difficulty_posterior"], effective_difficulty)
                 if state.get("persist_personalization", True):
                     self._calibrate_item(item_row, score, turn)
 
@@ -1236,11 +1241,11 @@ class TeachingService:
             if not concept or concept["subject_id"] != subject_id:
                 continue
             try:
-                mastery = max(0.0, min(1.0, float(item.get("mastery_belief", item.get("mastery", 0.2)))))
-                confidence = max(0.0, min(1.0, float(item.get("confidence", 0.0))))
+                mastery = max(0.0, min(1.0, _finite(item.get("mastery_belief", item.get("mastery", 0.2)))))
+                confidence = max(0.0, min(1.0, _finite(item.get("confidence", 0.0))))
                 evidence_count = max(0, min(1_000_000, int(item.get("evidence_count", 0))))
                 recurrence = max(0, min(1_000_000, int(item.get("recurrence_count", 0))))
-            except (TypeError, ValueError):
+            except (TypeError, ValueError, OverflowError):
                 continue
             status = str(item.get("status") or "unknown")[:64]
             last_observed = item.get("last_observed_at")
@@ -1266,12 +1271,12 @@ class TeachingService:
             if not concept or concept["subject_id"] != subject_id:
                 continue
             try:
-                theta = max(-6.0, min(6.0, float(item.get("theta", 0.0))))
-                variance = max(0.01, min(25.0, float(item.get("variance", 2.25))))
-                target = max(0.0, min(1.0, float(item.get("target_difficulty", 0.5))))
+                theta = max(-6.0, min(6.0, _finite(item.get("theta", 0.0))))
+                variance = max(0.01, min(25.0, _finite(item.get("variance", 2.25))))
+                target = max(0.0, min(1.0, _finite(item.get("target_difficulty", 0.5))))
                 observations = max(0, min(1_000_000, int(item.get("observations", 0))))
                 micro = max(0, min(1_000_000, int(item.get("micro_stage_position", 0))))
-            except (TypeError, ValueError):
+            except (TypeError, ValueError, OverflowError):
                 continue
             band = str(item.get("difficulty_band") or "medium")[:32]
             profile = str(item.get("behavior_profile") or "insufficient_evidence")[:128]

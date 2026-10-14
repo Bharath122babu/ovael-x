@@ -280,6 +280,23 @@ class AuthService:
         )
         self.audit(principal.user_id, "auth.logout")
 
+    def logout_refresh(self, refresh_token: str) -> None:
+        """Revoke a session from its refresh token when the access token has expired."""
+        token = (refresh_token or "").strip()
+        if not token:
+            return
+        row = self.db.fetchone(
+            "SELECT session_token_id,user_id FROM auth_sessions WHERE refresh_token_hash=? AND revoked_at IS NULL",
+            (self.hash_token(token),),
+        )
+        if not row:
+            return
+        self.db.execute(
+            "UPDATE auth_sessions SET revoked_at=? WHERE session_token_id=? AND revoked_at IS NULL",
+            (iso(utc_now()), row["session_token_id"]),
+        )
+        self.audit(row["user_id"], "auth.logout")
+
     def logout_all(self, principal: AuthPrincipal) -> int:
         count = self.db.execute(
             "UPDATE auth_sessions SET revoked_at=? WHERE user_id=? AND revoked_at IS NULL",
@@ -335,6 +352,12 @@ class AuthService:
             )
             conn.execute(
                 "UPDATE auth_sessions SET revoked_at=? WHERE user_id=? AND revoked_at IS NULL",
+                (now, row["user_id"]),
+            )
+            # Connection tokens are long-lived bearer credentials; a recovery means
+            # the account may have been compromised, so they must not survive it.
+            conn.execute(
+                "UPDATE mcp_connections SET revoked_at=? WHERE user_id=? AND revoked_at IS NULL",
                 (now, row["user_id"]),
             )
         self.audit(row["user_id"], "auth.recover")
