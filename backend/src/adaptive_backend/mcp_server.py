@@ -469,7 +469,13 @@ class MCPService:
             raise ValueError("Invalid handoff token")
         if datetime.fromisoformat(row["expires_at"]) <= _now():
             raise ValueError("Handoff token expired")
-        self.db.execute("UPDATE handoff_tokens SET consumed_at=? WHERE token_hash=?", (_iso(_now()), token_hash))
+        # Claim atomically: of two concurrent opens, only one UPDATE matches the row.
+        claimed = self.db.execute(
+            "UPDATE handoff_tokens SET consumed_at=? WHERE token_hash=? AND consumed_at IS NULL",
+            (_iso(_now()), token_hash),
+        )
+        if claimed != 1:
+            raise ValueError("Invalid handoff token")
         return self.teaching.get(user_id=user_id, session_id=row["teaching_session_id"])
 
     def complete_external(self, *, user_id: str, session_id: str, summary: str, idempotency_key: str) -> dict[str, Any]:

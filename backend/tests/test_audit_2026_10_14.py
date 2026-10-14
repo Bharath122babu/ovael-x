@@ -133,3 +133,37 @@ def test_account_recovery_revokes_mcp_connections(settings, tmp_path):
             pass
         else:
             raise AssertionError("MCP token survived account recovery")
+
+
+def test_handoff_token_claim_is_atomic(settings, tmp_path):
+    import hashlib
+
+    app, client = _client(settings, tmp_path)
+    with client:
+        body, headers = _register(client, "audithandoff1")
+        concept = _first_dsa_concept(settings)
+        started = client.post(
+            "/v1/learning/sessions", headers=headers,
+            json={"subject_id": "DSA", "concept_id": concept, "mode": "study", "goal": "audit"},
+        )
+        assert started.status_code == 200, started.text
+        mcp = app.state.services.mcp
+        db = app.state.services.db
+        url = mcp.create_handoff(body["user_id"], started.json()["teaching_session_id"])["url"]
+        token = url.rsplit("/", 1)[1]
+        digest = hashlib.sha256(token.encode()).hexdigest()
+        stale = db.fetchone("SELECT * FROM handoff_tokens WHERE token_hash=?", (digest,))
+        assert stale["consumed_at"] is None
+        # A first opener wins the claim.
+        assert mcp.resolve_handoff(body["user_id"], token)["teaching_session_id"]
+        # A racing opener already read the row while it was unconsumed.
+        real_fetchone = db.fetchone
+        db.fetchone = lambda sql, params=(): stale if "handoff_tokens" in sql else real_fetchone(sql, params)
+        try:
+            mcp.resolve_handoff(body["user_id"], token)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("handoff token was accepted twice")
+        finally:
+            db.fetchone = real_fetchone
