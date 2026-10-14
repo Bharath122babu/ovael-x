@@ -10,7 +10,7 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
@@ -540,6 +540,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     if mcp_bundle is not None:
         _mcp_server, mcp_asgi = mcp_bundle
+        async def mcp_canonical(request: Request):
+            return RedirectResponse(url="/mcp/", status_code=307)
+        app.add_route("/mcp", mcp_canonical, methods=["GET", "POST", "DELETE"])
         app.mount("/mcp", mcp_asgi)
     app.include_router(v1_router)
     return app

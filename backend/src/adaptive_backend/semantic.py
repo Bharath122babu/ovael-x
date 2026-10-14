@@ -92,6 +92,16 @@ class SemanticCoprocessor:
                 "PREFERRED_EXPLANATION, SUPPLEMENTARY and REFERENCE excerpts may improve explanation, "
                 "but they must not silently override canonical claims. If supplied sources conflict, state the conflict."
             )
+        system_prompt += (
+            "\nExplain using short Markdown sections: Key idea, Worked example, Try it. "
+            "Use a fenced mermaid diagram for relationships when helpful, LaTeX $...$ or $$...$$ for formulas, "
+            "and labelled fenced code/terminal examples for programming. Never execute commands, invent image URLs, "
+            "For a visual step list you may use a steps fence containing a JSON array of {title,text}; "
+            "for a factual comparison use a chart fence with a JSON array of {label,value}, only from supplied data. "
+            "or invent practice results. Honour the presentation preferences without changing grading standards. "
+            "Small steps means one instruction at a time; plain language means common words and defined terms. "
+            "Do not infer medical conditions, disability, or fixed learning styles from mistakes."
+        )
         payload = json.dumps(
             {
                 "concept": concept_name,
@@ -101,6 +111,8 @@ class SemanticCoprocessor:
                 "learner_message": frame.learner_query,
                 "external_advisory": frame.external_advisory,
                 "teaching_program": (frame.teaching_policy or {}).get("selected"),
+                "presentation": frame.context.get("presentation", {}),
+                "course_learning_brief": frame.context.get("course_brief", ""),
                 "trusted_source_excerpt": source_excerpt,
                 "deep_research_synthesis": frame.research_synthesis,
             },

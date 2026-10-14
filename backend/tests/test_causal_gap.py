@@ -163,3 +163,23 @@ def test_learning_turn_publishes_iris_case_to_account_in_local_first_mode(settin
         assert update["decision_trace"]["controller"] == "DecisionKernel"
         stored = client.get("/v1/gaps/causal?subject_id=BIO", headers=headers).json()
         assert stored["summary"]["case_count"] == update["summary"]["case_count"]
+
+
+def test_stored_focus_allocations_are_recomputed_for_combined_scope_without_ledger_changes(settings):
+    app=create_app(settings)
+    with TestClient(app) as client:
+        user_id,headers=_register(client)
+        _seed_gap(client,user_id)
+        db=app.state.services.db
+        now=datetime.now(timezone.utc).isoformat()
+        db.execute("INSERT INTO concept_state(user_id,concept_id,mastery_belief,confidence,evidence_count,last_observed_at,status,recurrence_count,updated_at) VALUES(?,?,?,?,?,?,?,?,?)",(user_id,'recursion',0.3,0.5,3,now,'needs_review',1,now))
+        for subject in ['BIO','DSA']:
+            report=client.post('/v1/gaps/causal/analyze',headers=headers,json={'subject_id':subject}).json()
+            assert sum(case['focus_allocation_pct'] for case in report['cases'])==100
+        original=[row['snapshot_json'] for row in db.fetchall('SELECT snapshot_json FROM causal_gap_revisions ORDER BY revision_id')]
+        combined=client.get('/v1/gaps/causal',headers=headers).json()['cases']
+        assert len(combined)==2
+        assert sum(case['focus_allocation_pct'] for case in combined)==100
+        assert combined[0]['focus_priority']>=combined[1]['focus_priority']
+        assert original==[row['snapshot_json'] for row in db.fetchall('SELECT snapshot_json FROM causal_gap_revisions ORDER BY revision_id')]
+        assert client.get('/v1/gaps/causal?subject_id=BIO',headers=headers).json()['cases'][0]['focus_allocation_pct']==100

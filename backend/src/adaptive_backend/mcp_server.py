@@ -107,7 +107,7 @@ class MCPService:
             "scopes": sorted(requested),
             "access_token": token,
             "expires_at": _iso(exp),
-            "mcp_url": f"{self.public_base_url}/mcp",
+            "mcp_url": f"{self.public_base_url}/mcp/",
         }
 
     def authenticate(self, token: str) -> tuple[str, set[str], str]:

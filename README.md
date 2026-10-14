@@ -4,6 +4,29 @@ An adaptive learning engine in which deterministic code makes every teaching dec
 
 **Version 5.0.0** · Python 3.11+ / FastAPI backend · React 18 + TypeScript + Vite frontend · Research and development release
 
+## Populated OVAEL frontend demo
+
+The warm-white learner workspace adapts the supplied OVAEL v0.01 frontend to this repository's cookie-authenticated backend. Five destinations cover Chat, Courses, Materials, Progress, and Settings. Chat uses a conversation and composer; Materials combines documents, notes, images, audio, and video. Progress contains practice suggestions, the topic map, and skills. Mermaid diagrams render causal maps and fenced teaching content. Provider setup and integrations live in Settings.
+
+Start an isolated synthetic account in two terminals:
+
+```powershell
+cd backend
+.venv/Scripts/python.exe scripts/run_frontend_demo.py
+```
+
+```powershell
+cd frontend
+npm ci
+npm run dev -- --host 127.0.0.1
+```
+
+Open http://127.0.0.1:5173/ and sign in as **Bharat** with **OVAEL-demo-2026!**. These are public demo credentials for the loopback synthetic database. The seed creates five personal courses, eight curated AI judgment questions, two generated source notes, completed practice history, and retained diagnostic evidence. Rerunning preserves demo edits and refuses to reset an unrecognized database. The default database is `backend/runtime/frontend-integration-demo.db`.
+
+The demo disables external model and speech services by default. Verified questions, retrieval, evidence, and causal analysis remain usable. Add `--live-models` only when valid provider configuration is available. OCR and speech transcription require configured adapters. Engagement points come from saved activity and do not represent mastery or redeemable rewards.
+
+See the [visual teaching and guidance review](docs/reviews/2026-10-14/visual-teaching.md) for the latest changes, browser verification, what was retained, and runtime limits. The [learner redesign review](docs/reviews/2026-10-14/learner-redesign.md) records the initial simplification; the [original integration review](docs/reviews/2026-10-13/frontend-integration.md) records source provenance and earlier verification.
+
 ---
 
 ## Contents
@@ -471,7 +494,9 @@ Database schema v8 upgrades run in one SQLite transaction. Existing pre-v8 teach
 
 ### AI applications through MCP
 
-OVAEL exposes its tutoring loop to external AI applications through the Model Context Protocol. The official MCP Python SDK transport is mounted at `/mcp`. A learner creates a connection token with chosen scopes, valid for 1 to 90 days (default 30). Tokens are stored as hashes and can be revoked. External applications can request teaching turns and submit suggestions, but every learner-state change still goes through OVAEL's own grading and record keeping.
+OVAEL exposes its tutoring loop to external AI applications through the Model Context Protocol. The official MCP Python SDK Streamable HTTP transport is mounted at `/mcp/`; `/mcp` redirects there. The separate `/mcp-legacy` endpoint is a limited compatibility RPC endpoint. A learner creates a connection token with chosen scopes, valid for 1 to 90 days (default 30). Tokens are stored as hashes and can be revoked. External applications can request teaching turns and submit suggestions, but every learner-state change still goes through OVAEL's own grading and record keeping.
+
+Settings → Integrations also connects OVAEL to another Streamable HTTP MCP server. Add its exact hostname to `ADAPTIVE_MCP_ALLOWED_HOSTS` on the backend, enter the server URL and optional bearer credential, discover its tools, and explicitly run a tool declared read-only. Remote servers require HTTPS. This first client flow supports bearer credentials, text results, and optional import of those results as material; OAuth, browser redirects, stdio servers, and autonomous tool execution are not implemented. Credentials remain in the current component's memory and are sent only with explicit requests. The read-only annotation is a server declaration, not a guarantee of its behavior.
 
 | Tool | Required scope | Purpose |
 | --- | --- | --- |
@@ -486,7 +511,7 @@ OVAEL exposes its tutoring loop to external AI applications through the Model Co
 
 ### Voice
 
-Voice calls are turn-based. Each spoken turn is transcribed, sent through the same teaching loop as typed input, and the reply can be synthesised to speech. Playback runs from 0.75x to 3.0x, and calls are capped by a configurable maximum duration. Speech-to-text can use a local whisper.cpp binary, an OpenAI-compatible endpoint, or a configured model provider.
+The learner chat accepts recorded audio answers and lets the learner review the transcript before sending. Audio and video course material use the same Materials upload flow as documents and images. Speech-to-text requires a local whisper.cpp binary or a configured OpenAI-compatible endpoint; media processing requires FFmpeg on the backend's PATH. The backend also retains turn-based voice-call and synthesis APIs, but this interface does not offer live voice calling.
 
 ### Teachers and classes
 
@@ -511,21 +536,22 @@ The React application in `frontend/` is the learner's interface.
 
 **Screens**
 - Sign-in and registration.
-- Course and topic creation, and course material upload.
-- A learning session with the full conversation.
-- A learning-evidence view and account settings.
+- Chat: a conversation, course/topic selection, attachments, and assessed answers.
+- Courses and Materials: course/topic creation and unified uploads, with retry for failed extraction.
+- Progress: activity, practice suggestions, topic map, and skills.
+- Settings: account controls, integrations, and service setup.
 
 **Answer modes**
 - Free text, multiple choice, true or false, numeric, and code.
 - A photo of handwriting, which is transcribed and must be reviewed and confirmed before it is sent.
 - A drawing pad, whose text is transcribed but whose structure is not graded.
-- Optional browser speech recognition, which asks for consent first because the browser vendor may process the audio.
+- Recorded audio, transcribed through the backend and reviewed before submission.
 
 **Contract and behaviour**
 - `frontend/src/assessment.ts` turns each answer into the backend's typed submission and refuses incomplete submissions locally. For example, a numeric answer must be a finite number, and a task's required answer parts must all be present.
 - `frontend/src/api.ts` sends the CSRF token and an idempotency key with every change. A request retried after a lost response reuses the same key.
 - Only the teaching-session ID is kept in browser session storage. Tokens and answers are not stored.
-- A "View decision" panel shows the decision frame behind each move.
+- Decision frames remain available through backend contracts; the learner chat does not expose execution traces, agents, budgets, or internal IDs.
 
 ---
 
@@ -615,7 +641,7 @@ The `/v1` API is the application interface. FastAPI also serves interactive docu
 | Memory and privacy | `GET /v1/memory/settings`, `POST /v1/memory/personalization`, `DELETE /v1/memory`, `GET /v1/memory/map` |
 | Retrieval | `POST /v1/retrieval/search` |
 | Classes | `POST`/`DELETE /v1/courses/{id}/enroll`, `GET /v1/courses/{id}/learners`, `POST /v1/courses/{id}/progress-snapshot`, `GET /v1/teacher/courses/{id}/gaps`, `GET /v1/teacher/courses/{id}/interventions` |
-| MCP connections | `GET`/`POST /v1/connections/mcp`, `DELETE /v1/connections/mcp/{id}`, `POST /v1/mcp/context-relay`, `GET /v1/mcp/external-inbox`, `POST /v1/mcp/external-inbox/{id}`, `POST /v1/mcp/handoff/{token}`, and the `/mcp` transport |
+| MCP connections | `GET`/`POST /v1/connections/mcp`, `DELETE /v1/connections/mcp/{id}`, `POST /v1/connections/servers/query`, `POST /v1/mcp/context-relay`, `GET /v1/mcp/external-inbox`, `POST /v1/mcp/external-inbox/{id}`, `POST /v1/mcp/handoff/{token}`, and the `/mcp/` transport |
 | Voice | `POST /v1/voice/calls`, `PATCH /v1/voice/calls/{id}/speed`, `POST /v1/voice/calls/{id}/turn`, `POST /v1/voice/calls/{id}/end` |
 
 A legacy compatibility API (for example `/sessions`, `/events`, `/tutor`, `/subjects/packs`, `/ocr`) remains in `app.py`. It is protected by an API key or loopback-only access, and its tutoring route enters the same decision kernel.
@@ -705,7 +731,7 @@ The built-in subjects are seeded at start-up, unless disabled with `ADAPTIVE_SEE
 | Mixed submissions | Each required part is graded separately when per-part rubrics exist |
 | Handwritten photos | Text extraction only, reviewed by the learner; handwriting form is not assessed |
 | Diagrams, charts, flowcharts | No validated structure grader; the system abstains |
-| Spoken answers | Browser speech-to-text; pronunciation is not assessed |
+| Spoken answers | Recorded audio with reviewed backend transcription; pronunciation is not assessed |
 | Lessons for new courses | Depend on uploaded material or a configured model; no generic lesson is invented |
 | Institutional deployment | Not ready: SQLite storage, no single sign-on or LMS integration, per-process budgets, no large-scale load testing, no browser end-to-end tests |
 
@@ -719,7 +745,7 @@ The built-in subjects are seeded at start-up, unless disabled with `ADAPTIVE_SEE
 
 ## Further reading
 
-- [Backend audit remediation](backend/audits/2026-10-12/REMEDIATION.md) � confirmed repairs and verification limits.
+- [Backend audit remediation](backend/audits/2026-10-12/REMEDIATION.md) — confirmed repairs and verification limits.
 
 - [`backend/ARCHITECTURE_DECISION_AI.md`](backend/ARCHITECTURE_DECISION_AI.md): the decision-first architecture and its escalation rules
 - [`RELEASE_AUDIT.md`](RELEASE_AUDIT.md): release verification, scope, and remaining risks

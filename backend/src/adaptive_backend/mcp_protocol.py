@@ -22,6 +22,8 @@ def build_mcp_protocol(services: Any):
 
     try:
         from mcp.server.mcpserver import Context, MCPServer
+        from mcp.types import ToolAnnotations
+        from mcp.server.transport_security import TransportSecuritySettings
     except ImportError:
         return None
 
@@ -51,12 +53,12 @@ def build_mcp_protocol(services: Any):
             arguments=arguments,
         )
 
-    @server.tool()
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=True))
     def get_learning_context(ctx: Context) -> dict[str, Any]:
         """Read the learner's bounded, short-lived active OVAEL context."""
         return call(ctx, "get_learning_context", {})
 
-    @server.tool()
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=True))
     def search_learning_material(
         query: str,
         subject_id: str,
@@ -78,7 +80,7 @@ def build_mcp_protocol(services: Any):
             },
         )
 
-    @server.tool()
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=True))
     def get_learning_map(ctx: Context, subject_id: str | None = None) -> dict[str, Any]:
         """Read a bounded learning-map projection."""
         return call(ctx, "get_learning_map", {"subject_id": subject_id})
@@ -165,5 +167,10 @@ def build_mcp_protocol(services: Any):
         streamable_http_path="/",
         stateless_http=True,
         json_response=True,
+        transport_security=TransportSecuritySettings(
+            enable_dns_rebinding_protection=True,
+            allowed_hosts=[value for host in services.settings.trusted_hosts if "*" not in host for value in (["[::1]", "[::1]:*"] if host == "::1" else [host, f"{host}:*"])],
+            allowed_origins=list(services.settings.allowed_origins) or ["http://localhost:*", "http://127.0.0.1:*", "http://[::1]:*"],
+        ),
     )
     return server, asgi

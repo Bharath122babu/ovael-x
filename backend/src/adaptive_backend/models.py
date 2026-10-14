@@ -93,6 +93,8 @@ class ModelGateway:
             return self.supervisor_chat(
                 system=system, user=user, temperature=0.0, max_tokens=max_tokens
             )
+        if self.settings.tutor_url and self.settings.tutor_url.startswith("https://openrouter.ai/") and self.settings.tutor_model:
+            return self.tutor_chat(system=system, user=user, temperature=temperature, max_tokens=max_tokens)
         if self.mimo_available:
             return self._chat(
                 base_url=self.settings.mimo_base_url or "",
@@ -138,7 +140,7 @@ class ModelGateway:
         temperature: float = 0.2,
         max_tokens: int = 700,
     ) -> ModelReply:
-        if self.mimo_available:
+        if self.mimo_available and not (self.settings.tutor_url and self.settings.tutor_url.startswith("https://openrouter.ai/") and self.settings.tutor_model):
             return self.route_chat(
                 "teaching", system=system, user=user, temperature=temperature, max_tokens=max_tokens
             )

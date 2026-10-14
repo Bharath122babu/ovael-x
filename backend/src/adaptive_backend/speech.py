@@ -57,11 +57,12 @@ class SpeechService:
             }
             try:
                 with httpx.Client(timeout=self.settings.request_timeout_seconds) as client:
-                    response = client.post(self.settings.tts_url, json=payload)
+                    headers = {"Authorization": f"Bearer {self.settings.tts_api_key}"} if self.settings.tts_api_key else {}
+                    response = client.post(self.settings.tts_url, json=payload, headers=headers)
                     response.raise_for_status()
                     return response.content
             except httpx.HTTPError as exc:
-                raise RuntimeError(f"TTS request failed: {exc}") from exc
+                raise RuntimeError("Speech playback is unavailable. Check the configured service.") from exc
         if self.settings.mimo_base_url and self.settings.mimo_api_key:
             return self._mimo_tts(text, voice=voice, speed=speed)
         raise RuntimeError("No TTS endpoint configured. Configure ADAPTIVE_TTS_URL or OVAEL_MIMO_API_KEY.")
@@ -162,13 +163,14 @@ class SpeechService:
             with httpx.Client(timeout=self.settings.request_timeout_seconds) as client:
                 response = client.post(
                     self.settings.stt_url,
+                    headers={"Authorization": f"Bearer {self.settings.stt_api_key}"} if self.settings.stt_api_key else {},
                     data=form,
                     files={"file": (filename, data, "application/octet-stream")},
                 )
                 response.raise_for_status()
                 result = response.json()
         except (httpx.HTTPError, ValueError) as exc:
-            raise RuntimeError(f"STT request failed: {exc}") from exc
+            raise RuntimeError("Speech transcription is unavailable. Check the configured service.") from exc
         text = result.get("text") if isinstance(result, dict) else None
         if not isinstance(text, str):
             raise RuntimeError("STT endpoint returned an unexpected response")

@@ -128,7 +128,7 @@ def test_mcp_map_checks_private_ownership_and_active_enrollment(app):
                             json={'client_name': 'Audit client', 'scopes': ['learning.map.read']}).json()
         mcp_headers = {'Authorization': 'Bearer '+connection['access_token']}
         def mapped():
-            response = c.post('/mcp', headers=mcp_headers, json={'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
+            response = c.post('/mcp-legacy', headers=mcp_headers, json={'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
                 'params': {'name': 'get_learning_map', 'arguments': {}}})
             assert response.status_code == 200, response.text
             return response.json()['result']['structuredContent']

@@ -88,6 +88,14 @@ All settings are read from environment variables by `Settings.from_env` in `src/
 | `ADAPTIVE_SUPERVISOR_URL`, `ADAPTIVE_SUPERVISOR_MODEL`, `ADAPTIVE_SUPERVISOR_API_KEY` | unset | Separate model for validation and planning calls |
 | `ADAPTIVE_REQUEST_TIMEOUT_SECONDS` | `90` | Timeout for provider and adapter requests |
 
+The learner demo is offline by default. To use OpenRouter, set `OPENROUTER_API_KEY` and an explicit `OPENROUTER_MODEL` on the backend, then start `scripts/run_frontend_demo.py --live-models`. `OPENROUTER_VISION_MODEL` optionally selects a vision-capable model for image text extraction. Explicit `ADAPTIVE_TUTOR_*` and `ADAPTIVE_VISION_*` values override the aliases; generic vision uses `ADAPTIVE_VISION_URL`, `ADAPTIVE_VISION_MODEL`, and `ADAPTIVE_VISION_API_KEY`. Provider credentials belong on the backend, never in a `VITE_*` variable or browser storage. A configured flag is not proof that a key or model is valid; verify a live request after setup.
+
+### MCP server and client
+
+The official SDK's Streamable HTTP endpoint is `/mcp/`; `/mcp` redirects to it. `/mcp-legacy` is the separate limited compatibility RPC endpoint. The frontend dev proxy forwards `/mcp`, including subpaths, to the backend. For the local learner demo, `OVAEL_PUBLIC_BASE_URL` defaults to `http://127.0.0.1:5173`, so generated connection URLs and conversation handoffs use the frontend origin. In production set it to the externally reachable origin, proxy `/mcp/` to the backend, and configure `OVAEL_TRUSTED_HOSTS` and `OVAEL_ALLOWED_ORIGINS` for that deployment.
+
+The learner can discover and call another server through Settings → Integrations and `POST /v1/connections/servers/query`. Configure `ADAPTIVE_MCP_ALLOWED_HOSTS` as a comma-separated list of exact permitted hostnames. Remote servers require HTTPS; explicitly allowed loopback hosts may use HTTP. The client uses the official SDK, optional request-only bearer credentials, explicit calls to tools with `readOnlyHint: true`, and bounded text output. Server annotations are advisory. OAuth, stdio, persistent external credentials, and automatic model tool execution are not implemented by this UI.
+
 ### Deep research
 
 | Variable | Default | Purpose |
@@ -118,5 +126,13 @@ All settings are read from environment variables by `Settings.from_env` in `src/
 | --- | --- | --- |
 | `ADAPTIVE_WHISPER_CPP_BIN`, `ADAPTIVE_WHISPER_CPP_MODEL` | unset | Local whisper.cpp speech-to-text |
 | `ADAPTIVE_STT_URL`, `ADAPTIVE_STT_MODEL` | unset | OpenAI-compatible speech-to-text endpoint |
+| `ADAPTIVE_STT_API_KEY` | unset | Optional bearer credential for the configured transcription endpoint |
 | `ADAPTIVE_TTS_URL`, `ADAPTIVE_TTS_MODEL` | unset | Text-to-speech endpoint |
+| `ADAPTIVE_TTS_API_KEY` | unset | Optional bearer credential for the configured synthesis endpoint |
 | `OVAEL_VOICE_MAX_CALL_MINUTES` | `90` | Maximum voice-call duration (5 to 240) |
+
+FFmpeg must be on PATH for audio/video material extraction. Image text extraction requires local Tesseract or a configured vision provider; recorded answers and media transcription require a configured speech adapter. These are runtime dependencies, not frontend capabilities that can be enabled by showing a button. Materials accepts documents, images, audio, and video in one upload flow, and failed extraction can be retried with `POST /v1/documents/{document_id}/retry` after setup is corrected. The retry preserves the original file and document ID and enforces ownership.
+
+The learner UI accepts material up to 50 MB. Scanned PDFs render one bounded page at a time and attempt up to 30 new pages per pass. Successful page text is reused by subsequent retries; `ready_partial` documents expose a continuation control and available/total page counts. Speech answer clips retain their separate 25 MB service limit. PDF rendering uses pypdfium2 under a process-wide lock; OCR still requires a working text-recognition engine. The local adapter is not a background production worker queue.
+
+`GET /v1/learning/sessions/{id}/review` returns an owner-scoped activity receipt; `POST` to that path optionally requests one bounded model summary. Neither operation creates learning evidence. `PATCH /v1/profile/study-preferences` stores format, pacing, and plain-language preferences for future explanations. Public illustration search and explicit vision explanation use `/v1/learning/illustrations` and `/v1/learning/illustrations/explain`; upstream availability is independent of endpoint implementation.

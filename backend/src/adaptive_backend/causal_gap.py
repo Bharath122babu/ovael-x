@@ -148,6 +148,13 @@ class CausalGapEngine:
             tuple(params),
         )
         cases = [self.db.loads(row["snapshot_json"], {}) for row in rows]
+        # Stored revisions can come from separate subject analyses. Reallocate
+        # attention across the requested view without rewriting the ledger.
+        total_priority = sum(float(case["focus_priority"]) for case in cases) or 1.0
+        for case in cases:
+            case["focus_allocation_pct"] = round(100 * float(case["focus_priority"]) / total_priority)
+        if cases:
+            cases[0]["focus_allocation_pct"] += 100 - sum(int(case["focus_allocation_pct"]) for case in cases)
         return {
             "generated_at": _now(),
             "calibration_state": self.CALIBRATION_STATE,

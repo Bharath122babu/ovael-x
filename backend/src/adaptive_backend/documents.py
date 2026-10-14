@@ -8,6 +8,8 @@ import zipfile
 import io
 import subprocess
 import tempfile
+import math
+from threading import Lock
 from html.parser import HTMLParser
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,6 +28,33 @@ def _now() -> str:
 
 
 _ALLOWED_EXTENSIONS = {".pdf", ".docx", ".pptx", ".txt", ".md", ".epub", ".png", ".jpg", ".jpeg", ".webp", ".wav", ".mp3", ".m4a", ".mp4", ".webm", ".mov"}
+
+# PDFium is process-global and not thread-safe, even for separate documents.
+_PDF_RENDER_LOCK = Lock()
+
+def render_pdf_page(path: Path, page_index: int) -> bytes:
+    import pypdfium2 as pdfium
+    with _PDF_RENDER_LOCK:
+        with pdfium.PdfDocument(str(path)) as document:
+            page = document[page_index]
+            try:
+                width, height = page.get_size()
+                if width <= 0 or height <= 0:
+                    raise ValueError("Invalid PDF page dimensions")
+                scale = min(2.0, math.sqrt(6_000_000 / (width * height)))
+                bitmap = page.render(scale=scale)
+                try:
+                    image = bitmap.to_pil()
+                    try:
+                        output = io.BytesIO()
+                        image.save(output, format="PNG")
+                        return output.getvalue()
+                    finally:
+                        image.close()
+                finally:
+                    bitmap.close()
+            finally:
+                page.close()
 
 
 class _HTMLTextExtractor(HTMLParser):
@@ -141,6 +170,23 @@ class DocumentService:
             self.jobs.update(user_id, job["job_id"], status="failed", error=str(exc))
         return self.get(user_id, document_id)
 
+    def retry(self, user_id: str, document_id: str) -> dict[str, Any]:
+        record = self.get(user_id, document_id)
+        if record["status"] not in {"failed_retryable", "ready_partial"}:
+            raise ValueError("This material does not need processing again")
+        job = self.jobs.create(user_id=user_id, kind="document_inspect", resource_id=document_id,
+                               priority=2, idempotency_key=f"retry:{document_id}:{uuid4()}")
+        self.jobs.update(user_id, job["job_id"], status="running", progress=0.1, increment_attempt=True)
+        try:
+            result = self._native_extract(user_id, document_id, auto_route=not record.get("course_id"))
+            self.db.execute("UPDATE documents SET error_message=NULL WHERE document_id=? AND owner_user_id=?", (document_id, user_id))
+            self.jobs.update(user_id, job["job_id"], status="succeeded", progress=1.0, result=result)
+        except Exception:
+            message = "Could not read this material. Check the image or speech service in Settings, then retry."
+            self.db.execute("UPDATE documents SET status='failed_retryable',error_message=?,updated_at=? WHERE document_id=? AND owner_user_id=?", (message, _now(), document_id, user_id))
+            self.jobs.update(user_id, job["job_id"], status="failed", error=message)
+        return self.get(user_id, document_id)
+
     def get(self, user_id: str, document_id: str) -> dict[str, Any]:
         row = self.db.fetchone("SELECT * FROM documents WHERE document_id=? AND owner_user_id=?", (document_id, user_id))
         if not row:
@@ -243,9 +289,26 @@ class DocumentService:
                 raise ValueError("Document exceeds configured page safety limit")
             total_chars = 0
             used_ocr = False
-            for page in reader.pages:
-                text = page.extract_text() or ""
-                if not text.strip() and self.ocr:
+            cached_pages = {int(row["page_no"]): str(row["extracted_text"]) for row in self.db.fetchall("SELECT page_no,extracted_text FROM document_pages WHERE document_id=? AND extracted_text<>''", (document_id,))}
+            ocr_pages = 0
+            for page_index, page in enumerate(reader.pages):
+                text = cached_pages.get(page_index+1) or page.extract_text() or ""
+                ocr_allowed = not text.strip() and self.ocr and ocr_pages < 30
+                render_attempted = False
+                if ocr_allowed:
+                    ocr_pages += 1
+                # Render one bounded page at a time. A scanned/vector PDF is not
+                # reliably readable by extracting embedded images alone.
+                if ocr_allowed:
+                    try:
+                        rendered_page = render_pdf_page(path, page_index)
+                        render_attempted = True
+                        extracted = self.ocr.extract(rendered_page, language="eng")
+                        text = extracted.text
+                        used_ocr = bool(text.strip()) or used_ocr
+                    except (ImportError, ValueError, RuntimeError, OSError):
+                        pass
+                if not text.strip() and ocr_allowed and not render_attempted:
                     ocr_parts: list[str] = []
                     for embedded in list(page.images)[:4]:
                         try:
@@ -262,7 +325,7 @@ class DocumentService:
                     raise ValueError("Document exceeds configured extracted-text safety limit")
                 pages.append(text)
             if used_ocr:
-                provenance = "native+mimo_ocr"
+                provenance = "native+page_ocr"
         elif ext == ".docx":
             from docx import Document
 
@@ -404,10 +467,10 @@ class DocumentService:
             elif ready_partial:
                 status = "ready_partial"
             else:
-                status = "processing"
+                status = "failed_retryable"
             conn.execute(
-                "UPDATE documents SET status=?,error_message=NULL,updated_at=? WHERE document_id=?",
-                (status, now, document_id),
+                "UPDATE documents SET status=?,error_message=?,updated_at=? WHERE document_id=?",
+                (status, "No readable text yet. Configure image reading and retry." if status == "failed_retryable" else None, now, document_id),
             )
         pending_pages = [i for i, text in enumerate(pages, start=1) if not text.strip()]
         if pending_pages:
@@ -806,6 +869,7 @@ class DocumentService:
         concept_ids = self.db.loads(chunk["concept_ids_json"], []) if chunk else []
         focus_concept_id = str(concept_ids[0]) if concept_ids else None
         focus = self.db.fetchone("SELECT name FROM concepts WHERE concept_id=?", (focus_concept_id,)) if focus_concept_id else None
+        pages = self.db.fetchone("SELECT count(*) AS total, coalesce(sum(CASE WHEN extracted_text<>'' THEN 1 ELSE 0 END),0) AS available FROM document_pages WHERE document_id=?", (row["document_id"],))
         return {
             "document_id": row["document_id"],
             "course_id": row["course_id"],
@@ -817,6 +881,8 @@ class DocumentService:
             "filename": row["filename"],
             "content_type": row["content_type"],
             "size_bytes": row["size_bytes"],
+            "page_count": pages["total"],
+            "available_pages": pages["available"],
             "sha256": row["sha256"],
             "version": row["version"],
             "status": row["status"],

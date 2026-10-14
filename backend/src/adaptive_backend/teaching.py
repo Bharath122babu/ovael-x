@@ -598,6 +598,13 @@ class TeachingService:
 
     def _generate_move(self, *, user_id: str, subject_id: str, course_id: str | None,
                        plan: DecisionFrame, transaction_budget: SemanticBudget | None = None) -> TeachingMove:
+        profile = self.db.fetchone("SELECT preferences_json FROM learner_profiles WHERE user_id=?", (user_id,))
+        preferences = self.db.loads(profile["preferences_json"], {}).get("study", {}) if profile else {}
+        plan = plan.model_copy(update={"context": {**plan.context, "presentation": preferences}})
+        if course_id:
+            course = self.db.fetchone("SELECT description FROM courses WHERE course_id=?", (course_id,))
+            if course:
+                plan = plan.model_copy(update={"context": {**plan.context, "course_brief": str(course["description"] or "")[:4000]}})
         # One hard inference budget spans all semantic work for this learner turn.
         # The DecisionKernel only declares the ceiling; it never spends it.
         budget = (transaction_budget.child(plan.model_call_budget) if transaction_budget is not None

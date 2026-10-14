@@ -1,2 +1,12 @@
-import { defineConfig } from 'vite';
-export default defineConfig({server:{port:5173,proxy:{'/v1':{target:'http://127.0.0.1:8000',changeOrigin:true},'/health':{target:'http://127.0.0.1:8000',changeOrigin:true}}},build:{outDir:'dist'}});
+import { defineConfig } from "vite";
+export default defineConfig({
+  server: {
+    port: 5173,
+    proxy: {
+      "/mcp": { target: "http://127.0.0.1:8000", changeOrigin: true },
+      "/v1": { target: "http://127.0.0.1:8000", changeOrigin: true },
+      "/health": { target: "http://127.0.0.1:8000", changeOrigin: true },
+    },
+  },
+  build: { outDir: "dist" },
+});

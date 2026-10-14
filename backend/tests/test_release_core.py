@@ -207,7 +207,7 @@ def test_mcp_context_tools_and_scopes(settings, tmp_path):
         assert con.status_code == 200
         mcp_token = con.json()["access_token"]
         rpc = client.post(
-            "/mcp",
+            "/mcp-legacy",
             headers={"Authorization": f"Bearer {mcp_token}"},
             json={
                 "jsonrpc": "2.0",
@@ -219,7 +219,7 @@ def test_mcp_context_tools_and_scopes(settings, tmp_path):
         assert rpc.status_code == 200
         assert rpc.json()["result"]["structuredContent"]["capsule"]["active_course"] == "BIO"
         forbidden = client.post(
-            "/mcp",
+            "/mcp-legacy",
             headers={"Authorization": f"Bearer {mcp_token}"},
             json={
                 "jsonrpc": "2.0",
@@ -256,7 +256,7 @@ def test_mcp_external_teaching_handoff_and_inbox(settings, tmp_path):
         ).json()
         mh = {"Authorization": f"Bearer {con['access_token']}"}
         begin = client.post(
-            "/mcp",
+            "/mcp-legacy",
             headers=mh,
             json={
                 "jsonrpc": "2.0", "id": 1, "method": "tools/call",
@@ -265,13 +265,13 @@ def test_mcp_external_teaching_handoff_and_inbox(settings, tmp_path):
         ).json()["result"]["structuredContent"]
         sid = begin["teaching_session_id"]
         handoff = client.post(
-            "/mcp",
+            "/mcp-legacy",
             headers=mh,
             json={"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "handoff_to_ovael", "arguments": {"session_id": sid}}},
         ).json()["result"]["structuredContent"]
         assert "/app/continue/" in handoff["url"]
         done = client.post(
-            "/mcp",
+            "/mcp-legacy",
             headers=mh,
             json={"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "complete_external_session", "arguments": {"session_id": sid, "idempotency_key": "complete-1", "summary": "External lesson completed."}}},
         ).json()["result"]["structuredContent"]

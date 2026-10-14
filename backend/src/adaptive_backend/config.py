@@ -97,6 +97,12 @@ class Settings:
     # builds may opt in explicitly; production can instead use a secret invite.
     allow_teacher_self_registration: bool = False
     teacher_invite_code: str | None = None
+    mcp_allowed_hosts: tuple[str, ...] = ()
+    vision_url: str | None = None
+    vision_model: str | None = None
+    vision_api_key: str | None = None
+    stt_api_key: str | None = None
+    tts_api_key: str | None = None
 
     def __post_init__(self) -> None:
         if self.request_timeout_seconds < 1:
@@ -142,9 +148,13 @@ class Settings:
         db = Path(os.getenv("ADAPTIVE_DB_PATH", "./data/adaptive_learning.db")).expanduser()
         return cls(
             db_path=db,
-            tutor_url=os.getenv("ADAPTIVE_TUTOR_URL") or None,
-            tutor_model=os.getenv("ADAPTIVE_TUTOR_MODEL") or None,
-            tutor_api_key=os.getenv("ADAPTIVE_TUTOR_API_KEY") or None,
+            vision_url=os.getenv("ADAPTIVE_VISION_URL") or ("https://openrouter.ai/api/v1" if os.getenv("OPENROUTER_VISION_MODEL") and os.getenv("OPENROUTER_API_KEY") else None),
+            vision_model=os.getenv("ADAPTIVE_VISION_MODEL") or os.getenv("OPENROUTER_VISION_MODEL") or None,
+            vision_api_key=os.getenv("ADAPTIVE_VISION_API_KEY") or os.getenv("OPENROUTER_API_KEY") or None,
+            mcp_allowed_hosts=_csv("ADAPTIVE_MCP_ALLOWED_HOSTS"),
+            tutor_url=os.getenv("ADAPTIVE_TUTOR_URL") or ("https://openrouter.ai/api/v1" if os.getenv("OPENROUTER_API_KEY") else None),
+            tutor_model=os.getenv("ADAPTIVE_TUTOR_MODEL") or os.getenv("OPENROUTER_MODEL") or None,
+            tutor_api_key=os.getenv("ADAPTIVE_TUTOR_API_KEY") or os.getenv("OPENROUTER_API_KEY") or None,
             local_model_url=os.getenv("ADAPTIVE_LOCAL_MODEL_URL") or None,
             local_model_name=os.getenv("ADAPTIVE_LOCAL_MODEL_NAME", "Qwen3-1.7B"),
             local_model_api_key=os.getenv("ADAPTIVE_LOCAL_MODEL_API_KEY") or None,
@@ -157,8 +167,10 @@ class Settings:
             whisper_cpp_model=os.getenv("ADAPTIVE_WHISPER_CPP_MODEL") or None,
             stt_url=os.getenv("ADAPTIVE_STT_URL") or None,
             stt_model=os.getenv("ADAPTIVE_STT_MODEL") or None,
+            stt_api_key=os.getenv("ADAPTIVE_STT_API_KEY") or None,
             tts_url=os.getenv("ADAPTIVE_TTS_URL") or None,
             tts_model=os.getenv("ADAPTIVE_TTS_MODEL") or None,
+            tts_api_key=os.getenv("ADAPTIVE_TTS_API_KEY") or None,
             request_timeout_seconds=_int("ADAPTIVE_REQUEST_TIMEOUT_SECONDS", 90),
             memory_compaction_session_threshold=_int(
                 "ADAPTIVE_MEMORY_COMPACTION_SESSION_THRESHOLD", 40

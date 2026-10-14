@@ -25,6 +25,7 @@ __pycache__/
 htmlcov/
 *.tsbuildinfo
 # Local review backups
+tmp/
 *.before-build-fix
 *.log
 .DS_Store

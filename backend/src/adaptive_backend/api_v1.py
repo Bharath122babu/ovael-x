@@ -4,6 +4,7 @@ from starlette.concurrency import run_in_threadpool
 
 from io import BytesIO
 import json
+import shutil
 import hmac
 import secrets
 from datetime import datetime, timezone
@@ -135,6 +136,15 @@ class CourseIn(_Strict):
     description: str | None = Field(default=None, max_length=4000)
     course_kind: str = Field(default="personal", pattern="^(personal|class)$")
 
+class StudyPreferencesIn(_Strict):
+    format: str = Field(default="mixed", pattern="^(mixed|visual|text)$")
+    pace: str = Field(default="standard", pattern="^(standard|small_steps)$")
+    plain_language: bool = True
+
+class IllustrationIn(_Strict):
+    url: str = Field(max_length=2000)
+    topic: str = Field(min_length=1,max_length=200)
+
 
 class RelayIn(_Strict):
     capsule: dict[str, Any]
@@ -249,7 +259,9 @@ def v1_health(request: Request) -> dict[str, Any]:
         "version": request.app.version,
         "database": "sqlite-local",
         "mimo_configured": s.models.mimo_available,
-        "ocr_configured": bool(s.settings.mimo_api_key),
+        "teaching_configured": s.models.tutor_available,
+        "media_configured": bool(shutil.which("ffmpeg")),
+        "ocr_configured": bool(shutil.which("tesseract") or (s.settings.mimo_base_url and s.settings.mimo_api_key) or (s.settings.vision_url and s.settings.vision_model)),
         "stt_configured": server_stt,
         "tts_configured": server_tts,
         "voice_transport": "turn_based",
@@ -364,6 +376,16 @@ def get_profile(request: Request) -> dict[str, Any]:
         "updated_at": row["updated_at"],
     }
 
+
+@router.patch("/v1/profile/study-preferences")
+def study_preferences(payload: StudyPreferencesIn, request: Request) -> dict[str, Any]:
+    p = principal(request)
+    db = _services(request).db
+    row = db.fetchone("SELECT preferences_json FROM learner_profiles WHERE user_id=?", (p.user_id,))
+    preferences = db.loads(row["preferences_json"], {}) if row else {}
+    preferences["study"] = payload.model_dump()
+    db.execute("INSERT INTO learner_profiles(user_id,display_name,preferences_json,updated_at) VALUES(?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET preferences_json=excluded.preferences_json,updated_at=excluded.updated_at", (p.user_id, p.username, db.dumps(preferences), datetime.now(timezone.utc).isoformat()))
+    return preferences["study"]
 
 @router.post("/v1/auth/logout")
 def logout(request: Request, response: Response) -> dict[str, bool]:
@@ -623,7 +645,7 @@ class ConceptCreateIn(_Strict):
 def create_course_concept(course_id: str, payload: ConceptCreateIn, request: Request) -> dict[str, Any]:
     p = principal(request); svc = _services(request)
     course = svc.db.fetchone("""SELECT c.subject_id FROM courses c JOIN subjects s ON s.subject_id=c.subject_id
-        WHERE c.course_id=? AND c.owner_user_id=? AND (c.subject_id NOT LIKE 'USR:%' OR s.owner_user_id=c.owner_user_id)""", (course_id, p.user_id))
+        WHERE c.course_id=? AND c.owner_user_id=? AND s.owner_user_id=c.owner_user_id""", (course_id, p.user_id))
     if not course:
         raise HTTPException(status_code=404, detail="Course not found or not owner")
     row = svc.db.fetchone("SELECT concept_id,name FROM concepts WHERE subject_id=? AND lower(name)=lower(?)", (course["subject_id"], payload.name.strip()))
@@ -904,6 +926,16 @@ async def upload_document(
         raise HTTPException(status_code=status, detail=str(exc)) from exc
 
 
+@router.post("/v1/documents/{document_id}/retry")
+async def retry_document(document_id: str, request: Request) -> dict[str, Any]:
+    p = principal(request)
+    s = _services(request)
+    try:
+        return await run_in_threadpool(s.documents.retry, p.user_id, document_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
 @router.get("/v1/documents")
 def documents(request: Request, course_id: str | None = None) -> list[dict[str, Any]]:
     p = principal(request)
@@ -1032,17 +1064,31 @@ def analyze_causal_gaps(payload: CausalAnalyzeIn, request: Request) -> dict[str,
     s = _services(request)
     if p.role != "learner":
         raise HTTPException(status_code=403, detail="Causal gap forensics is learner-scoped")
-    if not s.memory.personalization_enabled(p.user_id):
-        raise HTTPException(
-            status_code=409,
-            detail={"code": "PERSONALIZATION_PAUSED", "message": "Resume personalization to generate a fresh gap analysis."},
+    # Coordinate with pause/deletion and project the same active local-first
+    # evidence as the learning/proof surfaces. Cases remain owned by the account.
+    with s.memory.write_lock:
+        if not s.memory.personalization_enabled(p.user_id):
+            raise HTTPException(
+                status_code=409,
+                detail={"code": "PERSONALIZATION_PAUSED", "message": "Resume personalization to generate a fresh gap analysis."},
+            )
+        evidence_user_id = p.user_id
+        if s.settings.memory_mode == "local_first":
+            active = s.db.fetchone(
+                "SELECT state_json FROM teaching_sessions WHERE owner_user_id=? AND status='active' ORDER BY updated_at DESC LIMIT 1",
+                (p.user_id,),
+            )
+            state = s.db.loads(active["state_json"], {}) if active else {}
+            engine_id = str(state.get("engine_user_id") or "")
+            if engine_id.startswith(f"lf:{p.user_id}:"):
+                evidence_user_id = engine_id
+        return s.decision.forensics(
+            user_id=evidence_user_id,
+            case_owner_user_id=p.user_id,
+            subject_id=payload.subject_id,
+            max_cases=payload.max_cases,
+            persist=True,
         )
-    return s.decision.forensics(
-        user_id=p.user_id,
-        subject_id=payload.subject_id,
-        max_cases=payload.max_cases,
-        persist=True,
-    )
 
 
 @router.get("/v1/gaps/causal")
@@ -1132,6 +1178,43 @@ def causal_gap_plot(case_id: str, request: Request) -> Response:
 # ---------------------------------------------------------------------------
 # Dynamic learning API
 # ---------------------------------------------------------------------------
+@router.get("/v1/learning/illustrations")
+def illustrations(request: Request, query: str = Query(min_length=2,max_length=120)) -> dict[str, Any]:
+    principal(request)
+    from .illustrations import search_illustrations
+    try:
+        return {"images":search_illustrations(query)}
+    except Exception as exc:
+        raise HTTPException(status_code=503,detail="Public image search is unavailable. Try again or use the external search link.") from exc
+
+@router.post("/v1/learning/illustrations/explain")
+def explain_image_reference(payload: IllustrationIn, request: Request) -> dict[str, Any]:
+    principal(request)
+    from .illustrations import explain_illustration
+    try:
+        return {"text":explain_illustration(_services(request).settings,payload.url,payload.topic)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400,detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=503,detail="Image explanation needs a working vision service. The reference caption is still available.") from exc
+
+@router.post("/v1/learning/transcribe-audio")
+async def transcribe_learning_audio(request: Request, audio: UploadFile = File(...)) -> dict[str, Any]:
+    p = principal(request)
+    if p.role != "learner":
+        raise HTTPException(status_code=403, detail="Answer transcription is learner-scoped")
+    data = await audio.read(25 * 1024 * 1024 + 1)
+    if len(data) > 25 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Audio exceeds the 25 MB transcription limit")
+    try:
+        transcript = await run_in_threadpool(_services(request).speech.transcribe, data, filename=audio.filename or "answer.wav")
+        return transcript.model_dump(mode="json")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError:
+        raise HTTPException(status_code=503, detail="Speech transcription is unavailable. Use a typed answer.")
+
+
 @router.get("/v1/learning/sessions")
 def list_learning_sessions(
     request: Request,
@@ -1190,6 +1273,24 @@ def get_learning(session_id: str, request: Request) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
+@router.get("/v1/learning/sessions/{session_id}/review")
+def review_learning(session_id: str, request: Request) -> dict[str, Any]:
+    from .study_review import session_review
+    p = principal(request)
+    try:
+        return session_review(_services(request), p.user_id, session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Unknown conversation") from exc
+
+@router.post("/v1/learning/sessions/{session_id}/review")
+def summarize_learning(session_id: str, request: Request) -> dict[str, Any]:
+    from .study_review import session_review
+    p = principal(request)
+    try:
+        return session_review(_services(request), p.user_id, session_id, generate=True)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Unknown conversation") from exc
+
 @router.post("/v1/learning/sessions/{session_id}/turns")
 def learning_turn(
     session_id: str,
@@ -1229,9 +1330,10 @@ def complete_learning(session_id: str, request: Request) -> dict[str, Any]:
 
 
 @router.get("/v1/memory/settings")
-def v1_memory_settings(request: Request) -> dict[str, bool]:
+def v1_memory_settings(request: Request) -> dict[str, Any]:
     p = principal(request)
-    return {"personalization_enabled": _services(request).memory.personalization_enabled(p.user_id)}
+    s = _services(request)
+    return {"personalization_enabled": s.memory.personalization_enabled(p.user_id), "memory_mode": s.settings.memory_mode}
 
 
 @router.post("/v1/memory/personalization")
@@ -1272,6 +1374,28 @@ def v1_memory_map(request: Request, subject_id: str | None = None) -> dict[str, 
 # ---------------------------------------------------------------------------
 # MCP connections/context/inbox
 # ---------------------------------------------------------------------------
+class MCPServerQueryIn(BaseModel):
+    url: str = Field(min_length=1, max_length=2048)
+    token: str = Field(default="", max_length=4096)
+    tool: str | None = Field(default=None, max_length=200)
+    arguments: dict[str, Any] = Field(default_factory=dict)
+
+
+@router.post("/v1/connections/servers/query")
+async def query_mcp_server(payload: MCPServerQueryIn, request: Request) -> dict[str, Any]:
+    principal(request)
+    from .mcp_client import query_server
+    if len(json.dumps(payload.arguments)) > 16_000:
+        raise HTTPException(status_code=413, detail="Tool arguments are too large.")
+    try:
+        return await query_server(payload.url, payload.token, _services(request).settings.mcp_allowed_hosts,
+                                  tool=payload.tool, arguments=payload.arguments)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Could not connect to this server. Check its URL and access token.") from exc
+
+
 @router.post("/v1/connections/mcp")
 def create_mcp_connection(payload: MCPConnectionIn, request: Request) -> dict[str, Any]:
     p = principal(request)
@@ -1330,10 +1454,10 @@ def resolve_handoff(token: str, request: Request) -> dict[str, Any]:
 
 # ---------------------------------------------------------------------------
 # Legacy transport retained only for source-level/local compatibility when the
-# official MCP SDK is not installed. Production clients must use `/mcp`, which
+# official MCP SDK is not installed. Production clients must use `/mcp/`, which
 # is mounted from the official SDK adapter in `mcp_protocol.py`.
 # ---------------------------------------------------------------------------
-@router.post("/mcp")
+@router.post("/mcp-legacy")
 async def mcp_transport(request: Request) -> dict[str, Any]:
     services = _services(request)
     token = _bearer(request)

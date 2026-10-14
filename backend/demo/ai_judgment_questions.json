@@ -1,0 +1,101 @@
+{
+  "source": "Selected English exercises from friend competition package; use the existing assessment engine. Authored content requires teacher review before classroom use.",
+  "items": [
+    {
+      "id": "verify_1",
+      "domain": "verification",
+      "question": "An AI provides a date without a citation. What should you do?",
+      "options": [
+        "Trust the date",
+        "Check an authoritative source",
+        "Ask it to sound confident"
+      ],
+      "answer": 1,
+      "explain": "Check the claim against an authoritative, independently accessible source."
+    },
+    {
+      "id": "privacy_1",
+      "domain": "privacy",
+      "question": "A chatbot asks for your friend's private medical record. What is safest?",
+      "options": [
+        "Upload it",
+        "Only remove their name",
+        "Do not upload it without authorization"
+      ],
+      "answer": 2,
+      "explain": "Avoid disclosing another person's sensitive information without proper authorization."
+    },
+    {
+      "id": "bias_1",
+      "domain": "fairness",
+      "question": "An AI recommends excluding applicants from one language group. Best response?",
+      "options": [
+        "Accept it",
+        "Review for unfair bias and use job-relevant criteria",
+        "Hide the decision"
+      ],
+      "answer": 1,
+      "explain": "Evaluate the decision against fair, task-relevant criteria and human oversight."
+    },
+    {
+      "id": "policy_1",
+      "domain": "disclosure",
+      "question": "The teacher permits AI brainstorming if disclosed. What should you do?",
+      "options": [
+        "Hide AI use",
+        "Follow the policy and disclose AI assistance",
+        "Submit AI output unchanged"
+      ],
+      "answer": 1,
+      "explain": "Different courses can set different acceptable-use rules; follow and disclose as required."
+    },
+    {
+      "id": "verify_2",
+      "domain": "verification",
+      "question": "The AI gives a scientific claim with a broken source link. Best next action?",
+      "options": [
+        "Repeat the claim",
+        "Find and examine reliable primary evidence",
+        "Treat source formatting as proof"
+      ],
+      "answer": 1,
+      "explain": "Verify the claim independently using trustworthy evidence."
+    },
+    {
+      "id": "privacy_2",
+      "domain": "privacy",
+      "question": "A classmate's ID number appears in a document you want to send to AI. Best action?",
+      "options": [
+        "Check consent, remove unnecessary personal data",
+        "Send it",
+        "Upload through a second AI"
+      ],
+      "answer": 0,
+      "explain": "Minimize disclosure of personal data and confirm authorization."
+    },
+    {
+      "id": "bias_2",
+      "domain": "fairness",
+      "question": "AI rates one group lower with no transparent criteria. What is justified?",
+      "options": [
+        "Accept the ranking",
+        "Remove the group's data",
+        "Request a human review and inspect criteria"
+      ],
+      "answer": 2,
+      "explain": "Opaque high-impact ratings need scrutiny and human review."
+    },
+    {
+      "id": "policy_2",
+      "domain": "disclosure",
+      "question": "A course forbids AI-written final answers but permits AI explanations. Which is compliant?",
+      "options": [
+        "Learn with AI, then independently prepare your answer",
+        "Copy AI's final answer",
+        "Conceal that AI was used"
+      ],
+      "answer": 0,
+      "explain": "Use AI only in ways permitted by the particular course policy."
+    }
+  ]
+}

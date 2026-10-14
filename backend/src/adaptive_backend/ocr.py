@@ -15,7 +15,7 @@ from .inference import SemanticBudget
 class OCRService:
     """Printed-text OCR with local-first and configured MiMo vision adapters."""
 
-    MAX_BYTES = 12 * 1024 * 1024
+    MAX_BYTES = 50 * 1024 * 1024
     MAX_PIXELS = 24_000_000
     LANGUAGE_RE = re.compile(r"^[A-Za-z0-9_+-]{1,32}$")
 
@@ -67,7 +67,7 @@ class OCRService:
             # A non-empty local transcription can still be unusably noisy. When
             # the configured vision model is available, let it handle low-quality
             # pages rather than indexing corrupted text as learner material.
-            mimo_ready = bool(self.settings and self.settings.mimo_base_url and self.settings.mimo_api_key)
+            mimo_ready = bool(self.settings and ((self.settings.mimo_base_url and self.settings.mimo_api_key) or (self.settings.vision_url and self.settings.vision_model)))
             if text and (mean_confidence >= 55.0 or not mimo_ready):
                 return OCRResult(text=text, engine="pytesseract", confidence=round(mean_confidence / 100.0, 4) if confidences else None)
         except (ImportError, RuntimeError, OSError):
@@ -75,22 +75,25 @@ class OCRService:
             # local adapter. Fall through to the configured private model route.
             pass
 
-        if self.settings and self.settings.mimo_base_url and self.settings.mimo_api_key:
+        if self.settings and ((self.settings.mimo_base_url and self.settings.mimo_api_key) or (self.settings.vision_url and self.settings.vision_model)):
             if budget is not None and not budget.take("ocr.vision", route="vision_ocr"):
                 raise RuntimeError("OCR model-call budget exhausted")
             return self._mimo_extract(normalized, language)
         raise RuntimeError(
-            "OCR is not configured. Install the local OCR extra with Tesseract or configure OVAEL_MIMO_API_KEY."
+            "Image reading is unavailable. Configure a vision service or install Tesseract, then retry."
         )
 
     def _mimo_extract(self, image: Image.Image, language: str = "eng") -> OCRResult:
         output = io.BytesIO()
         image.save(output, format="JPEG", quality=92, optimize=True)
         encoded = base64.b64encode(output.getvalue()).decode("ascii")
-        base = (self.settings.mimo_base_url or "").rstrip("/")
+        generic = bool(self.settings.vision_url and self.settings.vision_model)
+        base = (self.settings.vision_url if generic else self.settings.mimo_base_url or "").rstrip("/")
+        headers = {"Authorization": f"Bearer {self.settings.vision_api_key}"} if generic and self.settings.vision_api_key else {} if generic else {"api-key": self.settings.mimo_api_key}
+        headers["Content-Type"] = "application/json"
         endpoint = f"{base}/chat/completions" if base.endswith("/v1") else f"{base}/v1/chat/completions"
         payload = {
-            "model": self.settings.mimo_model or "mimo-v2.5",
+            "model": self.settings.vision_model if generic else self.settings.mimo_model or "mimo-v2.5",
             "messages": [
                 {
                     "role": "system",
@@ -111,18 +114,20 @@ class OCRService:
             "temperature": 0,
             "max_completion_tokens": 2400,
         }
+        if generic:
+            payload["max_tokens"] = payload.pop("max_completion_tokens")
         try:
             with httpx.Client(timeout=httpx.Timeout(self.settings.request_timeout_seconds)) as client:
                 response = client.post(
                     endpoint,
-                    headers={"api-key": self.settings.mimo_api_key, "Content-Type": "application/json"},
+                    headers=headers,
                     json=payload,
                 )
                 response.raise_for_status()
                 data = response.json()
             text = data["choices"][0]["message"]["content"]
         except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
-            raise RuntimeError("MiMo OCR failed or returned an unexpected response") from exc
+            raise RuntimeError("Image reading failed. Check the vision service and retry.") from exc
         if not isinstance(text, str) or not text.strip():
-            raise RuntimeError("MiMo OCR returned an empty transcription")
-        return OCRResult(text=text.strip(), engine="mimo-v2.5-vision-ocr", confidence=None)
+            raise RuntimeError("No readable text was returned.")
+        return OCRResult(text=text.strip(), engine="configured-vision-ocr" if generic else "mimo-v2.5-vision-ocr", confidence=None)
