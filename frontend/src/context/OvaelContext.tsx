@@ -73,21 +73,26 @@ export function OvaelProvider({ children }: { children: React.ReactNode }) {
       sessionStorage.removeItem(`ovael.local-state.${userRef.current.user_id}`);
     setLocalState([]);
   }, []);
+  // refresh() replaces `map` and `connections` with new objects after every
+  // turn. Key the relay on what it actually sends so unchanged content does not
+  // re-post and restart the timer.
+  const hasActiveConnection = connections.some((item) => !item.revoked);
+  const relayKey = useMemo(
+    () =>
+      JSON.stringify(
+        map.nodes
+          .slice(0, 100)
+          .map((node) => ({ concept_id: node.id, status: node.status })),
+      ),
+    [map],
+  );
   useEffect(() => {
-    if (
-      !user ||
-      !memory?.personalization_enabled ||
-      !connections.some((item) => !item.revoked)
-    )
+    if (!user || !memory?.personalization_enabled || !hasActiveConnection)
       return;
     let cancelled = false;
     const relay = () =>
       void api("/v1/mcp/context-relay", "POST", {
-        capsule: {
-          concept_states: map.nodes
-            .slice(0, 100)
-            .map((node) => ({ concept_id: node.id, status: node.status })),
-        },
+        capsule: { concept_states: JSON.parse(relayKey) },
       }).catch(() => {
         if (!cancelled)
           setError("Could not update connected apps. Try again in Settings.");
@@ -98,7 +103,7 @@ export function OvaelProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [user?.user_id, memory?.personalization_enabled, connections, map]);
+  }, [user?.user_id, memory?.personalization_enabled, hasActiveConnection, relayKey]);
   const clear = useCallback(() => {
     clearLocalState();
     userRef.current = null;
