@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -17,8 +18,17 @@ def _iso(value: datetime) -> str:
     return value.astimezone(timezone.utc).isoformat()
 
 
+def _finite(value: Any) -> float:
+    """float() that rejects NaN/inf, which min/max would silently turn into 1.0."""
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError("non-finite value")
+    return number
+
+
 def _clamp(value: float) -> float:
-    return max(0.0, min(1.0, float(value)))
+    number = float(value)
+    return max(0.0, min(1.0, number)) if math.isfinite(number) else 0.0
 
 
 def _parse_ts(value: Any) -> str | None:
@@ -401,21 +411,21 @@ class ProofOfLearningService:
             if cid not in valid:
                 continue
             def num(name: str, default: float = 0.0) -> float:
-                try: return _clamp(float(item.get(name, default)))
+                try: return _clamp(_finite(item.get(name, default)))
                 except (TypeError, ValueError): return default
             mass = item.get("evidence_mass") or {}
             if not isinstance(mass, dict): mass = {}
             def m(name: str) -> float:
-                try: return max(0.0, min(10000.0, float(mass.get(name, 0.0))))
+                try: return max(0.0, min(10000.0, _finite(mass.get(name, 0.0))))
                 except (TypeError, ValueError): return 0.0
             acq, indep, transfer, retention = num("acquisition"), num("independent"), num("transfer"), num("retention")
             am, im, tm, rm, asm = m("acquisition"), m("independent"), m("transfer"), m("retention"), m("assisted")
             gap = item.get("assistance_gap")
-            try: gap = None if gap is None else max(-1.0, min(1.0, float(gap)))
+            try: gap = None if gap is None else max(-1.0, min(1.0, _finite(gap)))
             except (TypeError, ValueError): gap = None
             assisted_perf = item.get("assisted_performance")
             try:
-                assisted_perf = None if assisted_perf is None else _clamp(float(assisted_perf))
+                assisted_perf = None if assisted_perf is None else _clamp(_finite(assisted_perf))
             except (TypeError, ValueError):
                 assisted_perf = None
             if assisted_perf is None and gap is not None:

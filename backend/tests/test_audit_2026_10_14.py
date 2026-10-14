@@ -82,3 +82,26 @@ def test_session_start_tolerates_naive_timestamps_and_bad_interval(settings, tmp
             _c, r = _start_with_proof(client, settings, headers, [{"concept_id": concept, "independent": 0.5, **state}])
             assert r.status_code == 200, (state, r.text)
             client.post(f"/v1/learning/sessions/{r.json()['teaching_session_id']}/complete", headers=headers)
+
+
+def test_non_finite_client_values_are_not_treated_as_proficiency(settings, tmp_path):
+    import sqlite3
+
+    _app, client = _client(settings, tmp_path)
+    with client:
+        _body, headers = _register(client, "auditnan1")
+        concept = _first_dsa_concept(settings)
+        _c, r = _start_with_proof(
+            client, settings, headers,
+            [{"concept_id": concept, "independent": "nan", "acquisition": "inf", "uncertainty": "nan"}],
+        )
+        assert r.status_code == 200, r.text
+        with sqlite3.connect(settings.db_path) as conn:
+            row = conn.execute(
+                "SELECT independent,acquisition,uncertainty FROM proof_learning_state WHERE concept_id=?",
+                (concept,),
+            ).fetchone()
+        # NaN/inf used to be clamped to 1.0 (full mastery); they now fall back to defaults.
+        assert row is not None
+        assert row[0] == 0.0 and row[1] == 0.0
+        assert row[2] == 1.0

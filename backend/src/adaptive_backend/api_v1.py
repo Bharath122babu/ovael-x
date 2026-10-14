@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .auth import AuthError, AuthPrincipal
 from .mcp_server import DEFAULT_SCOPES, MCPAuthError
+from .proof_learning import _finite
 from .teaching import LearningSessionStart, LearningTurnInput
 from .inference import SemanticBudget
 
@@ -1636,13 +1637,13 @@ def share_progress_snapshot(course_id: str, payload: ProgressSnapshotIn, request
             continue
         def bounded(name: str):
             try:
-                return max(0.0, min(1.0, round(float(item.get(name, 0.0)), 3)))
-            except (TypeError, ValueError):
+                return max(0.0, min(1.0, round(_finite(item.get(name, 0.0)), 3)))
+            except (TypeError, ValueError, OverflowError):
                 return 0.0
         gap = item.get("assistance_gap")
         try:
-            gap = None if gap is None else max(-1.0, min(1.0, round(float(gap), 3)))
-        except (TypeError, ValueError):
+            gap = None if gap is None else max(-1.0, min(1.0, round(_finite(gap), 3)))
+        except (TypeError, ValueError, OverflowError):
             gap = None
         safe_proof.append({
             "concept_id": cid,
