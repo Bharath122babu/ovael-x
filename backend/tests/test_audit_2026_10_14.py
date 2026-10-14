@@ -167,3 +167,12 @@ def test_handoff_token_claim_is_atomic(settings, tmp_path):
             raise AssertionError("handoff token was accepted twice")
         finally:
             db.fetchone = real_fetchone
+
+
+def test_zero_difficulty_is_kept_and_only_missing_falls_back():
+    from adaptive_backend.teaching import _difficulty_or
+
+    assert _difficulty_or(0.0, 0.5) == 0.0
+    assert _difficulty_or(0, 0.5) == 0.0
+    assert _difficulty_or(0.3, 0.5) == 0.3
+    assert _difficulty_or(None, 0.5) == 0.5

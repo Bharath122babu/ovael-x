@@ -29,6 +29,11 @@ from .schemas import DiagnosisResult, EvidenceEvent, ResponseBehavior, TutorRequ
 from .subjects import CodeReviewService
 
 
+def _difficulty_or(value: Any, default: float) -> float:
+    """A calibrated difficulty of 0.0 is real evidence; only a missing value falls back."""
+    return default if value is None else float(value)
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -1009,7 +1014,7 @@ class TeachingService:
         evaluator_confidence = 0.3
         item: dict[str, Any] = {}
         evaluation_public: dict[str, Any] | None = None
-        effective_difficulty = float(move.get("target_difficulty", 0.5) or 0.5)
+        effective_difficulty = _difficulty_or(move.get("target_difficulty"), 0.5)
         if item_id:
             item_row = self.db.fetchone(
                 "SELECT * FROM generated_items WHERE generated_item_id=? AND owner_user_id=?",
@@ -1024,7 +1029,7 @@ class TeachingService:
                 evaluation_public = result.public_dict()
                 # Use the best calibrated difficulty available for the learner
                 # update rather than always trusting requested generation difficulty.
-                effective_difficulty = float(item_row["difficulty_posterior"] or effective_difficulty)
+                effective_difficulty = _difficulty_or(item_row["difficulty_posterior"], effective_difficulty)
                 if state.get("persist_personalization", True):
                     self._calibrate_item(item_row, score, turn)
 
