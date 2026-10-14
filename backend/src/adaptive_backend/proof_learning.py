@@ -21,6 +21,19 @@ def _clamp(value: float) -> float:
     return max(0.0, min(1.0, float(value)))
 
 
+def _parse_ts(value: Any) -> str | None:
+    """Normalize a client-carried timestamp to aware UTC ISO text, or None if unusable."""
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return _iso(parsed)
+
+
 @dataclass(slots=True, frozen=True)
 class SovereigntyDecision:
     assistance_level: int
@@ -310,7 +323,7 @@ class ProofOfLearningService:
             try:
                 if datetime.fromisoformat(str(state["next_retention_check_at"])) <= _now():
                     return "retention"
-            except ValueError:
+            except (ValueError, TypeError):
                 pass
         masses = state.get("evidence_mass") or {}
         if float(masses.get("independent", 0.0) or 0.0) < 1.5:
@@ -411,6 +424,10 @@ class ProofOfLearningService:
                 # Preserve a bounded amount of browser-carried evidence without
                 # inventing a large effective sample size.
                 asm = 1.0
+            try:
+                interval_days = max(3, min(30, int(item.get("retention_interval_days", 3) or 3)))
+            except (TypeError, ValueError, OverflowError):
+                interval_days = 3
             self.db.execute(
                 """INSERT OR REPLACE INTO proof_learning_state(
                     user_id,subject_id,concept_id,acquisition,independent,transfer,retention,evidence_quality,uncertainty,assistance_gap,
@@ -420,8 +437,8 @@ class ProofOfLearningService:
                 (
                     user_id, subject_id, cid, acq, indep, transfer, retention, num("evidence_quality"), num("uncertainty", 1.0), gap,
                     acq*am, am, indep*im, im, transfer*tm, tm, retention*rm, rm,
-                    (float(assisted_perf) * asm) if assisted_perf is not None else 0.0, asm, item.get("last_evidence_at"), item.get("next_retention_check_at"),
-                    max(3, min(30, int(item.get("retention_interval_days", 3) or 3))), now,
+                    (float(assisted_perf) * asm) if assisted_perf is not None else 0.0, asm, _parse_ts(item.get("last_evidence_at")), _parse_ts(item.get("next_retention_check_at")),
+                    interval_days, now,
                 ),
             )
 
@@ -432,7 +449,7 @@ class ProofOfLearningService:
         retention_due = False
         if next_retention:
             try: retention_due = datetime.fromisoformat(str(next_retention)) <= _now()
-            except ValueError: retention_due = False
+            except (ValueError, TypeError): retention_due = False
         result = {
             "subject_id": row["subject_id"],
             "concept_id": row["concept_id"],
