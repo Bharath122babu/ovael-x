@@ -6,7 +6,7 @@ const csrf = () =>
     .find((c) => c.startsWith("ovael_csrf="))
     ?.split("=")
     .slice(1)
-    .join("") || "";
+    .join("=") || "";
 let refreshing: Promise<boolean> | null = null;
 let refreshVersion = 0;
 export async function refreshCookie(): Promise<boolean> {
