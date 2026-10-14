@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   Check,
   Download,
-  HardDrive,
   KeyRound,
   LoaderCircle,
   PauseCircle,
@@ -50,7 +49,6 @@ export function SettingsScreen() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [recoveryKey, setRecoveryKey] = useState("");
-  const [sharedCourses, setSharedCourses] = useState<Set<string>>(new Set());
   const [notice, setNotice] = useState("");
   const prefs = profile?.preferences?.study as
     { format?: string; pace?: string; plain_language?: boolean } | undefined;
@@ -212,12 +210,6 @@ export function SettingsScreen() {
           )
           .map((node) => ({ concept_id: node.id, state: node.status })),
         shared_with_teacher: enabled,
-      });
-      setSharedCourses((current) => {
-        const next = new Set(current);
-        if (enabled) next.add(courseId);
-        else next.delete(courseId);
-        return next;
       });
       setNotice(
         enabled

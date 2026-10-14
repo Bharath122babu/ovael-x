@@ -1,15 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  AlertCircle,
-  ArrowRight,
-  CheckCircle2,
-  Download,
-  Focus,
-  RefreshCw,
-  Scale,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, Focus } from "lucide-react";
 import { ovaelApi } from "../../../api/client";
 import { useOvael } from "../../../context/OvaelContext";
 import { gapMermaid } from "../../../diagrams";
@@ -18,16 +8,8 @@ import { api } from "../../../api";
 import type {
   CausalGapCase,
   CausalGapReport,
-  CausalGraphNode,
   LearningLaunch,
 } from "../../../types";
-function percent(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
-function display(value: string) {
-  if (value === "sam_hypothesis") return "retained prerequisite signal";
-  return value.replaceAll("_", " ");
-}
 function learnerCopy(value: string) {
   return value.replaceAll("retained evidence window", "recent practice").replaceAll("unhinted first attempts", "answers without hints").replaceAll("observations", "practice records").replaceAll("No retained attempts are available", "No recent answers are available for this check");
 }
@@ -39,32 +21,12 @@ function CausalMicrograph({ gap }: { gap: CausalGapCase }) {
     />
   );
 }
-function EmptyAnalysis({
-  onAnalyze,
-  loading,
-}: {
-  onAnalyze: () => void;
-  loading: boolean;
-}) {
-  return (
-    <section className="iris-empty">
-      <Focus size={28} />
-      <p className="eyebrow blue">No suggestions yet</p>
-      <h2>Practice first to get suggestions.</h2>
-      <p>Your practice helps us find topics to work on next.</p>
-      <button className="primary-button" onClick={onAnalyze} disabled={loading}>
-        {loading ? "Reviewing evidence…" : "Check my progress"}
-        <ArrowRight size={16} />
-      </button>
-    </section>
-  );
-}
 export function GapForensicsScreen({
   onLearn,
 }: {
   onLearn: (launch: LearningLaunch) => void;
 }) {
-  const { subjects, memory, courses, map, refresh } = useOvael();
+  const { subjects, memory, courses, refresh } = useOvael();
   const requestRevision = useRef(0);
   const [report, setReport] = useState<CausalGapReport | null>(null);
   const [selectedId, setSelectedId] = useState("");
@@ -198,28 +160,6 @@ export function GapForensicsScreen({
         nextError instanceof Error
           ? nextError.message
           : "The challenge could not be recorded.",
-      );
-    } finally {
-      setActionBusy(false);
-    }
-  };
-  const downloadPlot = async () => {
-    if (!selected) return;
-    setActionBusy(true);
-    setError("");
-    try {
-      const blob = await ovaelApi.causalGapPlot(selected.case_id);
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `iris-${selected.concept_name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
-      anchor.click();
-      URL.revokeObjectURL(url);
-    } catch (nextError) {
-      setError(
-        nextError instanceof Error
-          ? nextError.message
-          : "The chart could not be exported.",
       );
     } finally {
       setActionBusy(false);

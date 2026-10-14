@@ -1,29 +1,9 @@
 import { useMemo, useState } from "react";
-import {
-  Check,
-  ChevronDown,
-  Copy,
-  KeyRound,
-  LockKeyhole,
-  PlugZap,
-  ServerCog,
-  ShieldCheck,
-  Trash2,
-} from "lucide-react";
 import { api } from "../../../api";
 import { RichText } from "../../content/RichText";
 import { ovaelApi } from "../../../api/client";
 import { useOvael } from "../../../context/OvaelContext";
 import type { MCPConnection } from "../../../types";
-const scopeLabels: Record<string, string> = {
-  "learning.context.read": "Read active learning context",
-  "learning.external_events.submit": "Submit external learning evidence",
-  "learning.map.read": "Read the learning-map projection",
-  "learning.materials.search": "Search authorized materials",
-  "learning.session.create": "Start a teaching session",
-  "learning.session.interact": "Continue a teaching session",
-  "learning.suggestions.submit": "Suggest a teaching strategy",
-};
 function publicMcpUrl(serverUrl?: string) {
   if (typeof window !== "undefined" && ovaelApi.baseUrl.startsWith("/"))
     return `${window.location.origin}/mcp/`;
@@ -32,7 +12,6 @@ function publicMcpUrl(serverUrl?: string) {
 export function ConnectionsScreen() {
   const { connections, map, memory, refresh, setError } = useOvael();
   const [clientName, setClientName] = useState("");
-  const [selectedId, setSelectedId] = useState("");
   const [issued, setIssued] = useState<MCPConnection | null>(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState("");
@@ -115,13 +94,6 @@ export function ConnectionsScreen() {
     () => connections.filter((connection) => !connection.revoked),
     [connections],
   );
-  const revoked = useMemo(
-    () => connections.filter((connection) => connection.revoked),
-    [connections],
-  );
-  const selected =
-    active.find((connection) => connection.connection_id === selectedId) ||
-    active[0];
   const endpoint = publicMcpUrl(issued?.mcp_url);
   const clientConfig = issued?.access_token
     ? JSON.stringify(
@@ -158,7 +130,6 @@ export function ConnectionsScreen() {
       }
       const result = await ovaelApi.createMcpConnection(clientName.trim());
       setIssued(result);
-      setSelectedId(result.connection_id);
       setClientName("");
       await refresh();
     } catch (error) {
@@ -182,7 +153,6 @@ export function ConnectionsScreen() {
     try {
       await ovaelApi.revokeMcpConnection(connection.connection_id);
       if (issued?.connection_id === connection.connection_id) setIssued(null);
-      setSelectedId("");
       await refresh();
     } finally {
       setBusy(false);

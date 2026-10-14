@@ -41,7 +41,7 @@ BKT and IRT are interpretable baselines, not the entire personalization system. 
 
 ## Verification and limits
 
-- TypeScript and production builds pass. Initial app script is about 475 kB / 147 kB gzip; the math renderer is lazy-loaded. Optional Mermaid/ELK chunks still emit size warnings.
+- TypeScript and production builds pass. After cleanup, the initial app script is about 469 kB / 145 kB gzip; the math renderer is lazy-loaded. Optional Mermaid/ELK chunks still emit size warnings. See [cleanup and main integration](cleanup-and-main-merge.md) for the duplicate-file removal audit.
 - Nineteen frontend contract tests pass, including visual bounds and imported-ID escaping.
 - The latest full backend suite passes all 208 cases. It includes a 120-page rendered PDF completed over four 30-page passes, an image above the old 12 MB limit, owner-scoped receipts, saved preferences, and typed-response retention. OCR was mocked for the scanned-page test: this verifies batching and indexing, not real recognition accuracy.
 - Live browser checks created “Synthetic visual learning walkthrough” with a custom subject, topic, and the accompanying synthetic Markdown notes. Uploads, material visibility, course launch, visual steps, Mermaid, math, terminal/chart rendering, a help message, conversation completion, and receipt review reached the actual backend. The original active Calculus conversation was preserved.

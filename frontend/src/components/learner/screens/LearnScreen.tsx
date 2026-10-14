@@ -9,7 +9,6 @@ import {
   Plus,
   Mic,
   Paperclip,
-  X,
 } from "lucide-react";
 import { useOvael } from "../../../context/OvaelContext";
 import { useTeaching } from "../../../context/TeachingContext";
@@ -123,8 +122,7 @@ export function LearnScreen({
     launch?.conceptName ||
     map.nodes.find((n) => n.id === conceptId)?.label ||
     "Choose your next idea";
-  const known = map.nodes.filter((n) => n.status !== "unknown"),
-    session = t.session,
+  const session = t.session,
     move = session?.move,
     disabled = t.busy || t.pending || uploading;
   async function uploadMaterials(files: File[]) {

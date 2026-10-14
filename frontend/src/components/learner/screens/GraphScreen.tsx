@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowRight, Info, Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import { useOvael } from "../../../context/OvaelContext";
 import type { LearningLaunch } from "../../../types";
 import { MermaidDiagram } from "../../content/MermaidDiagram";
@@ -154,9 +154,7 @@ export function GraphScreen({
             </div>
           )}
           <div className="topic-map-grid">
-            {visible.map((node, index) => {
-              const column = index % 4;
-              const row = Math.floor(index / 4);
+            {visible.map((node) => {
               return (
                 <button
                   key={node.id}
