@@ -354,6 +354,12 @@ class AuthService:
                 "UPDATE auth_sessions SET revoked_at=? WHERE user_id=? AND revoked_at IS NULL",
                 (now, row["user_id"]),
             )
+            # Connection tokens are long-lived bearer credentials; a recovery means
+            # the account may have been compromised, so they must not survive it.
+            conn.execute(
+                "UPDATE mcp_connections SET revoked_at=? WHERE user_id=? AND revoked_at IS NULL",
+                (now, row["user_id"]),
+            )
         self.audit(row["user_id"], "auth.recover")
         return {"user_id": row["user_id"], "recovery_key": replacement}
 

@@ -105,3 +105,31 @@ def test_non_finite_client_values_are_not_treated_as_proficiency(settings, tmp_p
         assert row is not None
         assert row[0] == 0.0 and row[1] == 0.0
         assert row[2] == 1.0
+
+
+def test_account_recovery_revokes_mcp_connections(settings, tmp_path):
+    app, client = _client(settings, tmp_path)
+    with client:
+        body, headers = _register(client, "auditrecover1")
+        conn = client.post("/v1/connections/mcp", headers=headers, json={"client_name": "audit-app"})
+        assert conn.status_code == 200, conn.text
+        token = conn.json()["access_token"]
+        mcp = app.state.services.mcp
+        assert mcp.authenticate(token)[0] == body["user_id"]
+        rec = client.post(
+            "/v1/auth/recover",
+            json={
+                "username": "auditrecover1",
+                "recovery_key": body["recovery_key"],
+                "new_password": "another long passphrase 42",
+            },
+        )
+        assert rec.status_code == 200, rec.text
+        from adaptive_backend.mcp_server import MCPAuthError
+
+        try:
+            mcp.authenticate(token)
+        except MCPAuthError:
+            pass
+        else:
+            raise AssertionError("MCP token survived account recovery")
