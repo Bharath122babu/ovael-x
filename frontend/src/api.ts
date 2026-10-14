@@ -9,7 +9,7 @@ const csrf = () =>
     .join("") || "";
 let refreshing: Promise<boolean> | null = null;
 let refreshVersion = 0;
-async function refreshCookie(): Promise<boolean> {
+export async function refreshCookie(): Promise<boolean> {
   if (!refreshing)
     refreshing = fetch("/v1/auth/refresh", {
       method: "POST",

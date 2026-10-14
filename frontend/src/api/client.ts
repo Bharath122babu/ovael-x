@@ -13,7 +13,7 @@ import type {
   TeachingSession,
   UserProfile,
 } from "../types";
-import { api } from "../api";
+import { api, refreshCookie } from "../api";
 const API_BASE = "/v1";
 export class ApiError extends Error {
   constructor(
@@ -35,9 +35,11 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   );
 }
 async function requestBlob(path: string): Promise<Blob> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    credentials: "same-origin",
-  });
+  const load = () =>
+    fetch(`${API_BASE}${path}`, { credentials: "same-origin" });
+  let response = await load();
+  // The access cookie expires after an hour; rotate it once and retry, as api() does.
+  if (response.status === 401 && (await refreshCookie())) response = await load();
   if (!response.ok)
     throw new Error(
       `Chart export failed (${response.status}). Refresh your session and retry.`,
