@@ -221,11 +221,14 @@ export function OvaelProvider({ children }: { children: React.ReactNode }) {
     [refresh],
   );
   const logout = useCallback(async () => {
-    await ovaelApi.logout();
-    generation.current++;
-    if (userRef.current)
-      sessionStorage.removeItem(`ovael.session.${userRef.current.user_id}`);
-    clear();
+    try {
+      await ovaelApi.logout();
+    } finally {
+      generation.current++;
+      if (userRef.current)
+        sessionStorage.removeItem(`ovael.session.${userRef.current.user_id}`);
+      clear();
+    }
   }, [clear]);
   const saveStateDelta = useCallback(
     (delta?: Record<string, unknown>) => {

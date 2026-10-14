@@ -389,8 +389,18 @@ def study_preferences(payload: StudyPreferencesIn, request: Request) -> dict[str
 
 @router.post("/v1/auth/logout")
 def logout(request: Request, response: Response) -> dict[str, bool]:
-    p = principal(request)
-    _services(request).auth.logout(p)
+    try:
+        p = principal(request)
+    except HTTPException as exc:
+        # The short-lived access cookie may already have expired. Sign out must
+        # still revoke the long-lived refresh session, behind the CSRF check.
+        refresh_cookie = request.cookies.get("ovael_refresh")
+        if exc.status_code != 401 or not refresh_cookie:
+            raise
+        _verify_cookie_csrf(request)
+        _services(request).auth.logout_refresh(refresh_cookie)
+    else:
+        _services(request).auth.logout(p)
     _clear_auth_cookies(response)
     return {"logged_out": True}
 
