@@ -337,7 +337,21 @@ def test_account_delete_cascades_new_v002_user_tables(settings):
 
 def test_internal_chaos_telemetry_and_dpo_routes_are_absent(settings):
     app = create_app(settings)
-    paths = {route.path for route in app.routes}
+
+    def collect(routes) -> set[str]:
+        # Newer FastAPI wraps included routers in objects without a `path`; walk
+        # into them so nested routes are still inspected.
+        found: set[str] = set()
+        for route in routes:
+            if getattr(route, "path", None):
+                found.add(route.path)
+            nested = getattr(route, "original_router", None) or getattr(route, "router", None)
+            if nested is not None:
+                found |= collect(nested.routes)
+        return found
+
+    paths = collect(app.routes) | set(app.openapi()["paths"])
+    assert any(path.startswith("/v1/") for path in paths), "route discovery found no /v1 routes"
     forbidden = {
         "/v1/chaos/inject",
         "/v1/chaos/status",
