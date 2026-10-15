@@ -15,6 +15,7 @@ import { OvaelProvider, useOvael } from "../context/OvaelContext";
 import { TeachingProvider, useTeaching } from "../context/TeachingContext";
 import { LearnerWorkspace } from "./learner/LearnerWorkspace";
 import { TeacherWorkspace } from "./teacher/TeacherWorkspace";
+import { PageTransition } from "./content/MotionPrimitives";
 import type { LearnerScreen, LearningLaunch } from "../types";
 import { AuthScreen } from "./auth/AuthScreen";
 const navigation = [
@@ -329,7 +330,9 @@ function Product() {
         )}
         <main id="main-content">
           {teacher && screen === "courses" ? (
-            <TeacherWorkspace />
+            <PageTransition key="teacher-workspace">
+              <TeacherWorkspace />
+            </PageTransition>
           ) : (
             <LearnerWorkspace
               key={user.user_id}

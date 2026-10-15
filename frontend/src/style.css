@@ -134,10 +134,19 @@
   --radius-xl: 18px;
   --radius-full: 9999px;
 
-  --duration-fast: 140ms;
-  --duration-base: 220ms;
-  --duration-slow: 340ms;
-  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-moderate: 250ms;
+  --duration-panel: 300ms;
+  --duration-entrance: 350ms;
+  --duration-slow: 450ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.05, 0.7, 0.1, 1.0);
+  --ease-in: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  --ease-linear: linear;
 
   /* Legacy alias mappings for backward compatibility */
   --transition-fast: var(--duration-fast) var(--ease-standard);
@@ -525,6 +534,7 @@ label,
   border-radius: var(--radius-full);
   font-size: 0.85rem;
   font-weight: 600;
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .workspace-tab-btn.active,
@@ -1077,6 +1087,251 @@ label,
   to { transform: rotate(360deg); }
 }
 
+/* --- STEP 9: CENTRALIZED KEYFRAMES & MICRO-INTERACTIONS --- */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeftFade {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRightFade {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes itemSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseBreath {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.88);
+  }
+}
+
+@keyframes shimmerSlide {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes shakeSoft {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-4px);
+  }
+  40%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+/* Motion Primitive Classes */
+.page-transition-wrapper {
+  width: 100%;
+  animation: pageFadeIn var(--duration-entrance) var(--ease-out) both;
+}
+
+.motion-fade-in {
+  animation: pageFadeIn var(--duration-base) var(--ease-out) both;
+}
+
+.motion-slide-in {
+  animation: slideUpFade var(--duration-moderate) var(--ease-out) both;
+}
+
+.motion-stagger-container {
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+}
+
+.motion-stagger-item {
+  animation: itemSlideUp var(--duration-base) var(--ease-out) both;
+}
+
+.pulse-indicator {
+  display: inline-block;
+  border-radius: 50%;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.pulse-indicator.active {
+  background-color: var(--jade, #00875a);
+  animation: pulseBreath 2s infinite ease-in-out;
+}
+.pulse-indicator.warning {
+  background-color: var(--brand-coral, #F4976C);
+  animation: pulseBreath 2s infinite ease-in-out;
+}
+.pulse-indicator.error {
+  background-color: #ef4444;
+  animation: pulseBreath 1.5s infinite ease-in-out;
+}
+.pulse-indicator.syncing {
+  background-color: var(--brand-soft-blue, #B4DFE5);
+  animation: pulseBreath 1.5s infinite ease-in-out;
+}
+.pulse-indicator.reduced {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+.skeleton-loader {
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface-muted, #f1f5f9) 25%,
+    var(--bg-surface, #ffffff) 50%,
+    var(--bg-surface-muted, #f1f5f9) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmerSlide 1.6s infinite var(--ease-linear);
+}
+.skeleton-loader.reduced {
+  animation: none !important;
+  background: var(--bg-surface-muted, #f1f5f9) !important;
+}
+
+.interactive-motion-card {
+  transition: transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+.interactive-motion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-coral);
+}
+.interactive-motion-card:active {
+  transform: translateY(0) scale(0.99);
+}
+.interactive-motion-card:focus-visible {
+  outline: 2px solid var(--brand-coral);
+  outline-offset: 2px;
+}
+
+/* Chat & Turn Micro-interactions */
+.chat-turn-enter,
+.message-turn {
+  animation: slideUpFade var(--duration-base) var(--ease-out) both;
+}
+
+/* Button & Control Micro-interactions */
+button:not(:disabled):active,
+.primary-button:not(:disabled):active,
+.secondary-button:not(:disabled):active,
+.danger-button:not(:disabled):active,
+.icon-button:not(:disabled):active {
+  transform: scale(0.98);
+  transition: transform var(--duration-instant) var(--ease-out);
+}
+
+.nav-item {
+  transition: background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-instant) var(--ease-out);
+}
+.nav-item:active {
+  transform: scale(0.98);
+}
+.nav-indicator {
+  transition: transform var(--duration-base) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+}
+
+/* Comprehensive Accessibility & Reduced Motion Overrides */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.reduce-motion,
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
 /* Dev Demo Utility */
 .auth-dev-tools {
   display: flex;
@@ -1319,6 +1574,26 @@ label,
   display: flex;
   flex-direction: column;
   gap: 12px;
+  transition: transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.card:hover,
+.course-card:hover,
+.summary-card:hover,
+.teacher-data-card:hover,
+.panel-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.card:active,
+.course-card:active,
+.summary-card:active,
+.teacher-data-card:active,
+.panel-card:active {
+  transform: translateY(0) scale(0.99);
 }
 
 .course-card-active,
