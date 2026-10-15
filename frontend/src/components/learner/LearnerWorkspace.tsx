@@ -4,6 +4,9 @@ import { LearnScreen } from "./screens/LearnScreen";
 import { MaterialsScreen } from "./screens/MaterialsScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
 import { CoursesScreen } from "./screens/CoursesScreen";
+import { ConnectionsScreen } from "./screens/ConnectionsScreen";
+import { HistoryScreen } from "./screens/HistoryScreen";
+
 export function LearnerWorkspace({
   screen,
   onNavigate,
@@ -26,6 +29,12 @@ export function LearnerWorkspace({
       return (
         <ProgressScreen onLearn={(launch) => onNavigate("learn", launch)} />
       );
+    case "session-history":
+      return (
+        <HistoryScreen onLearn={(launch) => onNavigate("learn", launch)} />
+      );
+    case "connections":
+      return <ConnectionsScreen />;
     case "settings":
       return <SettingsScreen />;
     default:

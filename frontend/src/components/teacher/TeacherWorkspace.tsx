@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { ovaelApi } from "../../api/client";
 import { useOvael } from "../../context/OvaelContext";
+import { AnimatedProgressBar } from "../content/MotionPrimitives";
 type TeacherTab = "overview" | "materials" | "graph" | "gaps";
 export function TeacherWorkspace() {
   const { courses, documents, refresh, setError } = useOvael();
@@ -272,6 +273,16 @@ export function TeacherWorkspace() {
                 <span>Gap concepts</span>
               </div>
             </div>
+            {learners.length > 0 && (
+              <div style={{ marginTop: "12px", width: "100%" }}>
+                <AnimatedProgressBar
+                  value={sharing}
+                  max={learners.length}
+                  variant="coral"
+                  label="Learners sharing progress"
+                />
+              </div>
+            )}
           </section>
           <div className="teacher-grid">
             <section className="teacher-panel">

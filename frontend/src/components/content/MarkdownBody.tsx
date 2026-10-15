@@ -1,7 +1,75 @@
+import { useState, type ComponentProps, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Check, Copy } from "lucide-react";
 import { parseLearningVisual } from "../../learningVisuals";
 import { MermaidDiagram } from "./MermaidDiagram";
+
+function CodeBlockWithCopy({
+  language,
+  children,
+  className,
+}: {
+  language: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const codeText = String(children).replace(/\n$/, "");
+  const lineCount = codeText.split("\n").length;
+
+  const handleCopy = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(codeText);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = codeText;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback silently if clipboard is unavailable
+    }
+  };
+
+  const isTerminal =
+    language === "terminal" || language === "bash" || language === "shell" || language === "sh";
+
+  return (
+    <section className={`teaching-terminal ${isTerminal ? "is-terminal" : "is-code"}`}>
+      <header className="code-block-header">
+        <div className="code-meta">
+          <span className="code-lang-badge">
+            {isTerminal ? "Terminal" : language.toUpperCase()}
+          </span>
+          {lineCount > 1 && (
+            <span className="code-line-count">{lineCount} lines</span>
+          )}
+        </div>
+        <button
+          type="button"
+          className={`code-copy-button ${copied ? "copied" : ""}`}
+          aria-label={copied ? "Code copied to clipboard" : "Copy code"}
+          onClick={() => void handleCopy()}
+        >
+          {copied ? <Check size={14} /> : <Copy size={14} />}
+          <span>{copied ? "Copied!" : "Copy"}</span>
+        </button>
+      </header>
+      <pre>
+        <code className={className}>{children}</code>
+      </pre>
+    </section>
+  );
+}
+
 export function MarkdownBody({
   markdown,
   mathPlugins,
@@ -9,10 +77,10 @@ export function MarkdownBody({
   markdown: string;
   mathPlugins?: {
     remark: NonNullable<
-      React.ComponentProps<typeof ReactMarkdown>["remarkPlugins"]
+      ComponentProps<typeof ReactMarkdown>["remarkPlugins"]
     >;
     rehype: NonNullable<
-      React.ComponentProps<typeof ReactMarkdown>["rehypePlugins"]
+      ComponentProps<typeof ReactMarkdown>["rehypePlugins"]
     >;
   };
 }) {
@@ -30,7 +98,9 @@ export function MarkdownBody({
             </a>
           ),
           code: ({ children, className, ...props }) => {
-            const kind = className?.replace("language-", "");
+            const match = /language-(\w+)/.exec(className || "");
+            const kind = match ? match[1] : undefined;
+
             if (kind === "steps" || kind === "chart") {
               try {
                 const rows = parseLearningVisual(kind, String(children));
@@ -79,21 +149,22 @@ export function MarkdownBody({
                 );
               }
             }
-            return className === "language-mermaid" ? (
-              <MermaidDiagram source={String(children).replace(/\n$/, "")} />
-            ) : kind ? (
-              <section className="teaching-terminal">
-                <header>
-                  {kind === "terminal" || kind === "bash" || kind === "shell"
-                    ? "Terminal example"
-                    : `${kind} example`}
-                  <small>Read-only example</small>
-                </header>
-                <pre>
-                  <code className={className}>{children}</code>
-                </pre>
-              </section>
-            ) : (
+
+            if (kind === "mermaid") {
+              return (
+                <MermaidDiagram source={String(children).replace(/\n$/, "")} />
+              );
+            }
+
+            if (kind) {
+              return (
+                <CodeBlockWithCopy language={kind} className={className}>
+                  {children}
+                </CodeBlockWithCopy>
+              );
+            }
+
+            return (
               <code className={className} {...props}>
                 {children}
               </code>
