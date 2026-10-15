@@ -8,8 +8,6 @@ import {
   Moon,
   Network,
   Settings,
-  ShieldCheck,
-  Sparkles,
   Sun,
   X,
 } from "lucide-react";
@@ -18,9 +16,7 @@ import { TeachingProvider, useTeaching } from "../context/TeachingContext";
 import { LearnerWorkspace } from "./learner/LearnerWorkspace";
 import { TeacherWorkspace } from "./teacher/TeacherWorkspace";
 import type { LearnerScreen, LearningLaunch } from "../types";
-import { MIN_PASSWORD_LENGTH } from "../auth";
-import { ovaelApi } from "../api/client";
-import { AuthVisualAccent } from "./content/AuthVisualAccent";
+import { AuthScreen } from "./auth/AuthScreen";
 const navigation = [
   { id: "learn", label: "Chat", icon: MessageSquareText },
   { id: "courses", label: "Courses", icon: Layers3 },
@@ -92,11 +88,7 @@ function Product() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
   const [launch, setLaunch] = useState<LearningLaunch | null>(null),
-    [name, setName] = useState(""),
-    [password, setPassword] = useState(""),
-    [register, setRegister] = useState(false),
-    [recovery, setRecovery] = useState(""),
-    [authBusy, setAuthBusy] = useState(false);
+    [recovery, setRecovery] = useState("");
   useEffect(() => {
     const body = document.querySelector(".app-body");
     body?.toggleAttribute("inert", mobile);
@@ -139,24 +131,6 @@ function Product() {
     setMobile(false);
     window.scrollTo({ top: 0, behavior: "auto" });
   };
-  async function signIn(event: React.FormEvent) {
-    event.preventDefault();
-    if (authBusy) return;
-    setAuthBusy(true);
-    setError("");
-    try {
-      if (register) {
-        const result = await ovaelApi.register(name, password, "learner");
-        setRecovery(result.recovery_key || "");
-        await refresh();
-      } else await login(name, password);
-      setPassword("");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Sign in failed.");
-    } finally {
-      setAuthBusy(false);
-    }
-  }
   async function signOut() {
     try {
       await logout();
@@ -170,110 +144,21 @@ function Product() {
       );
     }
   }
-  if (!user)
+  if (!user) {
     return (
-      <main className="auth-page" id="main-content">
-        <section className="auth-intro">
-          <div className="brand auth-brand">
-            <span className="brand-mark">O</span>
-            <span>OVAEL-X</span>
-          </div>
-          <p className="eyebrow blue">Your learning, backed by evidence</p>
-          <h1>Understand what is holding you back.</h1>
-          <p>
-            Learn from your own material, practice independently, and see which
-            ideas need a different approach.
-          </p>
-          <div className="auth-points">
-            <span>Source-grounded lessons</span>
-            <span>Gap forensics</span>
-            <span>Memory under your control</span>
-          </div>
-          <AuthVisualAccent />
-        </section>
-        <section className="auth-panel">
-          <div className={`backend-state ${connection}`}>
-            <i />
-            {connection === "online"
-              ? "Backend connected"
-              : connection === "checking"
-                ? "Checking connection…"
-                : "Connection unavailable"}
-          </div>
-          <p className="eyebrow">Your workspace</p>
-          <h2>{register ? "Create your account" : "Welcome back"}</h2>
-          <form onSubmit={signIn}>
-            <label>
-              Username
-              <input
-                autoComplete="username"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </label>
-            <label>
-              Password
-              <input
-                type="password"
-                required
-                autoComplete={register ? "new-password" : "current-password"}
-                minLength={register ? MIN_PASSWORD_LENGTH : undefined}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </label>
-            {error && (
-              <p role="alert" className="form-error">
-                {error}
-              </p>
-            )}
-            <button
-              className="primary-button full"
-              disabled={authBusy || loading || connection !== "online"}
-            >
-              {authBusy
-                ? "Connecting…"
-                : register
-                  ? "Create account"
-                  : "Sign in"}
-            </button>
-          </form>
-          <button
-            className="demo-login"
-            onClick={() => {
-              setRegister(!register);
-              setError("");
-            }}
-          >
-            {register
-              ? "Already registered? Sign in"
-              : "Create a learner account"}
-          </button>
-          {import.meta.env.DEV && (
-            <button
-              className="demo-login"
-              onClick={() => {
-                setRegister(false);
-                setName("Bharat");
-                setPassword("OVAEL-demo-2026!");
-              }}
-            >
-              <Sparkles size={16} /> Fill synthetic demo account
-            </button>
-          )}
-          <p className="auth-privacy">
-            <ShieldCheck size={15} /> Sign in to save your courses and
-            conversations.
-          </p>
-          {connection === "offline" && (
-            <button className="secondary-button" onClick={() => void refresh()}>
-              Retry connection
-            </button>
-          )}
-        </section>
-      </main>
+      <AuthScreen
+        connection={connection}
+        loading={loading}
+        error={error}
+        setError={setError}
+        refresh={refresh}
+        login={login}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        onRegisteredRecovery={(key) => setRecovery(key)}
+      />
     );
+  }
   const teacher = user.role === "teacher",
     nav = teacher
       ? navigation.filter((n) =>
