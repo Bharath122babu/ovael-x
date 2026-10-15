@@ -67,9 +67,17 @@ function Product() {
       if (opened) window.history.replaceState(null, "", "/");
     });
   }, [user?.user_id, memory, teaching.busy, teaching.pending]);
-  const [screen, setScreen] = useState<LearnerScreen>("learn"),
-    [mobile, setMobile] = useState(false),
-    [profileOpen, setProfileOpen] = useState(false);
+  const [screen, setScreen] = useState<LearnerScreen>(() =>
+    user?.role === "teacher" ? "courses" : "learn",
+  );
+  const [mobile, setMobile] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  useEffect(() => {
+    if (user?.role === "teacher" && screen === "learn") {
+      setScreen("courses");
+    }
+  }, [user?.role, screen]);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
     const stored = localStorage.getItem("ovael_theme");

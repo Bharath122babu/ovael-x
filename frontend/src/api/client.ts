@@ -261,10 +261,33 @@ export const ovaelApi = {
     request<Array<Record<string, unknown>>>(`/courses/${courseId}/learners`),
   teacherGaps: (courseId: string) =>
     request<Record<string, unknown>>(`/teacher/courses/${courseId}/gaps`),
+  teacherInterventions: (courseId: string) =>
+    request<Record<string, unknown>>(
+      `/teacher/courses/${courseId}/interventions`,
+    ),
   enrollLearner: (courseId: string, learnerUsername: string) =>
     request<Record<string, unknown>>(`/courses/${courseId}/enroll`, {
       method: "POST",
       body: JSON.stringify({ learner_username: learnerUsername }),
+    }),
+  unenrollLearner: (courseId: string, learnerUserId: string) =>
+    request<Record<string, unknown>>(
+      `/courses/${courseId}/enroll/${learnerUserId}`,
+      {
+        method: "DELETE",
+      },
+    ),
+  updateCourse: (
+    courseId: string,
+    payload: { name?: string; description?: string },
+  ) =>
+    request<Course>(`/courses/${courseId}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+  deleteCourse: (courseId: string) =>
+    request<{ ok: boolean }>(`/courses/${courseId}`, {
+      method: "DELETE",
     }),
   graphProposals: (courseId: string) =>
     request<Array<Record<string, unknown>>>(
