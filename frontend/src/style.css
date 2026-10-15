@@ -680,6 +680,55 @@ label,
     radial-gradient(at 100% 100%, rgba(244, 151, 108, 0.08) 0px, transparent 60%);
 }
 
+.auth-page-root {
+  display: contents;
+}
+
+/* ==========================================================================
+   OVAEL-X LOGIN-ONLY CUSTOM SVG CURSOR
+   Scoped strictly to login mode on fine-pointer devices with hover support.
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  .auth-page--login {
+    cursor: url("./assets/ovael-login-pointer.svg") 1 1, default;
+  }
+
+  /* Retain standard text insertion cursor on inputs */
+  .auth-page--login input,
+  .auth-page--login input[type="text"],
+  .auth-page--login input[type="password"],
+  .auth-page--login textarea {
+    cursor: text;
+  }
+
+  /* Retain interactive hand cursor on buttons, tabs, and links */
+  .auth-page--login button,
+  .auth-page--login a,
+  .auth-page--login select,
+  .auth-page--login label,
+  .auth-page--login [role="button"],
+  .auth-page--login [role="tab"],
+  .auth-page--login .icon-button,
+  .auth-page--login .primary-button,
+  .auth-page--login .secondary-button,
+  .auth-page--login .auth-mode-tab,
+  .auth-page--login .demo-account-pill-btn {
+    cursor: pointer;
+  }
+
+  /* Retain disabled cursor state */
+  .auth-page--login button:disabled,
+  .auth-page--login input:disabled,
+  .auth-page--login [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  /* Registration screen and all other views explicitly retain standard cursor */
+  .auth-page--register {
+    cursor: auto;
+  }
+}
+
 .auth-card-container {
   display: grid;
   grid-template-columns: minmax(360px, 1.15fr) minmax(340px, 0.85fr);

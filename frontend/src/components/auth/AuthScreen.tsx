@@ -28,6 +28,7 @@ interface AuthScreenProps {
   theme: "light" | "dark";
   toggleTheme: () => void;
   onRegisteredRecovery?: (key: string) => void;
+  onModeChange?: (mode: "login" | "register") => void;
 }
 
 export function AuthScreen({
@@ -40,6 +41,7 @@ export function AuthScreen({
   theme,
   toggleTheme,
   onRegisteredRecovery,
+  onModeChange,
 }: AuthScreenProps) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [name, setName] = useState("");
@@ -55,6 +57,7 @@ export function AuthScreen({
 
   const handleModeSwitch = (nextMode: "login" | "register") => {
     setMode(nextMode);
+    onModeChange?.(nextMode);
     setError("");
   };
 
@@ -119,13 +122,17 @@ export function AuthScreen({
 
   const handleFillDemo = () => {
     setMode("login");
+    onModeChange?.("login");
     setName("Bharat");
     setPassword("OVAEL-demo-2026!");
     setError("");
   };
 
   return (
-    <main className="auth-page-shell" id="main-content">
+    <main
+      className={`auth-page-shell auth-page ${isRegister ? "auth-page--register" : "auth-page--login"}`}
+      id="main-content"
+    >
       <div className="auth-card-container">
         {/* Interactive Form Column */}
         <section className="auth-form-column" aria-labelledby="auth-heading">

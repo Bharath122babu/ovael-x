@@ -73,6 +73,7 @@ function Product() {
   );
   const [mobile, setMobile] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   useEffect(() => {
     if (user?.role === "teacher" && screen === "learn") {
@@ -155,17 +156,20 @@ function Product() {
   }
   if (!user) {
     return (
-      <AuthScreen
-        connection={connection}
-        loading={loading}
-        error={error}
-        setError={setError}
-        refresh={refresh}
-        login={login}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        onRegisteredRecovery={(key) => setRecovery(key)}
-      />
+      <div className={`auth-page-root ${authMode === "register" ? "auth-page--register" : "auth-page--login"}`}>
+        <AuthScreen
+          connection={connection}
+          loading={loading}
+          error={error}
+          setError={setError}
+          refresh={refresh}
+          login={login}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onModeChange={setAuthMode}
+          onRegisteredRecovery={(key) => setRecovery(key)}
+        />
+      </div>
     );
   }
   const teacher = user.role === "teacher",
