@@ -1,25 +1,52 @@
-import { RefreshCw, Award } from "lucide-react";
+import { useState, useMemo } from "react";
+import {
+  RefreshCw,
+  Award,
+  Calendar,
+  Clock,
+  BookOpen,
+  ArrowRight,
+  Search,
+  CheckCircle2,
+  AlertCircle,
+  HelpCircle,
+  X,
+  Sparkles,
+} from "lucide-react";
 import { useOvael } from "../../../context/OvaelContext";
 import { engagement } from "../../../rewards";
-import { useState } from "react";
 import { api } from "../../../api";
 import { RichText } from "../../content/RichText";
 import { RadialGauge, AnimatedProgressBar } from "../../content/MotionPrimitives";
 import type { LearningLaunch } from "../../../types";
-function date(value?: string) {
+
+function formatDate(value?: string): string {
   const d = new Date(value || "");
-  return Number.isFinite(d.getTime()) ? d.toLocaleString() : "Date unavailable";
+  return Number.isFinite(d.getTime())
+    ? d.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "Date unavailable";
 }
+
 export function HistoryScreen({
   onLearn,
 }: {
   onLearn?: (launch: LearningLaunch) => void;
 }) {
-  const { sessions, map, refresh } = useOvael(),
-    reward = engagement(sessions);
-  const [review, setReview] = useState<any>(null),
-    [reviewBusy, setReviewBusy] = useState(false),
-    [reviewError, setReviewError] = useState("");
+  const { sessions, map, refresh, courses } = useOvael();
+  const reward = engagement(sessions);
+
+  const [review, setReview] = useState<any>(null);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "completed" | "active">("all");
+
   async function openReview(id: string, generate = false) {
     setReviewBusy(true);
     setReviewError("");
@@ -27,190 +54,439 @@ export function HistoryScreen({
       setReview(
         await api(
           `/v1/learning/sessions/${id}/review`,
-          generate ? "POST" : "GET",
-        ),
+          generate ? "POST" : "GET"
+        )
       );
     } catch (e) {
       setReviewError(
-        e instanceof Error ? e.message : "Could not load conversation.",
+        e instanceof Error ? e.message : "Could not load session conversation review."
       );
     } finally {
       setReviewBusy(false);
     }
   }
+
+  // Filtered sessions
+  const filteredSessions = useMemo(() => {
+    return sessions.filter((s) => {
+      if (statusFilter !== "all" && s.status !== statusFilter) return false;
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      const conceptName = map.nodes.find((n) => n.id === s.concept_id)?.label || s.concept_id;
+      const goalStr = s.goal || "";
+      const modeStr = s.mode || "";
+      return (
+        conceptName.toLowerCase().includes(q) ||
+        goalStr.toLowerCase().includes(q) ||
+        modeStr.toLowerCase().includes(q)
+      );
+    });
+  }, [sessions, statusFilter, searchQuery, map.nodes]);
+
   return (
-    <div className="page">
-      <header className="page-heading">
-        <p className="eyebrow blue">Progress & rewards</p>
-        <h1>Your progress</h1>
-        <p>Your practice, achievements and recent conversations.</p>
+    <div className="page history-page">
+      {/* Header */}
+      <header className="page-heading history-header">
+        <div>
+          <p className="eyebrow blue">Engagement & History</p>
+          <h1>Learning Progress & Records</h1>
+          <p className="page-lead">
+            Review earned practice points, mastery badges, and previous Socratic conversation receipts.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="quiet-button refresh-history-btn"
+          disabled={reviewBusy}
+          onClick={() => void refresh()}
+        >
+          <RefreshCw size={15} />
+          <span>Refresh</span>
+        </button>
       </header>
-      <section className="progress-summary">
-        <div className="radial-metric-card">
+
+      {/* Metric Cards Grid */}
+      <section className="history-metric-grid" aria-label="Learning metrics summary">
+        {/* Practice Points Gauge */}
+        <div className="history-stat-card radial-card">
           <RadialGauge
             value={reward.points}
             max={Math.max(100, reward.points)}
             variant="coral"
-            size={72}
+            size={76}
           />
-          <div>
-            <span>Practice points</span>
-            <strong>{reward.points}</strong>
-            <small>Earned by practicing</small>
+          <div className="stat-card-text">
+            <span className="stat-label">Practice Points</span>
+            <strong className="stat-value">{reward.points}</strong>
+            <small className="stat-subtext">Earned across interactive lessons</small>
           </div>
         </div>
-        <div>
-          <span>Completed with practice</span>
-          <strong>{reward.completed}</strong>
-          <small>Lessons with at least one response</small>
-          <AnimatedProgressBar
-            value={reward.completed}
-            max={Math.max(10, reward.completed)}
-            variant="navy"
-          />
+
+        {/* Lessons Completed */}
+        <div className="history-stat-card">
+          <div className="stat-card-header">
+            <span className="stat-label">Lessons Completed</span>
+            <strong className="stat-value">{reward.completed}</strong>
+          </div>
+          <small className="stat-subtext">Sessions with verified responses</small>
+          <div className="stat-progress-wrap">
+            <AnimatedProgressBar
+              value={reward.completed}
+              max={Math.max(10, reward.completed)}
+              variant="navy"
+            />
+          </div>
         </div>
-        <div>
-          <span>Saved practice turns</span>
-          <strong>{reward.turns}</strong>
-          <small>Responses you have saved</small>
-          <AnimatedProgressBar
-            value={reward.turns}
-            max={Math.max(25, reward.turns)}
-            variant="soft-blue"
-          />
+
+        {/* Practice Turns */}
+        <div className="history-stat-card">
+          <div className="stat-card-header">
+            <span className="stat-label">Saved Responses</span>
+            <strong className="stat-value">{reward.turns}</strong>
+          </div>
+          <small className="stat-subtext">Evidence-backed answers saved</small>
+          <div className="stat-progress-wrap">
+            <AnimatedProgressBar
+              value={reward.turns}
+              max={Math.max(25, reward.turns)}
+              variant="coral"
+            />
+          </div>
         </div>
-        <div>
-          <span>Practice days</span>
-          <strong>{reward.days}</strong>
-          <small>Days represented in recent history</small>
+
+        {/* Practice Days */}
+        <div className="history-stat-card">
+          <div className="stat-card-header">
+            <span className="stat-label">Active Learning Days</span>
+            <strong className="stat-value">{reward.days}</strong>
+          </div>
+          <small className="stat-subtext">Distinct days with study activity</small>
+          <div className="days-indicator-pill">
+            <Calendar size={13} />
+            <span>Regular consistency</span>
+          </div>
         </div>
       </section>
-      <div className="reward-badges">
-        {reward.badges.map((b) => (
-          <article key={b.name} className={b.earned ? "earned" : ""}>
-            <Award size={22} />
-            <strong>{b.name}</strong>
-            <span>{b.earned ? "Earned" : "Keep practicing"}</span>
-          </article>
-        ))}
-      </div>
 
-      <section>
-        {reviewError && (
-          <p role="alert" className="form-error">
-            {reviewError}
-          </p>
-        )}
-        {reviewBusy && <p role="status">Opening your learning record…</p>}
-        {review && (
-          <section className="session-review">
-            <div className="section-heading">
-              <h2>Conversation review</h2>
-              <button onClick={() => setReview(null)} className="quiet-button">
-                Close review
-              </button>
-            </div>
-            <p>Discussed: {review.topics.join(", ") || "No topic recorded"}</p>
-            <RichText markdown={review.summary} />
-            <p>{review.next_step}</p>
-            <div className="lesson-actions">
-              <button
-                className="secondary-button"
-                disabled={reviewBusy}
-                onClick={() =>
-                  void openReview(review.session.teaching_session_id, true)
-                }
-              >
-                Create quick summary
-              </button>
-              <button
-                className="primary-button"
-                disabled={reviewBusy}
-                onClick={() =>
-                  onLearn?.({
-                    subjectId: review.session.subject_id,
-                    courseId: review.session.course_id,
-                    conceptId: review.session.concept_id,
-                    mode: "review",
-                  })
-                }
-              >
-                Review this topic
-              </button>
-            </div>
-            <details>
-              <summary>What you answered and what came next</summary>
-              {review.turns.map((turn: any, index: number) => (
-                <article className="review-turn" key={index}>
-                  <h3>
-                    Response {index + 1} ·{" "}
-                    {turn.graded
-                      ? turn.correct
-                        ? "Correct"
-                        : "Needs practice"
-                      : "Not assessed"}
-                  </h3>
-                  <p>
-                    {turn.response ||
-                      String(turn.intent || "Practice interaction").replaceAll(
-                        "_",
-                        " ",
-                      )}
-                  </p>
-                  {turn.feedback && <p>{turn.feedback}</p>}
-                  <details>
-                    <summary>Next explanation or question</summary>
-                    <RichText markdown={turn.next_content} />
-                  </details>
-                </article>
-              ))}
-              {!review.turns.length && (
-                <p>
-                  No saved responses. This conversation has not established
-                  learning evidence.
-                </p>
-              )}
-            </details>
-          </section>
-        )}
-        <div className="section-heading">
-          <h2>Your learning record</h2>
-          <button className="text-button" onClick={() => void refresh()}>
-            <RefreshCw size={15} />
-            Refresh
-          </button>
-        </div>
-        <div className="timeline">
-          {sessions.map((s) => (
-            <article key={s.teaching_session_id}>
-              <time>{date(s.updated_at)}</time>
-              <span className={`timeline-dot ${s.status}`} />
-              <div>
-                <div>
-                  <h3>
-                    {map.nodes.find((n) => n.id === s.concept_id)?.label ||
-                      s.concept_id}
-                  </h3>
-                  <button
-                    className="text-button"
-                    disabled={reviewBusy}
-                    onClick={() => void openReview(s.teaching_session_id)}
-                  >
-                    {s.status === "completed"
-                      ? "Conversation ended · Review"
-                      : "Open learning record"}
-                  </button>
-                </div>
-                <p>
-                  {s.goal || s.mode} · {s.turn_count || 0} saved turns
-                </p>
+      {/* Achievement Badges Section */}
+      <section className="badges-section" aria-label="Earned achievements">
+        <h2 className="section-title">
+          <Award size={18} />
+          <span>Milestones & Badges</span>
+        </h2>
+
+        <div className="badges-grid">
+          {reward.badges.map((b) => (
+            <article
+              key={b.name}
+              className={`badge-card ${b.earned ? "is-earned" : "is-locked"}`}
+            >
+              <div className="badge-icon-box">
+                <Award size={24} />
+              </div>
+              <div className="badge-info">
+                <strong>{b.name}</strong>
+                <span>{b.earned ? "Achieved" : "In Progress"}</span>
               </div>
             </article>
           ))}
-          {!sessions.length && (
-            <p className="empty-state">
-              Your sessions will appear here once you start learning.
+        </div>
+      </section>
+
+      {/* Conversation Review Card / Drawer */}
+      {reviewError && (
+        <aside className="chat-error-banner" role="alert">
+          <AlertCircle size={16} />
+          <span>{reviewError}</span>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => setReviewError("")}
+            aria-label="Dismiss error"
+          >
+            <X size={14} />
+          </button>
+        </aside>
+      )}
+
+      {review && (
+        <section className="session-review-card" aria-label="Session review detail">
+          <div className="review-card-header">
+            <div>
+              <span className="eyebrow coral">Session Receipt</span>
+              <h2>Conversation Analysis & Feedback</h2>
+              <p className="topics-discussed">
+                <strong>Concepts covered:</strong>{" "}
+                {review.topics && review.topics.length > 0
+                  ? review.topics.join(", ")
+                  : "General subject inquiry"}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="icon-button close-review-btn"
+              onClick={() => setReview(null)}
+              aria-label="Close conversation review"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="review-summary-body">
+            <div className="summary-markdown-box">
+              <RichText markdown={review.summary || "No executive summary recorded for this session."} />
+            </div>
+
+            {review.next_step && (
+              <div className="next-step-box">
+                <Sparkles size={16} />
+                <div>
+                  <strong>Recommended Next Focus</strong>
+                  <p>{review.next_step}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="review-actions-bar">
+            <button
+              type="button"
+              className="secondary-button"
+              disabled={reviewBusy}
+              onClick={() => void openReview(review.session.teaching_session_id, true)}
+            >
+              <RefreshCw size={14} className={reviewBusy ? "spin-icon" : ""} />
+              <span>Generate Fresh Summary</span>
+            </button>
+
+            {onLearn && (
+              <button
+                type="button"
+                className="primary-button"
+                disabled={reviewBusy}
+                onClick={() => {
+                  const s = review.session;
+                  setReview(null);
+                  onLearn({
+                    subjectId: s.subject_id,
+                    courseId: s.course_id,
+                    conceptId: s.concept_id,
+                    mode: "review",
+                  });
+                }}
+              >
+                <span>Continue Review Session</span>
+                <ArrowRight size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Turn-by-Turn Evidence Accordion */}
+          <details className="review-turns-accordion">
+            <summary className="accordion-summary">
+              <span>View Submitted Responses & Tutor Feedback ({review.turns?.length || 0})</span>
+            </summary>
+
+            <div className="turns-list">
+              {review.turns?.map((turn: any, index: number) => {
+                const isCorrect = turn.correct;
+                const isGraded = turn.graded;
+
+                return (
+                  <article key={index} className="turn-receipt-row">
+                    <div className="turn-receipt-header">
+                      <span className="turn-num-pill">Turn {index + 1}</span>
+                      <span
+                        className={`turn-eval-badge ${
+                          isGraded ? (isCorrect ? "is-correct" : "is-practice") : "is-ungraded"
+                        }`}
+                      >
+                        {isGraded ? (
+                          isCorrect ? (
+                            <>
+                              <CheckCircle2 size={12} /> Correct
+                            </>
+                          ) : (
+                            <>
+                              <AlertCircle size={12} /> Needs Practice
+                            </>
+                          )
+                        ) : (
+                          <>
+                            <HelpCircle size={12} /> Diagnostic
+                          </>
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="turn-response-text">
+                      <strong>Your Answer:</strong>
+                      <p>
+                        {turn.response ||
+                          String(turn.intent || "Exploratory response").replaceAll("_", " ")}
+                      </p>
+                    </div>
+
+                    {turn.feedback && (
+                      <div className="turn-feedback-box">
+                        <strong>Tutor Rationale:</strong>
+                        <p>{turn.feedback}</p>
+                      </div>
+                    )}
+
+                    {turn.next_content && (
+                      <details className="turn-subdetails">
+                        <summary>Show Follow-up Explanation</summary>
+                        <div className="next-content-rich">
+                          <RichText markdown={turn.next_content} />
+                        </div>
+                      </details>
+                    )}
+                  </article>
+                );
+              })}
+
+              {(!review.turns || review.turns.length === 0) && (
+                <p className="no-turns-note">
+                  No submitted answers in this session. Questions were answered or reviewed without recorded assessment turns.
+                </p>
+              )}
+            </div>
+          </details>
+        </section>
+      )}
+
+      {/* Session History Log Section */}
+      <section className="history-timeline-section" aria-label="Learning history log">
+        <div className="timeline-section-header">
+          <div>
+            <h2 className="section-title">
+              <Clock size={18} />
+              <span>Learning Sessions Record</span>
+            </h2>
+            <p className="section-desc">
+              All interactive tutoring and practice sessions recorded on this account.
             </p>
+          </div>
+
+          <div className="timeline-filter-tools">
+            <div className="search-pill-box">
+              <Search size={14} />
+              <input
+                type="search"
+                aria-label="Search learning history"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by topic or goal…"
+                className="history-search-input"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  className="icon-button"
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+
+            <div className="status-pill-group">
+              <button
+                type="button"
+                className={`pill-btn ${statusFilter === "all" ? "active" : ""}`}
+                onClick={() => setStatusFilter("all")}
+              >
+                All ({sessions.length})
+              </button>
+              <button
+                type="button"
+                className={`pill-btn ${statusFilter === "completed" ? "active" : ""}`}
+                onClick={() => setStatusFilter("completed")}
+              >
+                Completed ({sessions.filter((s) => s.status === "completed").length})
+              </button>
+              <button
+                type="button"
+                className={`pill-btn ${statusFilter === "active" ? "active" : ""}`}
+                onClick={() => setStatusFilter("active")}
+              >
+                Active ({sessions.filter((s) => s.status === "active").length})
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Sessions List */}
+        <div className="history-sessions-list">
+          {filteredSessions.map((s) => {
+            const node = map.nodes.find((n) => n.id === s.concept_id);
+            const conceptTitle = node?.label || s.concept_id;
+            const courseObj = courses.find((c) => c.course_id === s.course_id);
+            const isCompleted = s.status === "completed";
+
+            return (
+              <article key={s.teaching_session_id} className="history-session-card">
+                <div className="session-card-left">
+                  <div className={`session-status-dot ${isCompleted ? "is-completed" : "is-active"}`} />
+                  <div className="session-info-group">
+                    <h3 className="session-concept-name">{conceptTitle}</h3>
+                    <div className="session-meta-row">
+                      <span className="session-date">{formatDate(s.updated_at || s.created_at)}</span>
+                      <span className="session-turns-pill">
+                        {s.turn_count || 0} response{(s.turn_count || 0) === 1 ? "" : "s"}
+                      </span>
+                      {s.mode && <span className="session-mode-tag">{s.mode}</span>}
+                      {courseObj && <span className="session-course-tag">{courseObj.name}</span>}
+                    </div>
+                    {s.goal && <p className="session-goal-text">"{s.goal}"</p>}
+                  </div>
+                </div>
+
+                <div className="session-card-actions">
+                  <button
+                    type="button"
+                    className="quiet-button review-trigger-btn"
+                    disabled={reviewBusy}
+                    onClick={() => void openReview(s.teaching_session_id)}
+                  >
+                    <span>{isCompleted ? "Review Record" : "Inspect Session"}</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+
+          {sessions.length === 0 && (
+            <div className="history-empty-card">
+              <BookOpen size={36} />
+              <h3>No Learning Sessions Recorded Yet</h3>
+              <p>
+                Your interactive Socratic conversations, practice responses, and concept evaluations will appear here.
+              </p>
+            </div>
+          )}
+
+          {sessions.length > 0 && filteredSessions.length === 0 && (
+            <div className="history-empty-card">
+              <Search size={32} />
+              <h3>No matching sessions found</h3>
+              <p>Try clearing your search query or switching filters.</p>
+              <button
+                type="button"
+                className="quiet-button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setStatusFilter("all");
+                }}
+              >
+                Reset Filters
+              </button>
+            </div>
           )}
         </div>
       </section>
