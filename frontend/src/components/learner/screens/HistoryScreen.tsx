@@ -4,6 +4,7 @@ import { engagement } from "../../../rewards";
 import { useState } from "react";
 import { api } from "../../../api";
 import { RichText } from "../../content/RichText";
+import { RadialGauge, AnimatedProgressBar } from "../../content/MotionPrimitives";
 import type { LearningLaunch } from "../../../types";
 function date(value?: string) {
   const d = new Date(value || "");
@@ -45,21 +46,38 @@ export function HistoryScreen({
         <p>Your practice, achievements and recent conversations.</p>
       </header>
       <section className="progress-summary">
-        <div>
-          <Award size={20} />
-          <span>Practice points</span>
-          <strong>{reward.points}</strong>
-          <small>Earned by practicing</small>
+        <div className="radial-metric-card">
+          <RadialGauge
+            value={reward.points}
+            max={Math.max(100, reward.points)}
+            variant="coral"
+            size={72}
+          />
+          <div>
+            <span>Practice points</span>
+            <strong>{reward.points}</strong>
+            <small>Earned by practicing</small>
+          </div>
         </div>
         <div>
           <span>Completed with practice</span>
           <strong>{reward.completed}</strong>
           <small>Lessons with at least one response</small>
+          <AnimatedProgressBar
+            value={reward.completed}
+            max={Math.max(10, reward.completed)}
+            variant="navy"
+          />
         </div>
         <div>
           <span>Saved practice turns</span>
           <strong>{reward.turns}</strong>
           <small>Responses you have saved</small>
+          <AnimatedProgressBar
+            value={reward.turns}
+            max={Math.max(25, reward.turns)}
+            variant="soft-blue"
+          />
         </div>
         <div>
           <span>Practice days</span>

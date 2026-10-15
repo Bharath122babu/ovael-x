@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import DOMPurify from "dompurify";
-import { checkedMermaid } from "../../diagrams";
+import { checkedMermaid, MERMAID_THEME_VARIABLES } from "../../diagrams";
 export function MermaidDiagram({
   source,
   title = "Learning diagram",
@@ -24,9 +24,11 @@ export function MermaidDiagram({
         mermaid.initialize({
           startOnLoad: false,
           securityLevel: "strict",
-          theme: "neutral",
+          theme: "base",
+          themeVariables: MERMAID_THEME_VARIABLES,
           htmlLabels: false,
-          fontFamily: "Arial, sans-serif",
+          fontFamily:
+            '-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif',
           maxTextSize: 12000,
           maxEdges: 100,
           flowchart: { htmlLabels: false },

@@ -4,7 +4,9 @@ export type LearnerScreen =
   | "materials"
   | "history"
   | "settings"
-  | "courses";
+  | "courses"
+  | "connections"
+  | "session-history";
 export interface Health {
   status: string;
   product: string;

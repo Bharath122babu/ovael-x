@@ -34,3 +34,27 @@ export function checkedMermaid(source: string) {
     throw new Error("Diagram configuration overrides are not supported.");
   return source;
 }
+
+// Palette synchronization for frontend/src/diagrams.ts & frontend/src/learningVisuals.ts
+export const OVAEL_BRAND_THEME = {
+  navy: "#303C6C",
+  yellow: "#FBE8A6",
+  coral: "#F4976C",
+  softBlue: "#B4DFE5",
+  paleCyan: "#D2FDFF",
+  surface: "#FFFFFF",
+} as const;
+
+export const MERMAID_THEME_VARIABLES = {
+  primaryColor: "#D2FDFF", // Pale Cyan node fill
+  primaryTextColor: "#303C6C", // Navy node text (8.07:1 AAA contrast)
+  primaryBorderColor: "#303C6C", // Navy node border
+  secondaryColor: "#FBE8A6", // Warm Yellow secondary/milestone node
+  secondaryTextColor: "#303C6C", // Navy text on Yellow (7.02:1 AAA contrast)
+  tertiaryColor: "#B4DFE5", // Soft Blue supporting cluster
+  tertiaryTextColor: "#303C6C", // Navy text on Soft Blue
+  lineColor: "#303C6C", // Navy causal edges
+  edgeLabelBackground: "#FFFFFF",
+  fontFamily:
+    '-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif',
+};

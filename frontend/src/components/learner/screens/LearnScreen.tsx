@@ -19,6 +19,7 @@ import { RichText } from "../../content/RichText";
 import { DrawingPad } from "../../content/DrawingPad";
 import { VoiceInput } from "../../content/VoiceInput";
 import { IllustrationPanel } from "../../content/IllustrationPanel";
+import { KnowledgeNetworkGraphic } from "../../content/KnowledgeNetworkGraphic";
 type Concept = { concept_id: string; name: string };
 export function LearnScreen({
   onNavigate,
@@ -27,7 +28,7 @@ export function LearnScreen({
   onNavigate?: (screen: LearnerScreen) => void;
   launch?: LearningLaunch | null;
 }) {
-  const { courses, map, loading, refresh, setError } = useOvael(),
+  const { user, profile, courses, map, sessions, loading, refresh, setError } = useOvael(),
     t = useTeaching();
   const [courseId, setCourseId] = useState(""),
     [conceptId, setConceptId] = useState(""),
@@ -44,6 +45,15 @@ export function LearnScreen({
   const [uploadNotice, setUploadNotice] = useState("");
   const [illustrations, setIllustrations] = useState(false);
   const tail = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const nextHeight = Math.min(Math.max(el.scrollHeight, 44), 180);
+    el.style.height = `${nextHeight}px`;
+  }, [t.answer, goal]);
   useEffect(() => {
     tail.current?.scrollIntoView({ behavior: "auto", block: "nearest" });
   }, [t.entries, t.busy]);
@@ -297,9 +307,34 @@ export function LearnScreen({
       <div className="chat-scroll">
         {!session ? (
           <section className="chat-welcome">
-            <span className="chat-brand-mark">O</span>
-            <h1>What would you like to learn?</h1>
-            <p>Ask a question, work through a problem, or bring your notes.</p>
+            <div className="welcome-hero">
+              <KnowledgeNetworkGraphic size={200} />
+              <div className="welcome-greeting">
+                <p className="eyebrow blue">
+                  {user ? `Welcome, ${profile?.display_name || user.username}` : "Evidence-grounded learning"}
+                </p>
+                <h1>What would you like to learn today?</h1>
+                <p>Ask a question, work through problems, or explore with your notes.</p>
+              </div>
+            </div>
+
+            {courses.length > 0 && (
+              <div className="welcome-stats-strip" aria-label="Learning overview">
+                <div className="stat-pill">
+                  <strong>{courses.length}</strong>
+                  <span>Active course{courses.length === 1 ? "" : "s"}</span>
+                </div>
+                <div className="stat-pill">
+                  <strong>{map.nodes.length}</strong>
+                  <span>Knowledge node{map.nodes.length === 1 ? "" : "s"}</span>
+                </div>
+                <div className="stat-pill">
+                  <strong>{sessions.length}</strong>
+                  <span>Practice session{sessions.length === 1 ? "" : "s"}</span>
+                </div>
+              </div>
+            )}
+
             {selectors}
             {!courses.length && !loading && (
               <button
@@ -559,8 +594,9 @@ export function LearnScreen({
             </select>
           ) : (
             <textarea
+              ref={textareaRef}
               aria-label={session ? "Message OVAEL-X" : "Start a conversation"}
-              rows={2}
+              rows={1}
               value={session ? t.answer : goal}
               disabled={disabled}
               onChange={(e) =>

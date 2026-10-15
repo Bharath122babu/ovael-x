@@ -5,6 +5,7 @@ import {
   History,
   Menu,
   MessageSquareText,
+  Network,
   Settings,
   ShieldCheck,
   Sparkles,
@@ -17,11 +18,13 @@ import { TeacherWorkspace } from "./teacher/TeacherWorkspace";
 import type { LearnerScreen, LearningLaunch } from "../types";
 import { MIN_PASSWORD_LENGTH } from "../auth";
 import { ovaelApi } from "../api/client";
+import { AuthVisualAccent } from "./content/AuthVisualAccent";
 const navigation = [
   { id: "learn", label: "Chat", icon: MessageSquareText },
   { id: "courses", label: "Courses", icon: Layers3 },
   { id: "materials", label: "Materials", icon: BookOpen },
   { id: "history", label: "Progress", icon: History },
+  { id: "connections", label: "Connections", icon: Network },
   { id: "settings", label: "Settings", icon: Settings },
 ] as const;
 export function OvaelApp() {
@@ -147,6 +150,7 @@ function Product() {
             <span>Gap forensics</span>
             <span>Memory under your control</span>
           </div>
+          <AuthVisualAccent />
         </section>
         <section className="auth-panel">
           <div className={`backend-state ${connection}`}>
@@ -237,6 +241,7 @@ function Product() {
           [
             "courses",
             "materials",
+            "connections",
             "settings",
           ].includes(n.id),
         )

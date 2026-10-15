@@ -4,6 +4,7 @@ import { useOvael } from "../../../context/OvaelContext";
 import { api } from "../../../api";
 import { ovaelApi } from "../../../api/client";
 import { topicMermaid } from "../../../learningVisuals";
+import { AnimatedProgressBar } from "../../content/MotionPrimitives";
 import type { LearningLaunch } from "../../../types";
 export function CoursesScreen({
   onLearn,
@@ -366,6 +367,11 @@ export function CoursesScreen({
               {documents.filter((d) => d.course_id === c.course_id).length}{" "}
               materials
             </small>
+            <AnimatedProgressBar
+              value={map.nodes.filter((n) => n.subject_id === c.subject_id).length}
+              max={Math.max(10, map.nodes.filter((n) => n.subject_id === c.subject_id).length)}
+              variant="coral"
+            />
             <div className="lesson-actions">
               <button
                 className="primary-button"
