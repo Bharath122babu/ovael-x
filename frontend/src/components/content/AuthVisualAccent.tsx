@@ -124,6 +124,20 @@ export function AuthVisualAccent({
           strokeWidth="1.5"
           className="auth-accent-core-pulse auth-feature-gap-target"
         />
+        <text
+          x="230"
+          y="128"
+          textAnchor="middle"
+          fill="#FBE8A6"
+          fontSize="8.5"
+          fontWeight="700"
+          fontFamily="system-ui, -apple-system, sans-serif"
+          letterSpacing="0.06em"
+          className="auth-feature-gap-target"
+          pointerEvents="none"
+        >
+          CAUSAL GAPS
+        </text>
 
         {/* Vertical Data Beams / Evidence Pillars */}
         {/* Node A (Left, Coral - High Alert/Focus) */}
@@ -148,6 +162,19 @@ export function AuthVisualAccent({
               />
             )}
           </circle>
+          <text
+            x="145"
+            y="48"
+            textAnchor="middle"
+            fill="#D2FDFF"
+            fontSize="8.5"
+            fontWeight="700"
+            fontFamily="system-ui, -apple-system, sans-serif"
+            letterSpacing="0.06em"
+            pointerEvents="none"
+          >
+            SOURCES
+          </text>
         </g>
 
         {/* Node B (Center Top, Brand Navy / Pale Cyan - Authority/Truth) */}
@@ -188,6 +215,19 @@ export function AuthVisualAccent({
             strokeDasharray="3 2"
           />
           <circle cx="315" cy="70" r="7" fill="#B4DFE5" stroke="#1E2544" strokeWidth="2" />
+          <text
+            x="315"
+            y="52"
+            textAnchor="middle"
+            fill="#B4DFE5"
+            fontSize="8.5"
+            fontWeight="700"
+            fontFamily="system-ui, -apple-system, sans-serif"
+            letterSpacing="0.06em"
+            pointerEvents="none"
+          >
+            MEMORY
+          </text>
         </g>
 
         {/* Node D (Bottom Center, Pale Cyan - Grounded Inference) */}
@@ -295,18 +335,18 @@ export function AuthVisualAccent({
         </g>
 
         {/* Decorative mini badges */}
-        <g transform="translate(290, 18)" className="auth-accent-badge-a auth-feature-muted">
-          <rect width="68" height="22" rx="11" fill="rgba(30, 37, 68, 0.85)" stroke="#B4DFE5" strokeWidth="1" filter="url(#authShadowFilter)" />
-          <circle cx="11" cy="11" r="3.5" fill="#FBE8A6" />
-          <text x="21" y="15" fill="#D2FDFF" fontSize="9" fontWeight="700" fontFamily="system-ui, sans-serif" letterSpacing="0.05em">
-            VERIFIED
+        <g transform="translate(280, 16)" className="auth-accent-badge-a auth-feature-muted">
+          <rect width="82" height="22" rx="11" fill="rgba(20, 26, 48, 0.9)" stroke="#B4DFE5" strokeWidth="1" filter="url(#authShadowFilter)" />
+          <circle cx="11" cy="11" r="3.5" fill="#D2FDFF" />
+          <text x="21" y="14.5" fill="#D2FDFF" fontSize="8.5" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.06em">
+            LOCAL-FIRST
           </text>
         </g>
 
-        <g transform="translate(85, 175)" className="auth-accent-badge-b auth-feature-muted">
-          <rect width="94" height="22" rx="11" fill="rgba(30, 37, 68, 0.85)" stroke="#FBE8A6" strokeWidth="1" filter="url(#authShadowFilter)" />
+        <g transform="translate(75, 172)" className="auth-accent-badge-b auth-feature-muted">
+          <rect width="90" height="22" rx="11" fill="rgba(20, 26, 48, 0.9)" stroke="#FBE8A6" strokeWidth="1" filter="url(#authShadowFilter)" />
           <circle cx="11" cy="11" r="3.5" fill="#F4976C" />
-          <text x="21" y="15" fill="#FBE8A6" fontSize="9" fontWeight="700" fontFamily="system-ui, sans-serif" letterSpacing="0.05em">
+          <text x="21" y="14.5" fill="#FBE8A6" fontSize="8.5" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.06em">
             EVIDENCE-LED
           </text>
         </g>
