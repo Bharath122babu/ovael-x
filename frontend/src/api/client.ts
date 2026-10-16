@@ -65,6 +65,15 @@ export const ovaelApi = {
       method: "POST",
       body: JSON.stringify({ username, password, role }),
     }),
+  recover: (username: string, recoveryKey: string, newPassword: string) =>
+    request<{ user_id: string; recovery_key: string }>("/auth/recover", {
+      method: "POST",
+      body: JSON.stringify({
+        username,
+        recovery_key: recoveryKey,
+        new_password: newPassword,
+      }),
+    }),
   me: () => request<AuthUser>("/auth/me"),
   profile: () => request<UserProfile>("/profile"),
   logout: () =>
