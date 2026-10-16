@@ -53,11 +53,21 @@ export function AuthScreen({
   const [authBusy, setAuthBusy] = useState(false);
   const [recoveryKey, setRecoveryKey] = useState("");
   const [copiedRecovery, setCopiedRecovery] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState("");
   const [reconnecting, setReconnecting] = useState(false);
   const [activeFeature, setActiveFeature] = useState<AuthFeatureKey | null>(null);
   const featurePointerInsideRef = useRef(false);
   const featurePointerTargetRef = useRef<AuthFeatureKey | null>(null);
   const focusedFeatureRef = useRef<AuthFeatureKey | null>(null);
+  const entranceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (entranceTimerRef.current) clearTimeout(entranceTimerRef.current);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
 
   const isRegister = mode === "register";
 
@@ -108,16 +118,23 @@ export function AuthScreen({
 
   useEffect(() => {
     if (!isEnteringLogin) return;
-    const timer = setTimeout(() => {
+    entranceTimerRef.current = setTimeout(() => {
       setIsEnteringLogin(false);
     }, 850);
-    return () => clearTimeout(timer);
+    return () => {
+      if (entranceTimerRef.current) {
+        clearTimeout(entranceTimerRef.current);
+        entranceTimerRef.current = null;
+      }
+    };
   }, [isEnteringLogin]);
 
   const handleModeSwitch = (nextMode: "login" | "register") => {
     setMode(nextMode);
     onModeChange?.(nextMode);
     setError("");
+    setRecoveryKey("");
+    setCopyFeedback("");
     // The branded entrance plays once on initial login-page entry. Switching
     // between Sign In and Create Account must not replay the full choreography.
     if (nextMode !== "login" || prefersReduced) {
@@ -127,12 +144,72 @@ export function AuthScreen({
 
   const handleCopyRecovery = async () => {
     if (!recoveryKey) return;
+    if (copyTimerRef.current) {
+      clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = null;
+    }
+    let copied = false;
     try {
-      await navigator.clipboard.writeText(recoveryKey);
-      setCopiedRecovery(true);
-      setTimeout(() => setCopiedRecovery(false), 2500);
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+        await navigator.clipboard.writeText(recoveryKey);
+        copied = true;
+      }
     } catch {
-      // Fallback
+      copied = false;
+    }
+
+    if (!copied) {
+      try {
+        if (typeof document !== "undefined") {
+          const textarea = document.createElement("textarea");
+          textarea.value = recoveryKey;
+          textarea.setAttribute("readonly", "");
+          textarea.style.position = "absolute";
+          textarea.style.left = "-9999px";
+          document.body.appendChild(textarea);
+          textarea.select();
+          copied = document.execCommand("copy");
+          document.body.removeChild(textarea);
+        }
+      } catch {
+        copied = false;
+      }
+    }
+
+    if (copied) {
+      setCopiedRecovery(true);
+      setCopyFeedback("");
+      copyTimerRef.current = setTimeout(() => {
+        setCopiedRecovery(false);
+      }, 2500);
+    } else {
+      setCopiedRecovery(false);
+      setCopyFeedback("Please press Ctrl+C / Cmd+C to copy your key");
+      try {
+        const codeElem = document.querySelector(".recovery-code");
+        if (codeElem && window.getSelection) {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(codeElem);
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+      } catch {
+        // Selection fallback
+      }
+    }
+  };
+
+  const handleContinueAfterRecovery = async () => {
+    setAuthBusy(true);
+    try {
+      setRecoveryKey("");
+      setCopyFeedback("");
+      await refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load session. Please sign in.");
+    } finally {
+      setAuthBusy(false);
     }
   };
 
@@ -171,8 +248,9 @@ export function AuthScreen({
           if (onRegisteredRecovery) {
             onRegisteredRecovery(result.recovery_key);
           }
+        } else {
+          await refresh();
         }
-        await refresh();
       } else {
         await login(trimmedName, password);
       }
@@ -329,6 +407,21 @@ export function AuthScreen({
                   <span>{copiedRecovery ? "Copied" : "Copy"}</span>
                 </button>
               </div>
+              {copyFeedback && (
+                <p className="recovery-copy-hint" role="status" aria-live="polite">
+                  {copyFeedback}
+                </p>
+              )}
+              <div className="recovery-continue-row">
+                <button
+                  type="button"
+                  className="primary-button compact recovery-continue-btn"
+                  onClick={() => void handleContinueAfterRecovery()}
+                  disabled={authBusy}
+                >
+                  {authBusy ? "Entering workspace…" : "I have saved my key — Continue"}
+                </button>
+              </div>
             </div>
           )}
 
@@ -424,7 +517,6 @@ export function AuthScreen({
                   aria-label={showPassword ? "Hide password text" : "Show password text"}
                   title={showPassword ? "Hide password" : "Show password"}
                   onClick={() => setShowPassword(!showPassword)}
-                  tabIndex={0}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
