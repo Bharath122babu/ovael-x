@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { ovaelApi } from "../../api/client";
 import { useOvael } from "../../context/OvaelContext";
 import { topicMermaid } from "../../learningVisuals";
-import type { TeacherTab, UnenrollTarget } from "./types";
+import type { TeacherTab } from "./types";
+import { useTeacherData } from "./hooks/useTeacherData";
+import { useTeacherActions } from "./hooks/useTeacherActions";
 import { TeacherHeader } from "./TeacherHeader";
 import { TeacherOnboarding } from "./TeacherOnboarding";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -10,11 +11,7 @@ import { RosterTab } from "./tabs/RosterTab";
 import { TeacherMaterialsTab } from "./tabs/TeacherMaterialsTab";
 import { CurriculumGraphTab } from "./tabs/CurriculumGraphTab";
 import { ForensicGapsTab } from "./tabs/ForensicGapsTab";
-import { CreateCourseModal } from "./modals/CreateCourseModal";
-import { EditCourseModal } from "./modals/EditCourseModal";
-import { DeleteCourseModal } from "./modals/DeleteCourseModal";
-import { UnenrollModal } from "./modals/UnenrollModal";
-import { ProposeGraphModal } from "./modals/ProposeGraphModal";
+import { TeacherModals } from "./modals/TeacherModals";
 
 export function TeacherWorkspace() {
   const { courses, documents, refresh, setError } = useOvael();
@@ -25,34 +22,12 @@ export function TeacherWorkspace() {
 
   const [tab, setTab] = useState<TeacherTab>("overview");
   const [courseId, setCourseId] = useState(classCourses[0]?.course_id || "");
-  const [learners, setLearners] = useState<Array<Record<string, unknown>>>([]);
-  const [gaps, setGaps] = useState<Record<string, unknown>>({});
-  const [interventions, setInterventions] = useState<Record<string, unknown>>({});
-  const [proposals, setProposals] = useState<Array<Record<string, unknown>>>([]);
-  const [activeGraph, setActiveGraph] = useState<Record<string, unknown> | null>(null);
-
-  // Form & action states
-  const [courseName, setCourseName] = useState("");
-  const [subjectName, setSubjectName] = useState("");
-  const [learnerName, setLearnerName] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
 
   // Search & Filter queries
   const [rosterQuery, setRosterQuery] = useState("");
   const [materialsQuery, setMaterialsQuery] = useState("");
   const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null);
-
-  // Modals & confirmation dialogs
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editDescription, setEditDescription] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [unenrollTarget, setUnenrollTarget] = useState<UnenrollTarget | null>(null);
-  const [proposalObjective, setProposalObjective] = useState("");
-  const [showProposeModal, setShowProposeModal] = useState(false);
 
   const effectiveCourseId = courseId || classCourses[0]?.course_id || "";
   const course =
@@ -64,11 +39,35 @@ export function TeacherWorkspace() {
     [documents, course?.course_id],
   );
 
+  const {
+    learners,
+    setLearners,
+    gaps,
+    interventions,
+    proposals,
+    setProposals,
+    activeGraph,
+    setActiveGraph,
+  } = useTeacherData(course?.course_id || "", setError);
+
+  const actions = useTeacherActions({
+    course,
+    courseDocuments,
+    refresh,
+    setError,
+    setSuccessMsg,
+    setCourseId,
+    setLearners,
+    setProposals,
+    setActiveGraph,
+    setTab,
+  });
+
   // Sync edit form with current course
   useEffect(() => {
     if (course) {
-      setEditName(course.name);
-      setEditDescription(course.description || "");
+      actions.setEditName(course.name);
+      actions.setEditDescription(course.description || "");
     }
   }, [course]);
 
@@ -79,243 +78,16 @@ export function TeacherWorkspace() {
     return () => clearTimeout(timer);
   }, [successMsg]);
 
-  // Load course details
-  useEffect(() => {
-    let cancelled = false;
-    setLearners([]);
-    setGaps({});
-    setInterventions({});
-    setProposals([]);
-    setActiveGraph(null);
-
-    if (!course?.course_id) return;
-
-    void Promise.allSettled([
-      ovaelApi.teacherLearners(course.course_id),
-      ovaelApi.teacherGaps(course.course_id),
-      ovaelApi.teacherInterventions(course.course_id),
-      ovaelApi.graphProposals(course.course_id),
-      ovaelApi.activeCourseGraph(course.course_id),
-    ]).then(
-      ([
-        learnerResult,
-        gapResult,
-        interventionResult,
-        proposalResult,
-        graphResult,
-      ]) => {
-        if (cancelled) return;
-        if (
-          [
-            learnerResult,
-            gapResult,
-            interventionResult,
-            proposalResult,
-            graphResult,
-          ].some((result) => result.status === "rejected")
-        ) {
-          setError(
-            "Some course details could not load. Refresh the workspace to retry.",
-          );
-        }
-        if (learnerResult.status === "fulfilled") {
-          setLearners(learnerResult.value);
-        }
-        if (gapResult.status === "fulfilled") {
-          setGaps(gapResult.value);
-        }
-        if (interventionResult.status === "fulfilled") {
-          setInterventions(interventionResult.value);
-        }
-        if (proposalResult.status === "fulfilled") {
-          setProposals(proposalResult.value);
-        }
-        if (graphResult.status === "fulfilled") {
-          setActiveGraph(graphResult.value);
-        }
-      },
-    );
-
-    return () => {
-      cancelled = true;
-    };
-  }, [course?.course_id, setError]);
-
-  // Handlers
-  const createCourse = async () => {
-    if (!courseName.trim() || !subjectName.trim()) return;
-    setBusy(true);
-    try {
-      const created = await ovaelApi.createCourse({
-        name: courseName.trim(),
-        subject_name: subjectName.trim(),
-        description: "Teacher-managed OVAEL-X class cohort",
-        course_kind: "class",
-      });
-      await refresh();
-      setCourseId(created.course_id);
-      setCourseName("");
-      setSubjectName("");
-      setShowCreateModal(false);
-      setSuccessMsg(`Class course "${created.name}" created successfully.`);
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Course could not be created",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const updateCourseMeta = async () => {
-    if (!course || !editName.trim()) return;
-    setBusy(true);
-    try {
-      await ovaelApi.updateCourse(course.course_id, {
-        name: editName.trim(),
-        description: editDescription.trim() || undefined,
-      });
-      await refresh();
-      setShowEditModal(false);
-      setSuccessMsg("Course details updated successfully.");
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Failed to update course details",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const deleteCurrentCourse = async () => {
-    if (!course) return;
-    setBusy(true);
-    try {
-      await ovaelApi.deleteCourse(course.course_id);
-      await refresh();
-      setCourseId("");
-      setConfirmDelete(false);
-      setSuccessMsg("Course deleted successfully.");
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Failed to delete course",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const enroll = async () => {
-    if (!course || !learnerName.trim()) return;
-    setBusy(true);
-    try {
-      await ovaelApi.enrollLearner(course.course_id, learnerName.trim());
-      setLearnerName("");
-      setLearners(await ovaelApi.teacherLearners(course.course_id));
-      setSuccessMsg(`Enrolled "${learnerName.trim()}" in ${course.name}.`);
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Learner could not be enrolled",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleUnenroll = async () => {
-    if (!course || !unenrollTarget) return;
-    setBusy(true);
-    try {
-      await ovaelApi.unenrollLearner(course.course_id, unenrollTarget.id);
-      setLearners(await ovaelApi.teacherLearners(course.course_id));
-      setSuccessMsg(
-        `Learner "${unenrollTarget.username}" was removed from the cohort.`,
-      );
-      setUnenrollTarget(null);
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Could not unenroll learner",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !course) return;
-    setUploading(true);
-    try {
-      await ovaelApi.uploadDocument(file, course.course_id, false);
-      await refresh();
-      setSuccessMsg(`Material "${file.name}" uploaded to course library.`);
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Failed to upload document",
-      );
-    } finally {
-      setUploading(false);
-      event.target.value = "";
-    }
-  };
-
-  const propose = async () => {
-    if (!course || !courseDocuments.length) return;
-    setBusy(true);
-    try {
-      const obj =
-        proposalObjective.trim() ||
-        `Build a structured pedagogical graph for ${course.name}`;
-      await ovaelApi.proposeGraph(
-        course.course_id,
-        courseDocuments.map((document) => document.document_id),
-        obj,
-      );
-      setProposals(await ovaelApi.graphProposals(course.course_id));
-      setShowProposeModal(false);
-      setProposalObjective("");
-      setTab("graph");
-      setSuccessMsg("Curriculum knowledge graph proposed. Ready for educator review.");
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Graph proposal failed",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const approve = async (revisionId: string) => {
-    if (!course) return;
-    setBusy(true);
-    try {
-      await ovaelApi.approveGraph(course.course_id, revisionId);
-      setProposals(await ovaelApi.graphProposals(course.course_id));
-      setActiveGraph(await ovaelApi.activeCourseGraph(course.course_id));
-      setSuccessMsg("Graph revision approved. Now authoritative for cohort learning.");
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Graph could not be approved",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
   // If no class courses exist, show the clean onboarding view
   if (!course) {
     return (
       <TeacherOnboarding
-        courseName={courseName}
-        subjectName={subjectName}
-        busy={busy}
-        onCourseNameChange={setCourseName}
-        onSubjectNameChange={setSubjectName}
-        onCreateCourse={() => void createCourse()}
+        courseName={actions.courseName}
+        subjectName={actions.subjectName}
+        busy={actions.busy}
+        onCourseNameChange={actions.setCourseName}
+        onSubjectNameChange={actions.setSubjectName}
+        onCreateCourse={() => void actions.createCourse()}
       />
     );
   }
@@ -383,7 +155,7 @@ export function TeacherWorkspace() {
         course={course}
         classCourses={classCourses}
         tab={tab}
-        busy={busy}
+        busy={actions.busy}
         successMsg={successMsg}
         totalLearners={totalLearners}
         materialsCount={courseDocuments.length}
@@ -392,8 +164,8 @@ export function TeacherWorkspace() {
         gapCountsCount={Object.keys(gapCounts).length}
         onCourseSelect={setCourseId}
         onTabChange={setTab}
-        onEditCourseClick={() => setShowEditModal(true)}
-        onCreateCourseClick={() => setShowCreateModal(true)}
+        onEditCourseClick={() => actions.setShowEditModal(true)}
+        onCreateCourseClick={() => actions.setShowCreateModal(true)}
         onCloseToast={() => setSuccessMsg("")}
       />
 
@@ -410,13 +182,13 @@ export function TeacherWorkspace() {
           learners={learners}
           graphNodes={graphNodes}
           proposals={proposals}
-          learnerName={learnerName}
-          busy={busy}
+          learnerName={actions.learnerName}
+          busy={actions.busy}
           privacyText={String(gaps.privacy || "")}
-          onLearnerNameChange={setLearnerName}
-          onEnroll={() => void enroll()}
+          onLearnerNameChange={actions.setLearnerName}
+          onEnroll={() => void actions.enroll()}
           onTabChange={setTab}
-          onProposeModalOpen={() => setShowProposeModal(true)}
+          onProposeModalOpen={() => actions.setShowProposeModal(true)}
         />
       )}
 
@@ -425,13 +197,13 @@ export function TeacherWorkspace() {
         <RosterTab
           learnersCount={learners.length}
           filteredLearners={filteredLearners}
-          learnerName={learnerName}
+          learnerName={actions.learnerName}
           rosterQuery={rosterQuery}
-          busy={busy}
-          onLearnerNameChange={setLearnerName}
+          busy={actions.busy}
+          onLearnerNameChange={actions.setLearnerName}
           onRosterQueryChange={setRosterQuery}
-          onEnroll={() => void enroll()}
-          onUnenrollSelect={setUnenrollTarget}
+          onEnroll={() => void actions.enroll()}
+          onUnenrollSelect={actions.setUnenrollTarget}
         />
       )}
 
@@ -442,11 +214,11 @@ export function TeacherWorkspace() {
           filteredDocuments={filteredDocuments}
           courseSubjectName={course.subject_name}
           materialsQuery={materialsQuery}
-          uploading={uploading}
-          busy={busy}
+          uploading={actions.uploading}
+          busy={actions.busy}
           onMaterialsQueryChange={setMaterialsQuery}
-          onFileUpload={(e) => void handleFileUpload(e)}
-          onProposeModalOpen={() => setShowProposeModal(true)}
+          onFileUpload={(e) => void actions.handleFileUpload(e)}
+          onProposeModalOpen={() => actions.setShowProposeModal(true)}
         />
       )}
 
@@ -461,10 +233,10 @@ export function TeacherWorkspace() {
           courseDocumentsCount={courseDocuments.length}
           gapCounts={gapCounts}
           selectedConceptId={selectedConceptId}
-          busy={busy}
+          busy={actions.busy}
           onSelectedConceptChange={setSelectedConceptId}
-          onApprove={(revId) => void approve(revId)}
-          onProposeModalOpen={() => setShowProposeModal(true)}
+          onApprove={(revId) => void actions.approve(revId)}
+          onProposeModalOpen={() => actions.setShowProposeModal(true)}
         />
       )}
 
@@ -480,62 +252,40 @@ export function TeacherWorkspace() {
         />
       )}
 
-      {/* MODAL: CREATE CLASS COURSE */}
-      <CreateCourseModal
-        isOpen={showCreateModal}
-        courseName={courseName}
-        subjectName={subjectName}
-        busy={busy}
-        onCourseNameChange={setCourseName}
-        onSubjectNameChange={setSubjectName}
-        onClose={() => setShowCreateModal(false)}
-        onSubmit={() => void createCourse()}
-      />
-
-      {/* MODAL: EDIT COURSE DETAILS */}
-      <EditCourseModal
-        isOpen={showEditModal}
-        editName={editName}
-        editDescription={editDescription}
-        busy={busy}
-        onEditNameChange={setEditName}
-        onEditDescriptionChange={setEditDescription}
-        onClose={() => setShowEditModal(false)}
-        onSubmit={() => void updateCourseMeta()}
-        onDeleteClick={() => {
-          setShowEditModal(false);
-          setConfirmDelete(true);
-        }}
-      />
-
-      {/* MODAL: CONFIRM DELETE COURSE */}
-      <DeleteCourseModal
-        isOpen={confirmDelete}
-        courseName={course.name}
-        busy={busy}
-        onClose={() => setConfirmDelete(false)}
-        onConfirm={() => void deleteCurrentCourse()}
-      />
-
-      {/* MODAL: CONFIRM UNENROLL STUDENT */}
-      <UnenrollModal
-        target={unenrollTarget}
-        courseName={course.name}
-        busy={busy}
-        onClose={() => setUnenrollTarget(null)}
-        onConfirm={() => void handleUnenroll()}
-      />
-
-      {/* MODAL: PROPOSE GRAPH */}
-      <ProposeGraphModal
-        isOpen={showProposeModal}
+      {/* MODALS */}
+      <TeacherModals
+        course={course}
         courseDocumentsCount={courseDocuments.length}
-        courseName={course.name}
-        proposalObjective={proposalObjective}
-        busy={busy}
-        onObjectiveChange={setProposalObjective}
-        onClose={() => setShowProposeModal(false)}
-        onSubmit={() => void propose()}
+        busy={actions.busy}
+        showCreateModal={actions.showCreateModal}
+        courseName={actions.courseName}
+        subjectName={actions.subjectName}
+        onCourseNameChange={actions.setCourseName}
+        onSubjectNameChange={actions.setSubjectName}
+        onCloseCreateModal={() => actions.setShowCreateModal(false)}
+        onCreateCourse={() => void actions.createCourse()}
+        showEditModal={actions.showEditModal}
+        editName={actions.editName}
+        editDescription={actions.editDescription}
+        onEditNameChange={actions.setEditName}
+        onEditDescriptionChange={actions.setEditDescription}
+        onCloseEditModal={() => actions.setShowEditModal(false)}
+        onUpdateCourseMeta={() => void actions.updateCourseMeta()}
+        onDeleteClick={() => {
+          actions.setShowEditModal(false);
+          actions.setConfirmDelete(true);
+        }}
+        confirmDelete={actions.confirmDelete}
+        onCloseDeleteModal={() => actions.setConfirmDelete(false)}
+        onConfirmDelete={() => void actions.deleteCurrentCourse()}
+        unenrollTarget={actions.unenrollTarget}
+        onCloseUnenrollModal={() => actions.setUnenrollTarget(null)}
+        onConfirmUnenroll={() => void actions.handleUnenroll()}
+        showProposeModal={actions.showProposeModal}
+        proposalObjective={actions.proposalObjective}
+        onObjectiveChange={actions.setProposalObjective}
+        onCloseProposeModal={() => actions.setShowProposeModal(false)}
+        onPropose={() => void actions.propose()}
       />
     </div>
   );
