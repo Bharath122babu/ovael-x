@@ -3,11 +3,13 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
+const { readStyles } = require("./helpers/readStyles.cjs");
+
 const authScreen = fs.readFileSync(
   path.resolve(__dirname, "../src/components/auth/AuthScreen.tsx"),
   "utf8",
 );
-const styles = fs.readFileSync(path.resolve(__dirname, "../src/style.css"), "utf8");
+const styles = readStyles();
 
 test("auth logo retains the O mark and exact OVAEL-X wordmark", () => {
   assert.match(authScreen, /className="auth-brand-mark-glyph">O<\/span>/);

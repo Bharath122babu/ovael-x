@@ -1,0 +1,258 @@
+/* ==========================================================================
+   OVAEL-X CENTRALIZED DESIGN SYSTEM & GLOBAL STYLESHEET
+   File: frontend/src/style.css
+   ========================================================================== */
+
+:root {
+  /* --- 1. EXACT 5-COLOUR BRAND PALETTE --- */
+  --brand-navy: #303C6C;
+  --brand-yellow: #FBE8A6;
+  --brand-coral: #F4976C;
+  --brand-soft-blue: #B4DFE5;
+  --brand-pale-cyan: #D2FDFF;
+
+  /* --- 2. CALIBRATED BRAND SHADES & TINTS (FOR STATES & CONTRAST) --- */
+  --brand-navy-hover: #232D54;
+  --brand-navy-active: #19203D;
+  --brand-navy-muted: #465375;
+  --brand-navy-subtle: #667399;
+  --brand-navy-tint: #EAEFF8;
+
+  --brand-coral-hover: #E58254;
+  --brand-coral-active: #D16D3F;
+  --brand-coral-strong: #C85A28; /* 4.62:1 with white text */
+  --brand-coral-tint: #FDF1EB;
+
+  --brand-yellow-hover: #F5DC84;
+  --brand-yellow-strong: #855B00;
+  --brand-yellow-tint: #FEFAEC;
+
+  --brand-soft-blue-hover: #9BCFD7;
+  --brand-soft-blue-tint: #EBF6F8;
+
+  --brand-pale-cyan-tint: #F2FEFF;
+
+  /* --- 3. PAGE BACKGROUNDS & ELEVATED SURFACES --- */
+  --bg-page: #F6F9FB;
+  --bg-app: var(--bg-page);
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #FFFFFF;
+  --bg-surface-muted: #EDF3F7;
+  --bg-surface-subtle: #F2F7FA;
+  --bg-surface-cyan: var(--brand-pale-cyan-tint);
+  --bg-surface-soft-blue: var(--brand-soft-blue-tint);
+  --bg-surface-yellow: var(--brand-yellow-tint);
+  --bg-surface-coral: var(--brand-coral-tint);
+  --bg-header: rgba(255, 255, 255, 0.94);
+  --bg-sidebar: #FFFFFF;
+  --bg-code: #F1F5F9;
+
+  /* --- 4. SEMANTIC TYPOGRAPHY & LINKS --- */
+  --text-primary: var(--brand-navy);
+  --text-heading: var(--brand-navy);
+  --text-secondary: var(--brand-navy-muted);
+  --text-muted: var(--brand-navy-subtle);
+  --text-inverse: #FFFFFF;
+  --text-on-yellow: var(--brand-navy);
+  --text-on-soft-blue: var(--brand-navy);
+  --text-on-pale-cyan: var(--brand-navy);
+  --text-on-coral: var(--brand-navy);
+  --text-link: var(--brand-navy);
+  --text-link-hover: var(--brand-coral-strong);
+
+  /* --- 5. BORDERS, DIVIDERS & SHADOWS --- */
+  --border-subtle: #E2EAF0;
+  --border-default: #CBD8E3;
+  --border-strong: var(--brand-soft-blue);
+  --border-navy: var(--brand-navy);
+  --border-accent: var(--brand-coral);
+  --divider-color: #E5EDF3;
+
+  --shadow-xs: 0 1px 2px rgba(48, 60, 108, 0.05);
+  --shadow-sm: 0 2px 6px rgba(48, 60, 108, 0.06), 0 1px 2px rgba(48, 60, 108, 0.04);
+  --shadow-md: 0 6px 16px rgba(48, 60, 108, 0.08), 0 2px 4px rgba(48, 60, 108, 0.04);
+  --shadow-lg: 0 14px 28px rgba(48, 60, 108, 0.12), 0 4px 10px rgba(48, 60, 108, 0.06);
+
+  /* --- 6. BUTTON TOKENS (PRIMARY, SECONDARY, ACCENT, DISABLED) --- */
+  --btn-primary-bg: var(--brand-navy);
+  --btn-primary-text: #FFFFFF;
+  --btn-primary-border: var(--brand-navy);
+  --btn-primary-hover: var(--brand-navy-hover);
+  --btn-primary-active: var(--brand-navy-active);
+
+  --btn-accent-bg: var(--brand-coral);
+  --btn-accent-text: var(--brand-navy);
+  --btn-accent-border: var(--brand-coral-hover);
+  --btn-accent-hover: var(--brand-coral-hover);
+  --btn-accent-active: var(--brand-coral-active);
+
+  --btn-secondary-bg: var(--brand-soft-blue-tint);
+  --btn-secondary-text: var(--brand-navy);
+  --btn-secondary-border: var(--brand-soft-blue);
+  --btn-secondary-hover: var(--brand-soft-blue);
+  --btn-secondary-active: var(--brand-soft-blue-hover);
+
+  --btn-disabled-bg: #E2E8F0;
+  --btn-disabled-text: #7A869A;
+  --btn-disabled-border: #CBD5E1;
+
+  /* --- 7. INPUTS, FOCUS RINGS & SELECTION STATES --- */
+  --input-bg: #FFFFFF;
+  --input-text: var(--brand-navy);
+  --input-placeholder: #7683A3;
+  --input-border: #C4D3DF;
+  --input-border-hover: var(--brand-navy-muted);
+  --input-border-focus: var(--brand-coral);
+
+  --focus-ring: 0 0 0 3px rgba(244, 151, 108, 0.42);
+  --focus-ring-navy: 0 0 0 3px rgba(48, 60, 108, 0.28);
+  --selection-bg: var(--brand-pale-cyan);
+  --selection-text: var(--brand-navy);
+
+  /* --- 8. FEEDBACK & STATUS TOKENS --- */
+  --feedback-success-bg: #EBF9F3;
+  --feedback-success-border: #9EE2C3;
+  --feedback-success-text: #115E3B;
+
+  --feedback-warning-bg: var(--brand-yellow-tint);
+  --feedback-warning-border: var(--brand-yellow-hover);
+  --feedback-warning-text: var(--brand-navy);
+
+  --feedback-error-bg: #FDF2F2;
+  --feedback-error-border: #F5B7B7;
+  --feedback-error-text: #8C1D1D;
+
+  --feedback-info-bg: var(--brand-pale-cyan-tint);
+  --feedback-info-border: var(--brand-soft-blue);
+  --feedback-info-text: var(--brand-navy);
+
+  /* --- 9. SPACING, RADII & MOTION --- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-moderate: 250ms;
+  --duration-panel: 300ms;
+  --duration-entrance: 350ms;
+  --duration-slow: 450ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.05, 0.7, 0.1, 1.0);
+  --ease-in: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  --ease-linear: linear;
+
+  /* Legacy alias mappings for backward compatibility */
+  --transition-fast: var(--duration-fast) var(--ease-standard);
+  --transition-base: var(--duration-base) var(--ease-standard);
+  --transition-slow: var(--duration-slow) var(--ease-standard);
+
+  /* Legacy variable mappings for full backwards compatibility */
+  --canvas: var(--bg-page);
+  --paper: var(--bg-surface);
+  --ink: var(--text-primary);
+  --muted: var(--text-secondary);
+  --faint: var(--text-muted);
+  --line: var(--border-subtle);
+  --line-strong: var(--border-default);
+  --blue: var(--brand-navy);
+  --blue-dark: var(--brand-navy-hover);
+  --blue-soft: var(--brand-soft-blue-tint);
+  --jade: var(--feedback-success-text);
+  --jade-dark: #115E3B;
+  --jade-soft: var(--feedback-success-bg);
+  --amber: var(--brand-coral);
+  --amber-soft: var(--brand-yellow-tint);
+  --red: var(--feedback-error-text);
+  --shadow: var(--shadow-md);
+  --radius: var(--radius-md);
+  --progress-track-bg: var(--brand-soft-blue-subtle, #EBF7F9);
+  --progress-fill-primary: var(--brand-navy);
+}
+
+/* --- DARK THEME PRESERVATION & REFINEMENT --- */
+[data-theme="dark"] {
+  --bg-page: #101522;
+  --bg-app: #101522;
+  --bg-surface: #192438;
+  --bg-surface-elevated: #202C42;
+  --bg-surface-muted: #222E45;
+  --bg-surface-subtle: #1D283E;
+  --bg-surface-cyan: rgba(210, 253, 255, 0.08);
+  --bg-surface-soft-blue: rgba(180, 223, 229, 0.12);
+  --bg-surface-yellow: rgba(251, 232, 166, 0.12);
+  --bg-surface-coral: rgba(244, 151, 108, 0.12);
+  --bg-header: rgba(20, 28, 45, 0.94);
+  --bg-sidebar: #141C2D;
+  --bg-code: #141C2D;
+
+  --text-primary: #EEF2F8;
+  --text-heading: #F7F9FC;
+  --text-secondary: #BBC6D7;
+  --text-muted: #96A5BC;
+  --text-link: #98DFEA;
+  --text-link-hover: var(--brand-coral);
+
+  --border-subtle: #263347;
+  --border-default: #334158;
+  --divider-color: #263347;
+
+  --input-bg: #151D2E;
+  --input-text: #EEF2F8;
+  --input-border: #334158;
+
+  /* Button tokens for dark mode */
+  --btn-primary-bg: #2A3B5C;
+  --btn-primary-hover: #344870;
+  --btn-primary-border: #41557A;
+  --btn-primary-text: #FFFFFF;
+
+  --btn-secondary-bg: rgba(180, 223, 229, 0.1);
+  --btn-secondary-text: var(--brand-pale-cyan);
+  --btn-secondary-border: rgba(180, 223, 229, 0.25);
+  --btn-secondary-hover: rgba(180, 223, 229, 0.18);
+
+  --btn-accent-text: #101522;
+
+  --btn-disabled-bg: #1B2436;
+  --btn-disabled-text: #5A6A82;
+  --btn-disabled-border: #263347;
+
+  /* Feedback status tokens for dark mode */
+  --feedback-success-bg: rgba(16, 185, 129, 0.12);
+  --feedback-success-border: rgba(16, 185, 129, 0.3);
+  --feedback-success-text: #34D399;
+
+  --feedback-warning-bg: rgba(245, 158, 11, 0.12);
+  --feedback-warning-border: rgba(245, 158, 11, 0.3);
+  --feedback-warning-text: #FBBF24;
+
+  --feedback-error-bg: rgba(239, 68, 68, 0.12);
+  --feedback-error-border: rgba(239, 68, 68, 0.3);
+  --feedback-error-text: #F87171;
+
+  --feedback-info-bg: rgba(59, 130, 246, 0.12);
+  --feedback-info-border: rgba(59, 130, 246, 0.3);
+  --feedback-info-text: #93C5FD;
+
+  /* Legacy & Semantic Variable Overrides for Dark Mode */
+  --canvas: var(--bg-page);
+  --paper: var(--bg-surface);
+  --ink: var(--text-primary);
+  --muted: var(--text-secondary);
+  --faint: var(--text-muted);
+  --line: var(--border-subtle);
+  --line-strong: var(--border-default);
+  --blue: var(--brand-soft-blue);
+  --blue-dark: var(--brand-pale-cyan);
+  --blue-soft: rgba(180, 223, 229, 0.15);
+
+  --progress-track-bg: #243147;
+  --progress-fill-primary: var(--brand-soft-blue);
+}

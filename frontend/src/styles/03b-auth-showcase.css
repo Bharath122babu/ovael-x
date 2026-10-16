@@ -1,0 +1,238 @@
+/* ==========================================================================
+   AUTH LEARNING SHOWCASE — FEATURE-LINKED SVG STATES
+   Kept local to the login / account-creation experience.
+   ========================================================================== */
+.auth-feature-pills .feature-pill {
+  position: relative;
+  appearance: none;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 220ms var(--ease-standard),
+    border-color 220ms var(--ease-standard),
+    color 220ms var(--ease-standard),
+    box-shadow 220ms var(--ease-standard),
+    transform 180ms var(--ease-standard);
+}
+
+.auth-feature-pills .feature-pill:hover {
+  background: rgba(180, 223, 229, 0.18);
+  border-color: rgba(210, 253, 255, 0.58);
+}
+
+.auth-feature-pills .feature-pill:active {
+  transform: translateY(1px);
+}
+
+.auth-feature-pills .feature-pill:focus-visible {
+  outline: 2px solid #D2FDFF;
+  outline-offset: 3px;
+  border-color: #D2FDFF;
+  box-shadow: 0 0 0 4px rgba(210, 253, 255, 0.12);
+}
+
+.auth-feature-pills .feature-pill.is-active {
+  background: rgba(180, 223, 229, 0.2);
+  border-color: rgba(210, 253, 255, 0.82);
+  box-shadow: inset 0 0 0 1px rgba(210, 253, 255, 0.05);
+}
+
+.auth-feature-pills .feature-pill[data-feature="gaps"].is-active {
+  background: rgba(251, 232, 166, 0.13);
+  border-color: rgba(251, 232, 166, 0.78);
+}
+
+.auth-feature-pills .feature-pill .pill-dot {
+  flex: 0 0 5px;
+  transition: background-color 220ms var(--ease-standard), box-shadow 220ms var(--ease-standard);
+}
+
+.auth-feature-pills .feature-pill[data-feature="sources"].is-active .pill-dot,
+.auth-feature-pills .feature-pill[data-feature="memory"].is-active .pill-dot {
+  background: #D2FDFF;
+  box-shadow: 0 0 0 3px rgba(210, 253, 255, 0.12);
+}
+
+.auth-feature-pills .feature-pill[data-feature="gaps"].is-active .pill-dot {
+  background: #FBE8A6;
+  box-shadow: 0 0 0 3px rgba(251, 232, 166, 0.12);
+}
+
+.feature-pill-indicator {
+  width: 4px;
+  height: 4px;
+  flex: 0 0 4px;
+  margin-left: 1px;
+  border-radius: 50%;
+  background: #D2FDFF;
+  opacity: 0;
+  transform: scale(0.55);
+  transition: opacity 220ms var(--ease-standard), transform 220ms var(--ease-out);
+}
+
+.feature-pill[data-feature="gaps"] .feature-pill-indicator {
+  background: #FBE8A6;
+}
+
+.feature-pill.is-active .feature-pill-indicator {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.auth-knowledge-svg .auth-feature-muted,
+.auth-knowledge-svg .auth-feature-node,
+.auth-knowledge-svg .auth-feature-source-path,
+.auth-knowledge-svg .auth-feature-gap-path,
+.auth-knowledge-svg .auth-feature-gap-target,
+.auth-knowledge-svg .auth-feature-overlay,
+.auth-knowledge-svg .auth-feature-halo,
+.auth-knowledge-svg .auth-feature-gap-outline,
+.auth-knowledge-svg .auth-feature-memory-link {
+  transition: opacity 300ms var(--ease-standard), stroke 300ms var(--ease-standard), stroke-width 300ms var(--ease-standard), fill 300ms var(--ease-standard), filter 300ms var(--ease-standard);
+}
+
+.auth-knowledge-svg .auth-feature-node {
+  opacity: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 300ms var(--ease-standard), filter 300ms var(--ease-standard), transform 300ms var(--ease-standard);
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-muted,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-muted,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-muted {
+  opacity: 0.34;
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-node,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-node,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-node {
+  opacity: 0.42;
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-source-node,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-node,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-memory-node {
+  opacity: 1;
+  filter: drop-shadow(0 0 2px rgba(210, 253, 255, 0.16));
+  transform: scale(1.015);
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-gap-path,
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-gap-target,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-source-path,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-gap-path,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-gap-target {
+  opacity: 0.3;
+}
+
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-source-path {
+  opacity: 0.3;
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-source-path {
+  stroke: #D2FDFF;
+  stroke-width: 2.4;
+  stroke-opacity: 1;
+}
+
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-path,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-target {
+  stroke: #FBE8A6;
+  stroke-width: 2.5;
+}
+
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-target {
+  fill: rgba(251, 232, 166, 0.12);
+}
+
+.auth-knowledge-svg .auth-feature-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-overlay--sources,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-overlay--gaps,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-overlay--memory {
+  opacity: 1;
+}
+
+.auth-knowledge-svg .auth-feature-draw-path {
+  opacity: 0;
+  stroke-dasharray: 220 220;
+  stroke-dashoffset: 220;
+  transition: opacity 240ms var(--ease-standard), stroke-dashoffset 620ms var(--ease-out);
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-overlay--sources .auth-feature-draw-path,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-overlay--gaps .auth-feature-draw-path {
+  opacity: 0.9;
+  stroke-dashoffset: 0;
+}
+
+.auth-knowledge-svg .auth-feature-halo {
+  opacity: 0.6;
+}
+
+.auth-knowledge-svg .auth-feature-gap-outline {
+  opacity: 0.85;
+  stroke-dasharray: 220 220;
+  stroke-dashoffset: 220;
+  transition: opacity 240ms var(--ease-standard), stroke-dashoffset 520ms var(--ease-out);
+}
+
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-outline {
+  opacity: 1;
+  stroke-dashoffset: 0;
+}
+
+.auth-knowledge-svg .auth-feature-memory-ring {
+  opacity: 0.9;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.auth-knowledge-svg .auth-feature-memory-link {
+  opacity: 0.82;
+  stroke-dasharray: 2 4;
+}
+
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-memory-ring {
+  animation: authFeatureMemoryPulse 3.3s ease-in-out infinite;
+}
+
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-memory-ring--delay {
+  animation-delay: 450ms;
+}
+
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-memory-ring--delay-two {
+  animation-delay: 900ms;
+}
+
+@keyframes authFeatureMemoryPulse {
+  0%, 100% { opacity: 0.52; transform: scale(0.94); }
+  50% { opacity: 0.95; transform: scale(1.08); }
+}
+
+.auth-visual-accent--reduced-motion .auth-knowledge-svg *,
+.reduce-motion .auth-knowledge-svg * {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-feature-pills .feature-pill,
+  .auth-knowledge-svg *,
+  .auth-knowledge-svg .auth-feature-muted,
+  .auth-knowledge-svg .auth-feature-node,
+  .auth-knowledge-svg .auth-feature-overlay,
+  .auth-knowledge-svg .auth-feature-halo,
+  .auth-knowledge-svg .auth-feature-gap-outline,
+  .auth-knowledge-svg .auth-feature-memory-link {
+    animation: none !important;
+    transition: none !important;
+  }
+}
