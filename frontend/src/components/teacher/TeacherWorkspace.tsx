@@ -64,12 +64,13 @@ export function TeacherWorkspace() {
   });
 
   // Sync edit form with current course
+  const { setEditName, setEditDescription } = actions;
   useEffect(() => {
     if (course) {
-      actions.setEditName(course.name);
-      actions.setEditDescription(course.description || "");
+      setEditName(course.name);
+      setEditDescription(course.description || "");
     }
-  }, [course]);
+  }, [course, setEditName, setEditDescription]);
 
   // Dismiss success message after 4.5 seconds
   useEffect(() => {

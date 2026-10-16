@@ -99,10 +99,14 @@
   /* --- 7. INPUTS, FOCUS RINGS & SELECTION STATES --- */
   --input-bg: #FFFFFF;
   --input-text: var(--brand-navy);
-  --input-placeholder: #7683A3;
+  --input-placeholder: #5F6D8D;
   --input-border: #C4D3DF;
   --input-border-hover: var(--brand-navy-muted);
   --input-border-focus: var(--brand-coral);
+
+  --auth-accent-bg: #1B243E;
+  --auth-card-radius: 20px;
+  --auth-card-shadow: 0 24px 56px -12px rgba(30, 37, 68, 0.14), 0 4px 16px -2px rgba(30, 37, 68, 0.06);
 
   --focus-ring: 0 0 0 3px rgba(244, 151, 108, 0.42);
   --focus-ring-navy: 0 0 0 3px rgba(48, 60, 108, 0.28);
@@ -205,7 +209,12 @@
 
   --input-bg: #151D2E;
   --input-text: #EEF2F8;
+  --input-placeholder: #8E9DB5;
   --input-border: #334158;
+
+  --auth-accent-bg: #131A29;
+  --auth-card-border: rgba(180, 223, 229, 0.14);
+  --auth-card-shadow: 0 32px 72px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(180, 223, 229, 0.1);
 
   /* Button tokens for dark mode */
   --btn-primary-bg: #2A3B5C;
