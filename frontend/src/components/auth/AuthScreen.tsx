@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   AlertCircle,
   Check,
@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { MIN_PASSWORD_LENGTH, passwordMinLength } from "../../auth";
 import { ovaelApi } from "../../api/client";
-import { AuthVisualAccent } from "../content/AuthVisualAccent";
+import { AuthVisualAccent, type AuthFeatureKey } from "../content/AuthVisualAccent";
 import { usePrefersReducedMotion } from "../content/MotionPrimitives";
 
 interface AuthScreenProps {
@@ -54,15 +54,63 @@ export function AuthScreen({
   const [recoveryKey, setRecoveryKey] = useState("");
   const [copiedRecovery, setCopiedRecovery] = useState(false);
   const [reconnecting, setReconnecting] = useState(false);
+  const [activeFeature, setActiveFeature] = useState<AuthFeatureKey | null>(null);
+  const featurePointerInsideRef = useRef(false);
+  const featurePointerTargetRef = useRef<AuthFeatureKey | null>(null);
+  const focusedFeatureRef = useRef<AuthFeatureKey | null>(null);
 
   const isRegister = mode === "register";
+
+  const handleFeaturePointerEnter = (
+    feature: AuthFeatureKey,
+    event: React.PointerEvent<HTMLButtonElement>,
+  ) => {
+    if (event.pointerType === "touch") return;
+    featurePointerInsideRef.current = true;
+    featurePointerTargetRef.current = feature;
+    setActiveFeature(feature);
+  };
+
+  const handleFeaturePointerLeave = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "touch") return;
+    featurePointerInsideRef.current = false;
+    featurePointerTargetRef.current = null;
+    setActiveFeature(focusedFeatureRef.current);
+  };
+
+  const handleFeatureFocus = (feature: AuthFeatureKey) => {
+    focusedFeatureRef.current = feature;
+    setActiveFeature(feature);
+  };
+
+  const handleFeatureBlur = (event: React.FocusEvent<HTMLDivElement>) => {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) return;
+
+    focusedFeatureRef.current = null;
+    setActiveFeature(
+      featurePointerInsideRef.current ? featurePointerTargetRef.current : null,
+    );
+  };
+
+  const handleFeatureClick = (feature: AuthFeatureKey, event: React.MouseEvent<HTMLButtonElement>) => {
+    const pointerType = (event.nativeEvent as PointerEvent).pointerType;
+    const isTouchInteraction =
+      pointerType === "touch" ||
+      (typeof window !== "undefined" &&
+        window.matchMedia("(hover: none), (pointer: coarse)").matches);
+
+    if (isTouchInteraction) {
+      setActiveFeature(activeFeature === feature ? null : feature);
+    }
+  };
   const passwordLengthValid = password.length >= MIN_PASSWORD_LENGTH;
 
   useEffect(() => {
     if (!isEnteringLogin) return;
     const timer = setTimeout(() => {
       setIsEnteringLogin(false);
-    }, 650);
+    }, 850);
     return () => clearTimeout(timer);
   }, [isEnteringLogin]);
 
@@ -70,9 +118,9 @@ export function AuthScreen({
     setMode(nextMode);
     onModeChange?.(nextMode);
     setError("");
-    if (nextMode === "login" && !prefersReduced) {
-      setIsEnteringLogin(true);
-    } else {
+    // The branded entrance plays once on initial login-page entry. Switching
+    // between Sign In and Create Account must not replay the full choreography.
+    if (nextMode !== "login" || prefersReduced) {
       setIsEnteringLogin(false);
     }
   };
@@ -142,9 +190,7 @@ export function AuthScreen({
     setName("Bharat");
     setPassword("OVAEL-demo-2026!");
     setError("");
-    if (isRegister && !prefersReduced) {
-      setIsEnteringLogin(true);
-    }
+    // Demo-fill is an interaction, not a new page entry; do not restart motion.
   };
 
   return (
@@ -160,8 +206,38 @@ export function AuthScreen({
           {/* Top Utilities Header */}
           <header className="auth-top-row">
             <div className="brand auth-brand-mini">
-              <span className="brand-mark">O</span>
-              <span className="brand-name">OVAEL-X</span>
+              <span className="brand-mark auth-brand-mark" aria-hidden="true">
+                <svg
+                  className="auth-brand-mark-svg"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  focusable="false"
+                  aria-hidden="true"
+                >
+                  <rect
+                    className="auth-brand-frame-path"
+                    x="1.5"
+                    y="1.5"
+                    width="29"
+                    height="29"
+                    rx="5"
+                    stroke="#B4DFE5"
+                    strokeWidth="0.9"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <path
+                    className="auth-brand-glint"
+                    d="M5 2.5H11M2.5 5V11"
+                    stroke="#FBE8A6"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </svg>
+                <span className="auth-brand-mark-glyph">O</span>
+              </span>
+              <span className="brand-name auth-brand-wordmark">OVAEL-X</span>
             </div>
 
             <div className="auth-top-actions">
@@ -438,20 +514,53 @@ export function AuthScreen({
               misconceptions requiring a fresh approach.
             </p>
 
-            <div className="auth-feature-pills">
-              <span className="feature-pill">
-                <span className="pill-dot" /> Source-grounded lessons
-              </span>
-              <span className="feature-pill">
-                <span className="pill-dot" /> Gap forensics
-              </span>
-              <span className="feature-pill">
-                <span className="pill-dot" /> Memory under your control
-              </span>
+            <div
+              className="auth-feature-pills"
+              onPointerLeave={handleFeaturePointerLeave}
+              onBlurCapture={handleFeatureBlur}
+              role="group"
+              aria-label="Explore learning visualization features"
+            >
+              <button
+                type="button"
+                className={`feature-pill ${activeFeature === "sources" ? "is-active" : ""}`}
+                data-feature="sources"
+                aria-pressed={activeFeature === "sources"}
+                onPointerEnter={(event) => handleFeaturePointerEnter("sources", event)}
+                onFocus={() => handleFeatureFocus("sources")}
+                onClick={(event) => handleFeatureClick("sources", event)}
+              >
+                <span className="pill-dot" aria-hidden="true" /> Source-grounded lessons
+                <span className="feature-pill-indicator" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={`feature-pill ${activeFeature === "gaps" ? "is-active" : ""}`}
+                data-feature="gaps"
+                aria-pressed={activeFeature === "gaps"}
+                onPointerEnter={(event) => handleFeaturePointerEnter("gaps", event)}
+                onFocus={() => handleFeatureFocus("gaps")}
+                onClick={(event) => handleFeatureClick("gaps", event)}
+              >
+                <span className="pill-dot" aria-hidden="true" /> Gap forensics
+                <span className="feature-pill-indicator" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={`feature-pill ${activeFeature === "memory" ? "is-active" : ""}`}
+                data-feature="memory"
+                aria-pressed={activeFeature === "memory"}
+                onPointerEnter={(event) => handleFeaturePointerEnter("memory", event)}
+                onFocus={() => handleFeatureFocus("memory")}
+                onClick={(event) => handleFeatureClick("memory", event)}
+              >
+                <span className="pill-dot" aria-hidden="true" /> Memory under your control
+                <span className="feature-pill-indicator" aria-hidden="true" />
+              </button>
             </div>
 
             <div className="auth-visual-wrapper">
-              <AuthVisualAccent isLogin={!isRegister} />
+              <AuthVisualAccent isLogin={!isRegister} activeFeature={activeFeature} />
             </div>
           </div>
         </section>

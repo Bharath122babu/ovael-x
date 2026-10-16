@@ -818,6 +818,46 @@ label,
   }
 }
 
+@keyframes authBrandStrokeReveal {
+  from {
+    opacity: 0.08;
+    stroke-dashoffset: 110;
+  }
+  to {
+    opacity: 0.72;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes authBrandGlintReveal {
+  0% {
+    opacity: 0;
+    stroke-dasharray: 0 24;
+    stroke-dashoffset: 12;
+  }
+  70% {
+    opacity: 0.9;
+    stroke-dasharray: 12 12;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    opacity: 0.48;
+    stroke-dasharray: 12 12;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes authWordmarkReveal {
+  from {
+    opacity: 0;
+    transform: translateX(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @keyframes authErrorSlideIn {
   from {
     opacity: 0;
@@ -912,46 +952,68 @@ label,
   }
 }
 
-/* --- Entrance Sequence (Played on login entrance) --- */
+/* --- One-time brand-first entrance choreography (login entry only) --- */
 .auth-page--login.auth-login-entrance .auth-card-container {
-  animation: authContainerEntrance 350ms var(--ease-out) both;
+  animation: authContainerEntrance 360ms var(--ease-out) both;
 }
 
 .auth-page--login.auth-login-entrance .auth-top-row {
-  animation: authItemEntrance 300ms var(--ease-out) 30ms both;
+  animation: authItemEntrance 300ms var(--ease-out) 0ms both;
+}
+
+.auth-page--login.auth-login-entrance .auth-brand-mark .auth-brand-frame-path {
+  animation: authBrandStrokeReveal 400ms var(--ease-out) 20ms both;
+}
+
+.auth-page--login.auth-login-entrance .auth-brand-mark .auth-brand-glint {
+  animation: authBrandGlintReveal 280ms var(--ease-out) 420ms both;
+}
+
+.auth-page--login.auth-login-entrance .auth-brand-wordmark {
+  will-change: opacity, transform;
+  animation: authWordmarkReveal 340ms var(--ease-out) 80ms both;
+}
+
+.auth-page--login.auth-login-entrance .backend-state-badge {
+  animation: authItemEntrance 280ms var(--ease-out) 135ms both;
+}
+
+.auth-page--login.auth-login-entrance .auth-theme-toggle {
+  animation: authItemEntrance 280ms var(--ease-out) 155ms both;
 }
 
 .auth-page--login.auth-login-entrance .auth-mode-selector {
-  animation: authItemEntrance 300ms var(--ease-out) 60ms both;
+  animation: authItemEntrance 300ms var(--ease-out) 185ms both;
 }
 
 .auth-page--login.auth-login-entrance .auth-heading-group {
-  animation: authItemEntrance 300ms var(--ease-out) 100ms both;
+  animation: authItemEntrance 300ms var(--ease-out) 230ms both;
 }
 
 .auth-page--login.auth-login-entrance .auth-field-username {
-  animation: authItemEntrance 300ms var(--ease-out) 150ms both;
+  animation: authItemEntrance 300ms var(--ease-out) 280ms both;
 }
 
 .auth-page--login.auth-login-entrance .auth-field-password {
-  animation: authItemEntrance 300ms var(--ease-out) 200ms both;
+  animation: authItemEntrance 300ms var(--ease-out) 330ms both;
 }
 
 .auth-page--login.auth-login-entrance .auth-submit-btn {
-  animation: authItemEntrance 300ms var(--ease-out) 250ms both;
+  animation: authItemEntrance 300ms var(--ease-out) 380ms both;
 }
 
 .auth-page--login.auth-login-entrance .auth-switch-prompt {
-  animation: authItemEntrance 300ms var(--ease-out) 280ms both;
+  animation: authItemEntrance 300ms var(--ease-out) 425ms both;
 }
 
 .auth-page--login.auth-login-entrance .auth-dev-tools,
 .auth-page--login.auth-login-entrance .auth-footer-note {
-  animation: authItemEntrance 300ms var(--ease-out) 300ms both;
+  animation: authItemEntrance 300ms var(--ease-out) 455ms both;
 }
 
+/* The learning scene uses its own, slightly later entrance cadence. */
 .auth-page--login.auth-login-entrance .auth-accent-column {
-  animation: authAccentEntrance 400ms var(--ease-out) 100ms both;
+  animation: authAccentEntrance 420ms var(--ease-out) 165ms both;
 }
 
 /* --- Knowledge Network Visual Accent Animations --- */
@@ -1121,6 +1183,22 @@ label,
 
 /* --- Reduced Motion & Accessibility Overrides --- */
 @media (prefers-reduced-motion: reduce) {
+  .auth-brand-mark,
+  .auth-brand-mark-svg *,
+  .auth-brand-wordmark {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    stroke-dashoffset: 0 !important;
+    will-change: auto !important;
+  }
+
+  .auth-brand-mini:hover .auth-brand-mark {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
   .auth-page--login.auth-login-entrance .auth-card-container,
   .auth-page--login.auth-login-entrance .auth-top-row,
   .auth-page--login.auth-login-entrance .auth-mode-selector,
@@ -1145,6 +1223,22 @@ label,
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+.reduce-motion .auth-brand-mark,
+.reduce-motion .auth-brand-mark-svg *,
+.reduce-motion .auth-brand-wordmark {
+  animation: none !important;
+  transition: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  stroke-dashoffset: 0 !important;
+  will-change: auto !important;
+}
+
+.reduce-motion .auth-brand-mini:hover .auth-brand-mark {
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .reduce-motion .auth-page--login.auth-login-entrance .auth-card-container,
@@ -1228,6 +1322,73 @@ label,
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.auth-brand-mark {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  flex: 0 0 32px;
+  transition:
+    transform 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-standard),
+    border-color 220ms var(--ease-standard);
+}
+
+.auth-brand-mark-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-brand-frame-path {
+  opacity: 0.58;
+  stroke-dasharray: 110;
+  stroke-dashoffset: 0;
+  transition: opacity 220ms var(--ease-standard), stroke 220ms var(--ease-standard);
+}
+
+.auth-brand-glint {
+  opacity: 0.48;
+  stroke-dasharray: 12 12;
+  stroke-dashoffset: 0;
+  transition: opacity 220ms var(--ease-standard);
+}
+
+.auth-brand-mark-glyph {
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+}
+
+.auth-brand-wordmark {
+  display: inline-block;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .auth-brand-mini:hover .auth-brand-mark {
+    transform: translateY(-1px) rotate(-2deg);
+    box-shadow: 0 0 0 1px rgba(180, 223, 229, 0.22), 0 3px 10px rgba(30, 37, 68, 0.14);
+  }
+
+  .auth-brand-mini:hover .auth-brand-frame-path {
+    opacity: 0.94;
+    stroke: #D2FDFF;
+  }
+
+  .auth-brand-mini:hover .auth-brand-glint {
+    opacity: 0.96;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .auth-brand-wordmark {
+    will-change: auto;
+  }
 }
 
 .auth-top-actions {
@@ -11020,3 +11181,242 @@ main {
 }
 
 
+
+/* ==========================================================================
+   AUTH LEARNING SHOWCASE — FEATURE-LINKED SVG STATES
+   Kept local to the login / account-creation experience.
+   ========================================================================== */
+.auth-feature-pills .feature-pill {
+  position: relative;
+  appearance: none;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 220ms var(--ease-standard),
+    border-color 220ms var(--ease-standard),
+    color 220ms var(--ease-standard),
+    box-shadow 220ms var(--ease-standard),
+    transform 180ms var(--ease-standard);
+}
+
+.auth-feature-pills .feature-pill:hover {
+  background: rgba(180, 223, 229, 0.18);
+  border-color: rgba(210, 253, 255, 0.58);
+}
+
+.auth-feature-pills .feature-pill:active {
+  transform: translateY(1px);
+}
+
+.auth-feature-pills .feature-pill:focus-visible {
+  outline: 2px solid #D2FDFF;
+  outline-offset: 3px;
+  border-color: #D2FDFF;
+  box-shadow: 0 0 0 4px rgba(210, 253, 255, 0.12);
+}
+
+.auth-feature-pills .feature-pill.is-active {
+  background: rgba(180, 223, 229, 0.2);
+  border-color: rgba(210, 253, 255, 0.82);
+  box-shadow: inset 0 0 0 1px rgba(210, 253, 255, 0.05);
+}
+
+.auth-feature-pills .feature-pill[data-feature="gaps"].is-active {
+  background: rgba(251, 232, 166, 0.13);
+  border-color: rgba(251, 232, 166, 0.78);
+}
+
+.auth-feature-pills .feature-pill .pill-dot {
+  flex: 0 0 5px;
+  transition: background-color 220ms var(--ease-standard), box-shadow 220ms var(--ease-standard);
+}
+
+.auth-feature-pills .feature-pill[data-feature="sources"].is-active .pill-dot,
+.auth-feature-pills .feature-pill[data-feature="memory"].is-active .pill-dot {
+  background: #D2FDFF;
+  box-shadow: 0 0 0 3px rgba(210, 253, 255, 0.12);
+}
+
+.auth-feature-pills .feature-pill[data-feature="gaps"].is-active .pill-dot {
+  background: #FBE8A6;
+  box-shadow: 0 0 0 3px rgba(251, 232, 166, 0.12);
+}
+
+.feature-pill-indicator {
+  width: 4px;
+  height: 4px;
+  flex: 0 0 4px;
+  margin-left: 1px;
+  border-radius: 50%;
+  background: #D2FDFF;
+  opacity: 0;
+  transform: scale(0.55);
+  transition: opacity 220ms var(--ease-standard), transform 220ms var(--ease-out);
+}
+
+.feature-pill[data-feature="gaps"] .feature-pill-indicator {
+  background: #FBE8A6;
+}
+
+.feature-pill.is-active .feature-pill-indicator {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.auth-knowledge-svg .auth-feature-muted,
+.auth-knowledge-svg .auth-feature-node,
+.auth-knowledge-svg .auth-feature-source-path,
+.auth-knowledge-svg .auth-feature-gap-path,
+.auth-knowledge-svg .auth-feature-gap-target,
+.auth-knowledge-svg .auth-feature-overlay,
+.auth-knowledge-svg .auth-feature-halo,
+.auth-knowledge-svg .auth-feature-gap-outline,
+.auth-knowledge-svg .auth-feature-memory-link {
+  transition: opacity 300ms var(--ease-standard), stroke 300ms var(--ease-standard), stroke-width 300ms var(--ease-standard), fill 300ms var(--ease-standard), filter 300ms var(--ease-standard);
+}
+
+.auth-knowledge-svg .auth-feature-node {
+  opacity: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 300ms var(--ease-standard), filter 300ms var(--ease-standard), transform 300ms var(--ease-standard);
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-muted,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-muted,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-muted {
+  opacity: 0.34;
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-node,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-node,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-node {
+  opacity: 0.42;
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-source-node,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-node,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-memory-node {
+  opacity: 1;
+  filter: drop-shadow(0 0 2px rgba(210, 253, 255, 0.16));
+  transform: scale(1.015);
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-gap-path,
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-gap-target,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-source-path,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-gap-path,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-gap-target {
+  opacity: 0.3;
+}
+
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-source-path {
+  opacity: 0.3;
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-source-path {
+  stroke: #D2FDFF;
+  stroke-width: 2.4;
+  stroke-opacity: 1;
+}
+
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-path,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-target {
+  stroke: #FBE8A6;
+  stroke-width: 2.5;
+}
+
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-target {
+  fill: rgba(251, 232, 166, 0.12);
+}
+
+.auth-knowledge-svg .auth-feature-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-overlay--sources,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-overlay--gaps,
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-overlay--memory {
+  opacity: 1;
+}
+
+.auth-knowledge-svg .auth-feature-draw-path {
+  opacity: 0;
+  stroke-dasharray: 220 220;
+  stroke-dashoffset: 220;
+  transition: opacity 240ms var(--ease-standard), stroke-dashoffset 620ms var(--ease-out);
+}
+
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-overlay--sources .auth-feature-draw-path,
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-overlay--gaps .auth-feature-draw-path {
+  opacity: 0.9;
+  stroke-dashoffset: 0;
+}
+
+.auth-knowledge-svg .auth-feature-halo {
+  opacity: 0.6;
+}
+
+.auth-knowledge-svg .auth-feature-gap-outline {
+  opacity: 0.85;
+  stroke-dasharray: 220 220;
+  stroke-dashoffset: 220;
+  transition: opacity 240ms var(--ease-standard), stroke-dashoffset 520ms var(--ease-out);
+}
+
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-outline {
+  opacity: 1;
+  stroke-dashoffset: 0;
+}
+
+.auth-knowledge-svg .auth-feature-memory-ring {
+  opacity: 0.9;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.auth-knowledge-svg .auth-feature-memory-link {
+  opacity: 0.82;
+  stroke-dasharray: 2 4;
+}
+
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-memory-ring {
+  animation: authFeatureMemoryPulse 3.3s ease-in-out infinite;
+}
+
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-memory-ring--delay {
+  animation-delay: 450ms;
+}
+
+.auth-knowledge-svg[data-active-feature="memory"] .auth-feature-memory-ring--delay-two {
+  animation-delay: 900ms;
+}
+
+@keyframes authFeatureMemoryPulse {
+  0%, 100% { opacity: 0.52; transform: scale(0.94); }
+  50% { opacity: 0.95; transform: scale(1.08); }
+}
+
+.auth-visual-accent--reduced-motion .auth-knowledge-svg *,
+.reduce-motion .auth-knowledge-svg * {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-feature-pills .feature-pill,
+  .auth-knowledge-svg *,
+  .auth-knowledge-svg .auth-feature-muted,
+  .auth-knowledge-svg .auth-feature-node,
+  .auth-knowledge-svg .auth-feature-overlay,
+  .auth-knowledge-svg .auth-feature-halo,
+  .auth-knowledge-svg .auth-feature-gap-outline,
+  .auth-knowledge-svg .auth-feature-memory-link {
+    animation: none !important;
+    transition: none !important;
+  }
+}
