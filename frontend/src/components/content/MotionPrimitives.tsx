@@ -346,7 +346,7 @@ export function AnimatedProgressBar({
         ? "var(--brand-yellow)"
         : variant === "soft-blue"
           ? "var(--brand-soft-blue)"
-          : "var(--brand-navy)";
+          : "var(--progress-fill-primary, var(--brand-navy))";
 
   return (
     <div
@@ -367,7 +367,7 @@ export function AnimatedProgressBar({
         style={{
           width: "100%",
           height: "8px",
-          backgroundColor: "var(--brand-soft-blue-subtle, #EBF7F9)",
+          backgroundColor: "var(--progress-track-bg, var(--brand-soft-blue-subtle, #EBF7F9))",
           borderRadius: "9999px",
           overflow: "hidden",
           position: "relative",
@@ -421,7 +421,7 @@ export function RadialGauge({
         ? "var(--brand-yellow)"
         : variant === "soft-blue"
           ? "var(--brand-soft-blue)"
-          : "var(--brand-navy)";
+          : "var(--progress-fill-primary, var(--brand-navy))";
 
   return (
     <div
@@ -452,7 +452,7 @@ export function RadialGauge({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="var(--brand-soft-blue-subtle, #EBF7F9)"
+          stroke="var(--progress-track-bg, var(--brand-soft-blue-subtle, #EBF7F9))"
           strokeWidth={strokeWidth}
           fill="none"
         />
