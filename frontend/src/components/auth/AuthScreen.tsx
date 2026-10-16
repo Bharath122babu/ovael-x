@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AlertCircle,
   Check,
@@ -17,6 +17,7 @@ import {
 import { MIN_PASSWORD_LENGTH, passwordMinLength } from "../../auth";
 import { ovaelApi } from "../../api/client";
 import { AuthVisualAccent } from "../content/AuthVisualAccent";
+import { usePrefersReducedMotion } from "../content/MotionPrimitives";
 
 interface AuthScreenProps {
   connection: "online" | "checking" | "offline";
@@ -43,7 +44,9 @@ export function AuthScreen({
   onRegisteredRecovery,
   onModeChange,
 }: AuthScreenProps) {
+  const prefersReduced = usePrefersReducedMotion();
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [isEnteringLogin, setIsEnteringLogin] = useState(!prefersReduced);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -55,10 +58,23 @@ export function AuthScreen({
   const isRegister = mode === "register";
   const passwordLengthValid = password.length >= MIN_PASSWORD_LENGTH;
 
+  useEffect(() => {
+    if (!isEnteringLogin) return;
+    const timer = setTimeout(() => {
+      setIsEnteringLogin(false);
+    }, 650);
+    return () => clearTimeout(timer);
+  }, [isEnteringLogin]);
+
   const handleModeSwitch = (nextMode: "login" | "register") => {
     setMode(nextMode);
     onModeChange?.(nextMode);
     setError("");
+    if (nextMode === "login" && !prefersReduced) {
+      setIsEnteringLogin(true);
+    } else {
+      setIsEnteringLogin(false);
+    }
   };
 
   const handleCopyRecovery = async () => {
@@ -126,11 +142,16 @@ export function AuthScreen({
     setName("Bharat");
     setPassword("OVAEL-demo-2026!");
     setError("");
+    if (isRegister && !prefersReduced) {
+      setIsEnteringLogin(true);
+    }
   };
 
   return (
     <main
-      className={`auth-page-shell auth-page ${isRegister ? "auth-page--register" : "auth-page--login"}`}
+      className={`auth-page-shell auth-page ${
+        isRegister ? "auth-page--register" : "auth-page--login"
+      } ${!isRegister && isEnteringLogin ? "auth-login-entrance" : ""}`}
       id="main-content"
     >
       <div className="auth-card-container">
@@ -200,12 +221,12 @@ export function AuthScreen({
               {isRegister ? "New Learner Setup" : "Adaptive Learning Workspace"}
             </span>
             <h1 id="auth-heading" className="auth-title">
-              {isRegister ? "Create your account" : "Welcome back"}
+              {isRegister ? "Create your account" : "Welcome back."}
             </h1>
             <p className="auth-subtitle">
               {isRegister
                 ? "Start understanding your knowledge boundaries with causal graph forensics and evidence-backed learning."
-                : "Enter your credentials to continue your personalized learning journey."}
+                : "Sign in to continue your focused, evidence-led learning session."}
             </p>
           </div>
 
@@ -256,7 +277,7 @@ export function AuthScreen({
           {/* Main Auth Form */}
           <form className="auth-form" onSubmit={(e) => void handleSubmit(e)} noValidate={false}>
             {/* Username / Learner ID Field */}
-            <div className="form-field-group">
+            <div className="form-field-group auth-field-username">
               <label htmlFor="auth-username" className="field-label">
                 <span>Learner ID or Username</span>
                 {isRegister && <small className="field-hint">3–64 chars</small>}
@@ -281,7 +302,7 @@ export function AuthScreen({
             </div>
 
             {/* Password Field */}
-            <div className="form-field-group">
+            <div className="form-field-group auth-field-password">
               <div className="field-label-row">
                 <label htmlFor="auth-password" className="field-label">
                   <span>Password</span>
@@ -349,6 +370,20 @@ export function AuthScreen({
                 <span>{isRegister ? "Create learner account" : "Sign in to workspace"}</span>
               )}
             </button>
+
+            {/* Contextual Mode Switch Prompt */}
+            <div className="auth-switch-prompt">
+              <span className="auth-switch-text">
+                {isRegister ? "Already have an account?" : "Don't have an account yet?"}
+              </span>{" "}
+              <button
+                type="button"
+                className="auth-switch-link"
+                onClick={() => handleModeSwitch(isRegister ? "login" : "register")}
+              >
+                {isRegister ? "Sign in" : "Create an account"}
+              </button>
+            </div>
           </form>
 
           {/* Dev Demo Account Utility */}
@@ -416,7 +451,7 @@ export function AuthScreen({
             </div>
 
             <div className="auth-visual-wrapper">
-              <AuthVisualAccent />
+              <AuthVisualAccent isLogin={!isRegister} />
             </div>
           </div>
         </section>
