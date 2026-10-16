@@ -1,0 +1,226 @@
+[
+  {
+    "file": "learner-chat-desktop-dark.png",
+    "dimensions": "1440x900",
+    "totalPixels": 1296000,
+    "diffPixels": 79,
+    "mismatchPercent": "0.0061%"
+  },
+  {
+    "file": "learner-chat-desktop-light.png",
+    "dimensions": "1440x900",
+    "totalPixels": 1296000,
+    "diffPixels": 63,
+    "mismatchPercent": "0.0049%"
+  },
+  {
+    "file": "learner-chat-mobile-dark.png",
+    "dimensions": "390x844",
+    "totalPixels": 329160,
+    "diffPixels": 101,
+    "mismatchPercent": "0.0307%"
+  },
+  {
+    "file": "learner-chat-mobile-light.png",
+    "dimensions": "390x844",
+    "totalPixels": 329160,
+    "diffPixels": 1,
+    "mismatchPercent": "0.0003%"
+  },
+  {
+    "file": "learner-connections-desktop-dark.png",
+    "dimensions": "1440x900",
+    "totalPixels": 1296000,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-connections-desktop-light.png",
+    "dimensions": "1440x900",
+    "totalPixels": 1296000,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-connections-mobile-dark.png",
+    "dimensions": "390x844",
+    "totalPixels": 329160,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-connections-mobile-light.png",
+    "dimensions": "390x844",
+    "totalPixels": 329160,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-courses-desktop-dark.png",
+    "dimensions": "1440x1027",
+    "totalPixels": 1478880,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-courses-desktop-light.png",
+    "dimensions": "1440x1027",
+    "totalPixels": 1478880,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-courses-mobile-dark.png",
+    "dimensions": "390x2212",
+    "totalPixels": 862680,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-courses-mobile-light.png",
+    "dimensions": "390x2212",
+    "totalPixels": 862680,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-materials-desktop-dark.png",
+    "dimensions": "1440x1054",
+    "totalPixels": 1517760,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-materials-desktop-light.png",
+    "dimensions": "1440x1052",
+    "totalPixels": 1514880,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-materials-mobile-dark.png",
+    "dimensions": "390x1684",
+    "totalPixels": 656760,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-materials-mobile-light.png",
+    "dimensions": "390x1680",
+    "totalPixels": 655200,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-progress-desktop-dark.png",
+    "dimensions": "1440x1412",
+    "totalPixels": 2033280,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-progress-desktop-light.png",
+    "dimensions": "1440x1400",
+    "totalPixels": 2016000,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-progress-mobile-dark.png",
+    "dimensions": "390x2972",
+    "totalPixels": 1159080,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-progress-mobile-light.png",
+    "dimensions": "390x2950",
+    "totalPixels": 1150500,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-settings-desktop-dark.png",
+    "dimensions": "1440x900",
+    "totalPixels": 1296000,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-settings-desktop-light.png",
+    "dimensions": "1440x900",
+    "totalPixels": 1296000,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-settings-mobile-dark.png",
+    "dimensions": "390x1302",
+    "totalPixels": 507780,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "learner-settings-mobile-light.png",
+    "dimensions": "390x1300",
+    "totalPixels": 507000,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "login-create-desktop-dark.png",
+    "dimensions": "1440x900",
+    "totalPixels": 1296000,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "login-create-desktop-light.png",
+    "dimensions": "1440x900",
+    "totalPixels": 1296000,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "login-create-mobile-dark.png",
+    "dimensions": "390x1250",
+    "totalPixels": 487500,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "login-create-mobile-light.png",
+    "dimensions": "390x1250",
+    "totalPixels": 487500,
+    "diffPixels": 0,
+    "mismatchPercent": "0.0000%"
+  },
+  {
+    "file": "login-signin-desktop-dark.png",
+    "dimensions": "1440x900",
+    "totalPixels": 1296000,
+    "diffPixels": 117,
+    "mismatchPercent": "0.0090%"
+  },
+  {
+    "file": "login-signin-desktop-light.png",
+    "dimensions": "1440x900",
+    "totalPixels": 1296000,
+    "diffPixels": 217,
+    "mismatchPercent": "0.0167%"
+  },
+  {
+    "file": "login-signin-mobile-dark.png",
+    "dimensions": "390x1250",
+    "totalPixels": 487500,
+    "diffPixels": 41,
+    "mismatchPercent": "0.0084%"
+  },
+  {
+    "file": "login-signin-mobile-light.png",
+    "dimensions": "390x1250",
+    "totalPixels": 487500,
+    "diffPixels": 46,
+    "mismatchPercent": "0.0094%"
+  }
+]
