@@ -1,0 +1,74 @@
+[
+  {
+    "file": "learner-chat-desktop-light.png",
+    "diffPixels": 2174,
+    "totalPixels": 1296000,
+    "mismatch": "0.1677%"
+  },
+  {
+    "file": "learner-courses-desktop-light.png",
+    "diffPixels": 1224,
+    "totalPixels": 1478880,
+    "mismatch": "0.0828%"
+  },
+  {
+    "file": "learner-materials-desktop-light.png",
+    "diffPixels": 1233,
+    "totalPixels": 1514880,
+    "mismatch": "0.0814%"
+  },
+  {
+    "file": "learner-progress-desktop-light.png",
+    "diffPixels": 549,
+    "totalPixels": 2016000,
+    "mismatch": "0.0272%"
+  },
+  {
+    "file": "learner-connections-desktop-light.png",
+    "diffPixels": 3317,
+    "totalPixels": 1296000,
+    "mismatch": "0.2559%"
+  },
+  {
+    "file": "learner-settings-desktop-light.png",
+    "diffPixels": 0,
+    "totalPixels": 1296000,
+    "mismatch": "0.0000%"
+  },
+  {
+    "file": "learner-chat-desktop-dark.png",
+    "diffPixels": 2270,
+    "totalPixels": 1296000,
+    "mismatch": "0.1752%"
+  },
+  {
+    "file": "learner-courses-desktop-dark.png",
+    "diffPixels": 1602,
+    "totalPixels": 1478880,
+    "mismatch": "0.1083%"
+  },
+  {
+    "file": "learner-materials-desktop-dark.png",
+    "diffPixels": 1596,
+    "totalPixels": 1517760,
+    "mismatch": "0.1052%"
+  },
+  {
+    "file": "learner-progress-desktop-dark.png",
+    "diffPixels": 725,
+    "totalPixels": 2033280,
+    "mismatch": "0.0357%"
+  },
+  {
+    "file": "learner-connections-desktop-dark.png",
+    "diffPixels": 3559,
+    "totalPixels": 1296000,
+    "mismatch": "0.2746%"
+  },
+  {
+    "file": "learner-settings-desktop-dark.png",
+    "diffPixels": 0,
+    "totalPixels": 1296000,
+    "mismatch": "0.0000%"
+  }
+]
