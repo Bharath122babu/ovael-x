@@ -18,6 +18,7 @@ import { TeacherWorkspace } from "./teacher/TeacherWorkspace";
 import { PageTransition } from "./content/MotionPrimitives";
 import type { LearnerScreen, LearningLaunch } from "../types";
 import { AuthScreen } from "./auth/AuthScreen";
+import { safeStorage } from "../storage";
 const navigation = [
   { id: "learn", label: "Chat", icon: MessageSquareText },
   { id: "courses", label: "Courses", icon: Layers3 },
@@ -49,6 +50,7 @@ function Product() {
     memory,
   } = useOvael();
   const teaching = useTeaching();
+  const { busy: teachingBusy, pending: teachingPending, openHandoff } = teaching;
   const handoffSeen = useRef("");
   useEffect(() => {
     const token = window.location.pathname.match(
@@ -58,16 +60,16 @@ function Product() {
       !token ||
       !user ||
       !memory ||
-      teaching.busy ||
-      teaching.pending ||
+      teachingBusy ||
+      teachingPending ||
       handoffSeen.current === token
     )
       return;
     handoffSeen.current = token;
-    void teaching.openHandoff(token).then((opened) => {
+    void openHandoff(token).then((opened) => {
       if (opened) window.history.replaceState(null, "", "/");
     });
-  }, [user?.user_id, memory, teaching.busy, teaching.pending]);
+  }, [user, memory, teachingBusy, teachingPending, openHandoff]);
   const [screen, setScreen] = useState<LearnerScreen>(() =>
     user?.role === "teacher" ? "courses" : "learn",
   );
@@ -82,7 +84,7 @@ function Product() {
   }, [user?.role, screen]);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
-    const stored = localStorage.getItem("ovael_theme");
+    const stored = safeStorage.getItem("ovael_theme");
     if (stored === "dark" || stored === "light") return stored;
     return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
@@ -90,8 +92,12 @@ function Product() {
   });
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("ovael_theme", theme);
+    try {
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch {
+      // Ignore if documentElement is unavailable
+    }
+    safeStorage.setItem("ovael_theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
@@ -102,7 +108,11 @@ function Product() {
   useEffect(() => {
     const body = document.querySelector(".app-body");
     body?.toggleAttribute("inert", mobile);
-    if (!mobile) return;
+    if (!mobile) {
+      return () => {
+        body?.removeAttribute("inert");
+      };
+    }
     const previous = document.activeElement as HTMLElement | null;
     document.querySelector<HTMLElement>(".close-nav")?.focus();
     const close = (event: KeyboardEvent) => {
@@ -118,10 +128,13 @@ function Product() {
 
   useEffect(() => {
     if (!profileOpen) return;
-    const handleOutside = (event: MouseEvent | KeyboardEvent) => {
+    const handleOutside = (event: MouseEvent | TouchEvent | KeyboardEvent) => {
       if (event instanceof KeyboardEvent && event.key === "Escape") {
         setProfileOpen(false);
-      } else if (event instanceof MouseEvent) {
+      } else if (
+        event instanceof MouseEvent ||
+        (typeof TouchEvent !== "undefined" && event instanceof TouchEvent)
+      ) {
         const target = event.target as HTMLElement | null;
         if (!target?.closest(".profile-wrap")) {
           setProfileOpen(false);
@@ -129,9 +142,11 @@ function Product() {
       }
     };
     document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
     document.addEventListener("keydown", handleOutside);
     return () => {
       document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
       document.removeEventListener("keydown", handleOutside);
     };
   }, [profileOpen]);
@@ -143,9 +158,10 @@ function Product() {
   };
   async function signOut() {
     try {
+      const defaultScreen = user?.role === "teacher" ? "courses" : "learn";
       await logout();
       setProfileOpen(false);
-      setScreen("learn");
+      setScreen(defaultScreen);
     } catch (e) {
       setError(
         e instanceof Error
