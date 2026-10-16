@@ -6,24 +6,33 @@
 .auth-screen-wrapper,
 .auth-page {
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(16px, 3vw, 40px);
+  padding: clamp(16px, 3.5vw, 40px);
+  padding-top: max(clamp(16px, 3.5vw, 40px), env(safe-area-inset-top));
+  padding-bottom: max(clamp(16px, 3.5vw, 40px), env(safe-area-inset-bottom));
+  padding-left: max(clamp(16px, 3.5vw, 40px), env(safe-area-inset-left));
+  padding-right: max(clamp(16px, 3.5vw, 40px), env(safe-area-inset-right));
   background: var(--bg-page);
   background-image: 
-    radial-gradient(at 0% 0%, var(--bg-surface-cyan) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, var(--bg-surface-yellow) 0px, transparent 50%);
+    radial-gradient(ellipse at 15% 15%, rgba(210, 253, 255, 0.45) 0px, transparent 48%),
+    radial-gradient(ellipse at 85% 85%, rgba(251, 232, 166, 0.28) 0px, transparent 52%),
+    radial-gradient(circle at 50% 50%, rgba(180, 223, 229, 0.12) 0px, transparent 65%);
   position: relative;
   overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 [data-theme="dark"] .auth-page-shell,
 [data-theme="dark"] .auth-page {
   background: var(--bg-page);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(30, 37, 68, 0.45) 0px, transparent 60%),
-    radial-gradient(at 100% 100%, rgba(244, 151, 108, 0.08) 0px, transparent 60%);
+    radial-gradient(ellipse at 15% 15%, rgba(30, 44, 80, 0.45) 0px, transparent 55%),
+    radial-gradient(ellipse at 85% 85%, rgba(244, 151, 108, 0.07) 0px, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(26, 36, 62, 0.35) 0px, transparent 65%);
 }
 
 .auth-page-root {
@@ -577,33 +586,40 @@
 
 .auth-card-container {
   display: grid;
-  grid-template-columns: minmax(360px, 1.15fr) minmax(340px, 0.85fr);
-  max-width: 980px;
+  grid-template-columns: minmax(380px, 1.15fr) minmax(340px, 0.85fr);
+  max-width: 1040px;
   width: 100%;
-  min-height: 600px;
+  min-height: 620px;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
-  box-shadow: 0 20px 48px -12px rgba(48, 60, 108, 0.16), 0 4px 16px -2px rgba(48, 60, 108, 0.08);
+  border-radius: var(--auth-card-radius, 20px);
+  box-shadow: var(--auth-card-shadow, 0 24px 56px -12px rgba(48, 60, 108, 0.12), 0 4px 16px -2px rgba(48, 60, 108, 0.05));
   overflow: hidden;
   transition: box-shadow var(--duration-base) var(--ease-standard);
+  position: relative;
+  box-sizing: border-box;
 }
 
 [data-theme="dark"] .auth-card-container {
-  background-color: #171b2e;
-  border-color: rgba(180, 223, 229, 0.12);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  background-color: #171D2D;
+  border-color: var(--auth-card-border, rgba(180, 223, 229, 0.14));
+  box-shadow: var(--auth-card-shadow, 0 32px 72px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(180, 223, 229, 0.08));
 }
 
 /* Primary Form Column */
 .auth-form-column {
-  padding: clamp(28px, 4vw, 44px);
+  padding: clamp(32px, 4.5vw, 48px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 20px;
+  gap: 22px;
   background: var(--bg-surface);
   position: relative;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] .auth-form-column {
+  background: #171D2D;
 }
 
 .auth-top-row {

@@ -311,15 +311,32 @@ button:not(:disabled):active,
 
 /* Visual Accent Column */
 .auth-accent-column {
-  background-color: var(--brand-navy);
+  background-color: var(--auth-accent-bg, #1B243E);
   color: #FFFFFF;
-  padding: clamp(28px, 4vw, 44px);
+  padding: clamp(32px, 4.5vw, 48px);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-left: 1px solid rgba(180, 223, 229, 0.15);
+  border-left: 1px solid rgba(180, 223, 229, 0.14);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] .auth-accent-column {
+  background-color: var(--auth-accent-bg, #131A29);
+  border-left-color: rgba(180, 223, 229, 0.1);
+}
+
+.auth-accent-column::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at 15% 15%, rgba(210, 253, 255, 0.08) 0px, transparent 40%),
+    radial-gradient(ellipse at 85% 85%, rgba(244, 151, 108, 0.07) 0px, transparent 45%);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .auth-accent-content {
