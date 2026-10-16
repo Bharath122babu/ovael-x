@@ -62,9 +62,10 @@ export function GapForensicsScreen({
   }, []);
   useEffect(() => {
     const timer = window.setTimeout(() => void loadStored(""), 0);
+    const revRef = requestRevision;
     return () => {
       window.clearTimeout(timer);
-      requestRevision.current++;
+      revRef.current++;
     };
   }, [loadStored]);
   const analyze = async (selectedSubject = subjectId) => {

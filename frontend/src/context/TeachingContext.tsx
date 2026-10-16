@@ -1,8 +1,9 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import { makeAnswerTurn, type Transcription } from "../assessment";
 import { latestProjection } from "../localProjection";
 import { TurnBuffer } from "../turnBuffer";
+import { safeStorage } from "../storage";
 import type { TeachingSession } from "../types";
 import { useOvael } from "./OvaelContext";
 type Intent =
@@ -53,20 +54,20 @@ function useController() {
         : current;
     });
   }, [sessions, uid]);
-  const clearAnswer = () => {
+  const clearAnswer = useCallback(() => {
     setAnswer("");
     setChoice(null);
     setTranscript(null);
     setApproved(false);
     setSpeechDraft(null);
     setFromSpeech(false);
-  };
-  const accept = (result: TeachingSession, base?: TeachingSession | null) => {
+  }, []);
+  const accept = useCallback((result: TeachingSession, base?: TeachingSession | null) => {
     const next = { ...base, ...result } as TeachingSession;
     setSession(next);
     saveStateDelta(next.state_delta);
     if (next.status === "active" && key)
-      sessionStorage.setItem(key, next.teaching_session_id);
+      safeStorage.setItem(key, next.teaching_session_id, "session");
     if (next.move?.content)
       setEntries((old) => [
         ...old.filter((entry) => entry.id !== next.move!.move_id),
@@ -78,7 +79,7 @@ function useController() {
       ]);
     clearAnswer();
     setPending(false);
-  };
+  }, [clearAnswer, key, saveStateDelta]);
   useEffect(() => {
     if (uid && !memory) return;
     owner.current = uid;
@@ -93,8 +94,8 @@ function useController() {
     setNotice("");
     if (!uid) return;
     const saved =
-      sessionStorage.getItem(`ovael.session.${uid}`) ||
-      sessionStorage.getItem("ovael_session_id");
+      safeStorage.getItem(`ovael.session.${uid}`, "session") ||
+      safeStorage.getItem("ovael_session_id", "session");
     if (!saved) return;
     gate.current = true;
     setBusy(true);
@@ -105,8 +106,8 @@ function useController() {
         );
         if (token !== revision.current) return;
         if (state.status !== "active") {
-          sessionStorage.removeItem(`ovael.session.${uid}`);
-          sessionStorage.removeItem("ovael_session_id");
+          safeStorage.removeItem(`ovael.session.${uid}`, "session");
+          safeStorage.removeItem("ovael_session_id", "session");
           return;
         }
         setSession(state);
@@ -124,12 +125,12 @@ function useController() {
           );
         }
         accept(state);
-        sessionStorage.removeItem("ovael_session_id");
+        safeStorage.removeItem("ovael_session_id", "session");
       } catch (e) {
         if (token === revision.current) {
           if ((e as { status?: number }).status === 404) {
-            sessionStorage.removeItem(`ovael.session.${uid}`);
-            sessionStorage.removeItem("ovael_session_id");
+            safeStorage.removeItem(`ovael.session.${uid}`, "session");
+            safeStorage.removeItem("ovael_session_id", "session");
             setNotice(
               "The previous lesson is no longer available. Start a new lesson.",
             );
@@ -147,10 +148,11 @@ function useController() {
         }
       }
     })();
+    const revRef = revision;
     return () => {
-      revision.current++;
+      revRef.current++;
     };
-  }, [uid, memory?.memory_mode]);
+  }, [uid, memory, accept, clearAnswer, setError]);
   async function guarded(work: (valid: () => boolean) => Promise<void>) {
     if (!uid || gate.current) return;
     const token = revision.current;
@@ -195,7 +197,7 @@ function useController() {
         setSession(null);
         setEntries([]);
         clearAnswer();
-        if (key) sessionStorage.removeItem(key);
+        if (key) safeStorage.removeItem(key, "session");
       }
       const result: TeachingSession = await api(
         "/v1/learning/sessions",
@@ -302,7 +304,7 @@ function useController() {
       if (state.status !== "active") {
         setSession(null);
         clearAnswer();
-        if (key) sessionStorage.removeItem(key);
+        if (key) safeStorage.removeItem(key, "session");
         setNotice(
           "This conversation has finished. Start a new chat to continue learning.",
         );
@@ -332,8 +334,8 @@ function useController() {
     await guarded(async (valid) => {
       const saved =
         session?.teaching_session_id ||
-        (key && sessionStorage.getItem(key)) ||
-        sessionStorage.getItem("ovael_session_id");
+        (key && safeStorage.getItem(key, "session")) ||
+        safeStorage.getItem("ovael_session_id", "session");
       if (!saved) throw new Error("No saved lesson is available.");
       const state: TeachingSession = await api(
         `/v1/learning/sessions/${saved}`,
@@ -370,7 +372,7 @@ function useController() {
       setEntries([]);
       clearAnswer();
       buffer.current.clear();
-      if (key) sessionStorage.removeItem(key);
+      if (key) safeStorage.removeItem(key, "session");
       setNotice("Lesson completed and added to history.");
       await refresh();
     });
@@ -425,7 +427,7 @@ function useController() {
     clearAnswer();
     setPending(false);
     setBusy(false);
-    if (key) sessionStorage.removeItem(key);
+    if (key) safeStorage.removeItem(key, "session");
   }
   return {
     speechDraft,
