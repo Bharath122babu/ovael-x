@@ -1,378 +1,116 @@
+import React from "react";
 import { usePrefersReducedMotion } from "./MotionPrimitives";
 
 export type AuthFeatureKey = "sources" | "gaps" | "memory";
 
-/**
- * AuthVisualAccent: Layered isometric SVG synthesis graphic
- * representing causal knowledge networks, evidence nodes, and learning synthesis
- * utilizing the editorial geometry, disciplined lines, and OVAEL-X brand palette.
- */
-export function AuthVisualAccent({
-  className = "",
-  isLogin = true,
-  activeFeature = null,
-}: {
+export interface AuthVisualAccentProps {
+  mode?: "signin" | "register";
+  online?: boolean;
   className?: string;
   isLogin?: boolean;
   activeFeature?: AuthFeatureKey | null;
-}) {
+}
+
+/**
+ * Restrained Nothing-inspired monochromatic dot-matrix motif.
+ * 8x6 precision dot matrix with deliberate active-index patterns,
+ * fine calibration hairlines, and technical index annotation.
+ * Pure SVG + CSS; static under prefers-reduced-motion.
+ */
+export const AuthVisualAccent: React.FC<AuthVisualAccentProps> = ({
+  mode,
+  online = true,
+  className = "",
+  isLogin = true,
+  activeFeature: _activeFeature = null,
+}) => {
   const prefersReduced = usePrefersReducedMotion();
+  const effectiveMode: "signin" | "register" =
+    mode ?? (isLogin ? "signin" : "register");
+
+  // 8x6 precision dot matrix with deliberate active-index pattern
+  const rows = 6;
+  const cols = 8;
+  const activeIndices =
+    effectiveMode === "signin"
+      ? new Set(["0-0", "0-1", "0-7", "1-0", "2-3", "2-4", "3-3", "3-4", "5-0", "5-7"])
+      : new Set(["0-0", "0-7", "1-3", "1-4", "2-2", "2-5", "3-2", "3-5", "4-3", "4-4", "5-0", "5-7"]);
 
   return (
-    <div
-      className={`auth-visual-accent ${prefersReduced ? "auth-visual-accent--reduced-motion" : ""} ${className}`}
+    <aside
+      className={`ovael-auth-motif ${prefersReduced ? "ovael-auth-motif--reduced-motion" : ""} ${className}`.trim()}
       aria-hidden="true"
-      style={{
-        width: "100%",
-        maxWidth: "520px",
-        margin: "0 auto",
-        display: "flex",
-        justifyContent: "center",
-      }}
+      data-testid="auth-dot-matrix-motif"
     >
+      <div className="ovael-auth-motif__meta">
+        <span className="ovael-auth-motif__index">INDEX // 01</span>
+        <span className="ovael-auth-motif__coord">
+          {effectiveMode === "signin" ? "AUTH.SIGNIN" : "AUTH.REGISTER"}
+        </span>
+      </div>
+
       <svg
-        viewBox="0 0 460 260"
-        className="auth-knowledge-svg"
-        data-active-feature={activeFeature ?? "default"}
+        className="ovael-auth-motif__svg"
+        width="108"
+        height="78"
+        viewBox="0 0 108 78"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style={{
-          width: "100%",
-          height: "auto",
-          overflow: "visible",
-        }}
       >
-        <defs>
-          {/* Soft ambient breathing light behind central lattice */}
-          <radialGradient id="authAmbientGlow" cx="50%" cy="45%" r="60%">
-            <stop offset="0%" stopColor="#354BFA" stopOpacity="0.08" />
-            <stop offset="35%" stopColor="#D2FDFF" stopOpacity="0.06" />
-            <stop offset="70%" stopColor="#5A9AAA" stopOpacity="0.02" />
-            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
-          </radialGradient>
-
-          {/* Subtle gradient fills from brand palette */}
-          <linearGradient id="planeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#354BFA" stopOpacity="0.07" />
-            <stop offset="100%" stopColor="#0D9488" stopOpacity="0.03" />
-          </linearGradient>
-          <linearGradient id="cardGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
-            <stop offset="100%" stopColor="#F8FAFC" stopOpacity="0.85" />
-          </linearGradient>
-          <filter id="authShadowFilter" x="-15%" y="-15%" width="130%" height="130%">
-            <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="#0F172A" floodOpacity="0.08" />
-          </filter>
-        </defs>
-
-        {/* Phase A — Ambient background illumination */}
-        <ellipse
-          cx="230"
-          cy="115"
-          rx="185"
-          ry="95"
-          fill="url(#authAmbientGlow)"
-          className="auth-accent-ambient auth-feature-muted auth-svg-phase-a"
+        {/* Fine calibration hairlines */}
+        <line
+          x1="0"
+          y1="6"
+          x2="108"
+          y2="6"
+          stroke="#D6D6D6"
+          strokeWidth="0.75"
+          strokeDasharray="2 4"
+        />
+        <line
+          x1="6"
+          y1="0"
+          x2="6"
+          y2="78"
+          stroke="#D6D6D6"
+          strokeWidth="0.75"
+          strokeDasharray="2 4"
         />
 
-        {/* Phase A — Subtle ambient coordinate accents */}
-        <g className="auth-micro-drift-1 auth-feature-muted auth-svg-phase-a" opacity="0.6">
-          <rect x="88" y="42" width="5" height="5" transform="rotate(45 90.5 44.5)" stroke="#354BFA" strokeWidth="0.8" fill="none" />
-        </g>
-        <g className="auth-micro-drift-2 auth-feature-muted auth-svg-phase-a" opacity="0.5">
-          <rect x="368" y="148" width="4.5" height="4.5" transform="rotate(45 370.25 150.25)" stroke="#D97706" strokeWidth="0.8" fill="none" />
-        </g>
-        <g className="auth-feature-muted auth-svg-phase-a" opacity="0.35">
-          <path d="M380 46 L380 54 M376 50 L384 50" stroke="#94A3B8" strokeWidth="0.75" />
-          <path d="M76 116 L76 124 M72 120 L80 120" stroke="#94A3B8" strokeWidth="0.75" />
-        </g>
-
-        {/* Phase A — Base Isometric Ground Plane */}
-        <path
-          d="M230 40 L410 120 L230 200 L50 120 Z"
-          fill="url(#planeGrad)"
-          stroke="#94A3B8"
-          strokeWidth="1.2"
-          strokeDasharray="4 4"
-          className="auth-feature-muted auth-svg-phase-a"
-        />
-
-        {/* Phase A — Network Nodes Grid on Ground */}
-        <g className="auth-feature-muted auth-svg-phase-a" stroke="#CBD5E1" strokeOpacity="0.8" strokeWidth="1">
-          <line x1="140" y1="80" x2="320" y2="160" />
-          <line x1="320" y1="80" x2="140" y2="160" />
-          <line x1="230" y1="40" x2="230" y2="200" strokeDasharray="3 3" />
-        </g>
-
-        {/* Phase A — Primary Central Knowledge Plane (Card with subtle float) */}
-        <g filter="url(#authShadowFilter)" className="auth-accent-floating-card auth-feature-muted auth-svg-phase-a">
-          <path
-            d="M230 75 L360 135 L230 195 L100 135 Z"
-            fill="url(#cardGrad1)"
-            stroke="#CBD5E1"
-            strokeWidth="1.5"
-            strokeOpacity="0.9"
-          />
-        </g>
-
-        {/* Phase B — Core Synthesized Causal Edges (subtle breathing pulse) */}
-        <path
-          d="M170 125 L230 95 L290 125 L230 155 Z"
-          fill="#FEF3C7"
-          fillOpacity="0.7"
-          stroke="#D97706"
-          strokeWidth="1.5"
-          className="auth-accent-core-pulse auth-feature-gap-target auth-svg-phase-b auth-svg-causal-diamond"
-        />
-        <text
-          x="230"
-          y="128"
-          textAnchor="middle"
-          fill="#92400E"
-          fontSize="8.5"
-          fontWeight="700"
-          fontFamily="system-ui, -apple-system, sans-serif"
-          letterSpacing="0.06em"
-          className="auth-feature-gap-target auth-svg-phase-c"
-          pointerEvents="none"
-        >
-          CAUSAL GAPS
-        </text>
-
-        {/* Phase B / C — Vertical Data Beams / Evidence Pillars */}
-        {/* Node A (Left, Coral / Warm - High Alert/Focus) */}
-        <g className="auth-feature-node auth-feature-source-node auth-feature-gap-node auth-svg-phase-c auth-svg-node--sources">
-          <line
-            x1="145"
-            y1="120"
-            x2="145"
-            y2="65"
-            stroke="#EF493A"
-            strokeWidth="2"
-            strokeDasharray="3 2"
-            className="auth-svg-phase-b auth-svg-stem"
-          />
-          <circle cx="145" cy="65" r="7" fill="#EF493A" stroke="#FFFFFF" strokeWidth="2" />
-          <circle cx="145" cy="65" r="14" fill="#EF493A" fillOpacity="0.25" className="auth-node-aura">
-            {isLogin && !prefersReduced && (
-              <animate
-                attributeName="r"
-                values="11;17;11"
-                dur="3.2s"
-                repeatCount="indefinite"
+        {Array.from({ length: rows }).map((_, r) =>
+          Array.from({ length: cols }).map((__, c) => {
+            const key = `${r}-${c}`;
+            const isPrimary = activeIndices.has(key);
+            const cx = 6 + c * 13.5;
+            const cy = 6 + r * 13;
+            return (
+              <circle
+                key={key}
+                cx={cx}
+                cy={cy}
+                r={isPrimary ? 2.2 : 1.25}
+                fill={isPrimary ? "#111111" : "#D6D6D6"}
+                className={
+                  isPrimary
+                    ? "ovael-auth-motif__dot--active"
+                    : "ovael-auth-motif__dot"
+                }
               />
-            )}
-          </circle>
-          <text
-            x="145"
-            y="48"
-            textAnchor="middle"
-            fill="#0F172A"
-            fontSize="8.5"
-            fontWeight="700"
-            fontFamily="system-ui, -apple-system, sans-serif"
-            letterSpacing="0.06em"
-            pointerEvents="none"
-          >
-            SOURCES
-          </text>
-        </g>
-
-        {/* Node B (Center Top, Brand Cobalt / Gold - Authority/Truth) */}
-        <g className="auth-feature-node auth-feature-source-node auth-feature-memory-node auth-svg-phase-c auth-svg-node--central">
-          <line
-            x1="230"
-            y1="95"
-            x2="230"
-            y2="30"
-            stroke="#354BFA"
-            strokeWidth="2"
-            className="auth-connection-line auth-svg-phase-b auth-svg-stem"
-          />
-          {/* Phase D — Central Vertical Energy Pulse */}
-          {isLogin && !prefersReduced && (
-            <circle r="2.5" fill="#354BFA" opacity="0.85" className="auth-traveling-pulse-stem auth-svg-phase-d">
-              <animateMotion
-                path="M230 190 L230 95 L230 30"
-                dur="3.8s"
-                repeatCount="indefinite"
-              />
-            </circle>
-          )}
-          <circle cx="230" cy="30" r="16" stroke="#D97706" strokeWidth="1" strokeOpacity="0.35" strokeDasharray="3 3" className="auth-node-aura-b" />
-          <circle cx="230" cy="30" r="9" fill="#FFFFFF" stroke="#D97706" strokeWidth="2.5" />
-          <circle cx="230" cy="30" r="4" fill="#D97706" />
-        </g>
-
-        {/* Node C (Right, Soft Teal / Blue - Materials/Concepts) */}
-        <g className="auth-feature-node auth-feature-source-node auth-feature-memory-node auth-svg-phase-c auth-svg-node--memory">
-          <line
-            x1="315"
-            y1="120"
-            x2="315"
-            y2="70"
-            stroke="#0D9488"
-            strokeWidth="2"
-            strokeDasharray="3 2"
-            className="auth-svg-phase-b auth-svg-stem"
-          />
-          <circle cx="315" cy="70" r="7" fill="#0D9488" stroke="#FFFFFF" strokeWidth="2" />
-          <text
-            x="315"
-            y="52"
-            textAnchor="middle"
-            fill="#0F172A"
-            fontSize="8.5"
-            fontWeight="700"
-            fontFamily="system-ui, -apple-system, sans-serif"
-            letterSpacing="0.06em"
-            pointerEvents="none"
-          >
-            MEMORY
-          </text>
-        </g>
-
-        {/* Node D (Bottom Center, Pale Cyan - Grounded Inference) */}
-        <g className="auth-feature-node auth-feature-memory-node auth-svg-phase-c auth-svg-node--inference">
-          <line
-            x1="230"
-            y1="155"
-            x2="230"
-            y2="190"
-            stroke="#354BFA"
-            strokeWidth="1.5"
-            strokeDasharray="2 2"
-            className="auth-svg-phase-b auth-svg-stem"
-          />
-          <circle cx="230" cy="190" r="6" fill="#354BFA" stroke="#FFFFFF" strokeWidth="2" />
-        </g>
-
-        {/* Phase B — Horizontal Interconnects between floating nodes */}
-        {/* Upper Track: Smooth Curved Interconnect */}
-        <path
-          d="M145 65 Q 185 35 230 30 Q 275 35 315 70"
-          fill="none"
-          stroke="#354BFA"
-          strokeWidth="1.8"
-          strokeOpacity="0.55"
-          className="auth-feature-source-path auth-svg-phase-b auth-svg-path-upper"
-        />
-        {/* Phase D — Traveling Energy Packet along Upper Track */}
-        {isLogin && !prefersReduced && (
-          <g className="auth-traveling-packet auth-svg-phase-d">
-            <circle r="3" fill="#FBE8A6">
-              <animateMotion
-                path="M145 65 Q 185 35 230 30 Q 275 35 315 70"
-                dur="4.8s"
-                repeatCount="indefinite"
-              />
-            </circle>
-            <circle r="7" fill="#FBE8A6" fillOpacity="0.25">
-              <animateMotion
-                path="M145 65 Q 185 35 230 30 Q 275 35 315 70"
-                dur="4.8s"
-                repeatCount="indefinite"
-              />
-            </circle>
-          </g>
+            );
+          })
         )}
-
-        {/* Phase B — Lower Track: Animated Causal Stream */}
-        <path
-          d="M145 65 Q 185 105 230 95 Q 275 105 315 70"
-          fill="none"
-          stroke="#EF493A"
-          strokeWidth="1.6"
-          strokeDasharray="4 3"
-          className="auth-accent-stream-line auth-feature-gap-path auth-svg-phase-b auth-svg-path-lower"
-        />
-        {/* Phase D — Traveling Packet along Lower Causal Stream */}
-        {isLogin && !prefersReduced && (
-          <g className="auth-traveling-packet auth-traveling-packet--lower auth-svg-phase-d">
-            <circle r="2.5" fill="#EF493A">
-              <animateMotion
-                path="M145 65 Q 185 105 230 95 Q 275 105 315 70"
-                dur="5.6s"
-                repeatCount="indefinite"
-              />
-            </circle>
-            <circle r="6" fill="#EF493A" fillOpacity="0.22">
-              <animateMotion
-                path="M145 65 Q 185 105 230 95 Q 275 105 315 70"
-                dur="5.6s"
-                repeatCount="indefinite"
-              />
-            </circle>
-          </g>
-        )}
-
-        {/* Selected-feature overlays: illustrative only, not live learner data. */}
-        <g className="auth-feature-overlay auth-feature-overlay--sources" pointerEvents="none">
-          <path
-            d="M145 65 Q 185 35 230 30 Q 275 35 315 70"
-            className="auth-feature-draw-path"
-            stroke="#D2FDFF"
-            strokeWidth="3"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <circle className="auth-feature-halo" cx="145" cy="65" r="12" stroke="#D2FDFF" strokeWidth="1.4" fill="none" />
-          <circle className="auth-feature-halo" cx="230" cy="30" r="15" stroke="#D2FDFF" strokeWidth="1.4" fill="none" />
-          <circle className="auth-feature-halo" cx="315" cy="70" r="12" stroke="#D2FDFF" strokeWidth="1.4" fill="none" />
-        </g>
-
-        <g className="auth-feature-overlay auth-feature-overlay--gaps" pointerEvents="none">
-          <path
-            d="M145 65 Q 185 105 230 95 Q 275 105 315 70"
-            className="auth-feature-draw-path"
-            stroke="#FBE8A6"
-            strokeWidth="3"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M170 125 L230 95 L290 125 L230 155 Z"
-            className="auth-feature-gap-outline"
-            stroke="#FBE8A6"
-            strokeWidth="2.5"
-            strokeLinejoin="round"
-            fill="none"
-          />
-          <circle className="auth-feature-halo" cx="145" cy="65" r="13" stroke="#FBE8A6" strokeWidth="1.5" fill="none" />
-          <circle className="auth-feature-halo" cx="230" cy="95" r="10" stroke="#FBE8A6" strokeWidth="1.5" fill="none" />
-        </g>
-
-        <g className="auth-feature-overlay auth-feature-overlay--memory" pointerEvents="none">
-          <circle className="auth-feature-memory-ring" cx="230" cy="30" r="16" stroke="#D2FDFF" strokeWidth="1.2" strokeDasharray="3 3" fill="none" />
-          <circle className="auth-feature-memory-ring auth-feature-memory-ring--delay" cx="315" cy="70" r="12" stroke="#B4DFE5" strokeWidth="1.2" strokeDasharray="2 4" fill="none" />
-          <circle className="auth-feature-memory-ring auth-feature-memory-ring--delay-two" cx="230" cy="190" r="11" stroke="#D2FDFF" strokeWidth="1.2" strokeDasharray="2 4" fill="none" />
-          <path
-            d="M230 30 L315 70 L230 95 L230 190"
-            className="auth-feature-memory-link"
-            stroke="#B4DFE5"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            fill="none"
-          />
-        </g>
-
-        {/* Phase C — Decorative mini badges */}
-        <g transform="translate(280, 16)" className="auth-accent-badge-a auth-feature-muted auth-svg-phase-c auth-svg-badge">
-          <rect width="82" height="22" rx="11" fill="rgba(20, 24, 32, 0.9)" stroke="#5A9AAA" strokeWidth="1" filter="url(#authShadowFilter)" />
-          <circle cx="11" cy="11" r="3.5" fill="#D2FDFF" />
-          <text x="21" y="14.5" fill="#D2FDFF" fontSize="8.5" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.06em">
-            LOCAL-FIRST
-          </text>
-        </g>
-
-        <g transform="translate(75, 172)" className="auth-accent-badge-b auth-feature-muted auth-svg-phase-c auth-svg-badge">
-          <rect width="90" height="22" rx="11" fill="rgba(20, 24, 32, 0.9)" stroke="#FBE8A6" strokeWidth="1" filter="url(#authShadowFilter)" />
-          <circle cx="11" cy="11" r="3.5" fill="#EF493A" />
-          <text x="21" y="14.5" fill="#FBE8A6" fontSize="8.5" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.06em">
-            EVIDENCE-LED
-          </text>
-        </g>
       </svg>
-    </div>
+
+      <div className="ovael-auth-motif__status">
+        <span
+          className={`ovael-auth-motif__led ${
+            online ? "ovael-auth-motif__led--online" : "ovael-auth-motif__led--offline"
+          }`}
+        />
+        <span>{online ? "NODE READY" : "LOCAL MODE"}</span>
+      </div>
+    </aside>
   );
-}
+};
+
+export default AuthVisualAccent;

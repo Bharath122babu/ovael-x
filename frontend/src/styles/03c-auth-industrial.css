@@ -1,0 +1,744 @@
+/* ==========================================================================
+   OVAEL-X AUTHENTICATION — NOTHING-INSPIRED WHITE-ONLY DESIGN SYSTEM
+   Monochromatic tokens: #FFFFFF, #F7F7F5, #111111, #666666, #858585, #D6D6D6, #D71921
+   ========================================================================== */
+
+.ovael-auth-viewport {
+  --auth-bg-primary: #FFFFFF;
+  --auth-bg-secondary: #F7F7F5;
+  --auth-text-primary: #111111;
+  --auth-text-secondary: #666666;
+  --auth-text-muted: #858585;
+  --auth-border: #D6D6D6;
+  --auth-surface-interactive: #F0F0EE;
+  --auth-error: #D71921;
+  --auth-btn-bg: #111111;
+  --auth-btn-text: #FFFFFF;
+
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  background-color: var(--auth-bg-primary);
+  color: var(--auth-text-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Background video wash */
+.ovael-auth-video-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ovael-auth-video-element {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.12;
+}
+
+.ovael-auth-video-wash {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.88);
+}
+
+/* Header */
+.ovael-auth-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--auth-border);
+  background-color: var(--auth-bg-primary);
+}
+
+.ovael-auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ovael-auth-brand .auth-brand-wordmark {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--auth-text-primary);
+  text-transform: uppercase;
+}
+
+.ovael-auth-header__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ovael-auth-header__connection {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ovael-auth-header__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.ovael-auth-header__dot--online {
+  background-color: var(--auth-text-primary);
+  box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.1);
+}
+
+.ovael-auth-header__dot--checking {
+  background-color: #D97706;
+}
+
+.ovael-auth-header__dot--offline {
+  background-color: var(--auth-text-muted);
+}
+
+.ovael-auth-header__annotation {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--auth-text-muted);
+}
+
+/* Main Stage — Asymmetrical Editorial Composition */
+.ovael-auth-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 40px;
+  box-sizing: border-box;
+}
+
+.ovael-auth-stage {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 420px) 1fr;
+  align-items: end;
+  gap: 64px;
+}
+
+.ovael-auth-column {
+  width: 100%;
+  max-width: 420px;
+  background-color: var(--auth-bg-primary);
+}
+
+.ovael-auth-stage__aside {
+  justify-self: end;
+  align-self: end;
+}
+
+/* Typography Hierarchy */
+.ovael-auth-intro {
+  margin-bottom: 28px;
+}
+
+.ovael-auth-eyebrow {
+  margin: 0 0 10px 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--auth-text-muted);
+}
+
+.ovael-auth-heading {
+  margin: 0 0 10px 0;
+  font-size: 1.875rem;
+  line-height: 1.18;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--auth-text-primary);
+}
+
+.ovael-auth-supporting {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--auth-text-secondary);
+}
+
+/* Minimal Underline Selector */
+.ovael-auth-tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--auth-border);
+  margin-bottom: 24px;
+}
+
+.ovael-auth-tab {
+  appearance: none;
+  background: transparent !important;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 10px 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--auth-text-muted);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+
+.ovael-auth-tab:hover:not(:disabled) {
+  color: var(--auth-text-primary);
+}
+
+.ovael-auth-tab--active {
+  color: var(--auth-text-primary);
+  border-bottom-color: var(--auth-text-primary);
+}
+
+.ovael-auth-tab:focus {
+  outline: none;
+  background: transparent !important;
+}
+
+.ovael-auth-tab:focus-visible {
+  outline: 2px solid var(--auth-text-primary);
+  outline-offset: 2px;
+}
+
+/* Form Controls */
+.ovael-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ovael-auth-banner {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 12px;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  border: 1px solid var(--auth-border);
+  background-color: var(--auth-bg-secondary);
+  margin-bottom: 18px;
+}
+
+.ovael-auth-banner--error {
+  border-color: var(--auth-error);
+  color: var(--auth-error);
+  background-color: var(--auth-bg-primary);
+}
+
+.ovael-auth-banner--notice {
+  border-color: var(--auth-border);
+  color: var(--auth-text-primary);
+  background-color: var(--auth-bg-secondary);
+}
+
+.ovael-auth-banner__code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 1px 4px;
+  border: 1px solid currentColor;
+  flex-shrink: 0;
+}
+
+.ovael-auth-banner__content {
+  flex: 1;
+}
+
+.ovael-auth-banner__dismiss {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: currentColor;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.ovael-auth-inline-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--auth-text-primary);
+  text-decoration: underline;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.ovael-auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ovael-auth-field__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 18px;
+}
+
+.ovael-auth-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--auth-text-primary);
+}
+
+.ovael-auth-label__optional {
+  color: var(--auth-text-muted);
+  font-weight: 400;
+}
+
+.ovael-auth-field__hint {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  color: var(--auth-text-muted);
+}
+
+.ovael-auth-field__hint--valid {
+  color: #111111;
+  font-weight: 500;
+}
+
+.ovael-auth-field__error {
+  font-size: 0.75rem;
+  color: var(--auth-error);
+  text-align: right;
+}
+
+.ovael-auth-field__caps {
+  font-size: 0.75rem;
+  color: var(--auth-text-muted);
+  padding-top: 2px;
+}
+
+.ovael-auth-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  font-size: 0.9375rem;
+  color: var(--auth-text-primary);
+  background-color: var(--auth-bg-primary);
+  border: 1px solid var(--auth-border);
+  border-radius: 2px;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.ovael-auth-input::placeholder {
+  color: var(--auth-text-muted);
+}
+
+.ovael-auth-input:hover:not(:disabled) {
+  border-color: var(--auth-text-secondary);
+}
+
+.ovael-auth-input:focus {
+  outline: none;
+  border-color: var(--auth-text-primary);
+}
+
+.ovael-auth-input--error,
+.ovael-auth-input--error:focus {
+  border-color: var(--auth-error);
+}
+
+.ovael-auth-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ovael-auth-input--password {
+  padding-right: 40px;
+}
+
+.ovael-auth-password-toggle {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  width: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--auth-text-secondary);
+  cursor: pointer;
+}
+
+.ovael-auth-password-toggle:hover:not(:disabled) {
+  color: var(--auth-text-primary);
+  background-color: var(--auth-surface-interactive);
+}
+
+.ovael-auth-password-toggle:focus-visible {
+  outline: 2px solid var(--auth-text-primary);
+  outline-offset: -2px;
+}
+
+/* Utilities Row */
+.ovael-auth-utilities {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 22px;
+}
+
+.ovael-auth-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ovael-auth-checkbox__input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--auth-text-primary);
+  cursor: pointer;
+}
+
+.ovael-auth-checkbox__label {
+  font-size: 0.8125rem;
+  color: var(--auth-text-secondary);
+}
+
+.ovael-auth-recovery-link,
+.ovael-auth-switch-link {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--auth-text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.ovael-auth-recovery-link:hover:not(:disabled),
+.ovael-auth-switch-link:hover:not(:disabled) {
+  color: var(--auth-text-primary);
+}
+
+.ovael-auth-recovery-link:focus-visible,
+.ovael-auth-switch-link:focus-visible {
+  outline: 2px solid var(--auth-text-primary);
+  outline-offset: 2px;
+}
+
+/* Primary Action Button */
+.ovael-auth-submit {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--auth-btn-bg);
+  color: var(--auth-btn-text);
+  border: 1px solid var(--auth-btn-bg);
+  border-radius: 2px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 140ms ease, opacity 140ms ease;
+}
+
+.ovael-auth-submit:hover:not(:disabled) {
+  background-color: #262626;
+}
+
+.ovael-auth-submit:active:not(:disabled) {
+  background-color: #000000;
+}
+
+.ovael-auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ovael-auth-submit:focus-visible {
+  outline: 2px solid var(--auth-text-primary);
+  outline-offset: 2px;
+}
+
+.ovael-auth-submit__arrow {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.ovael-auth-switch-prompt {
+  margin: 2px 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--auth-text-secondary);
+}
+
+/* Dev pill */
+.ovael-auth-dev {
+  padding-top: 10px;
+  border-top: 1px dashed var(--auth-border);
+}
+
+.ovael-auth-demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--auth-bg-secondary);
+  border: 1px solid var(--auth-border);
+  border-radius: 2px;
+  font-size: 0.75rem;
+  color: var(--auth-text-secondary);
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.ovael-auth-demo-btn:hover:not(:disabled) {
+  background-color: var(--auth-surface-interactive);
+  color: var(--auth-text-primary);
+  border-color: #999999;
+}
+
+/* Dedicated Recovery Presentation */
+.ovael-auth-recovery {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--auth-border);
+  background-color: var(--auth-bg-primary);
+}
+
+.ovael-auth-recovery__header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ovael-auth-recovery__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--auth-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.ovael-auth-recovery__code-box {
+  padding: 14px 16px;
+  border: 1px solid var(--auth-border);
+  background-color: var(--auth-bg-secondary);
+}
+
+.ovael-auth-recovery__code {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  word-break: break-all;
+  color: var(--auth-text-primary);
+  user-select: all;
+}
+
+.ovael-auth-recovery__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.ovael-auth-btn-secondary {
+  flex: 1;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: var(--auth-bg-secondary);
+  border: 1px solid var(--auth-border);
+  border-radius: 2px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--auth-text-primary);
+  cursor: pointer;
+  transition: background-color 140ms ease;
+}
+
+.ovael-auth-btn-secondary:hover:not(:disabled) {
+  background-color: var(--auth-surface-interactive);
+}
+
+.ovael-auth-recovery__hint {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  color: var(--auth-text-muted);
+  margin: 0;
+}
+
+.ovael-auth-recovery__confirm {
+  margin-top: 4px;
+}
+
+/* Secondary Dot-Matrix Motif */
+.ovael-auth-motif {
+  justify-self: end;
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-left: 1px solid var(--auth-border);
+  background-color: var(--auth-bg-secondary);
+}
+
+.ovael-auth-motif__meta,
+.ovael-auth-motif__status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--auth-text-muted);
+}
+
+.ovael-auth-motif__led {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.ovael-auth-motif__led--online {
+  background-color: var(--auth-text-primary);
+}
+
+.ovael-auth-motif__led--offline {
+  background-color: var(--auth-text-muted);
+}
+
+/* Footer */
+.ovael-auth-footer {
+  position: relative;
+  z-index: 1;
+  padding: 16px 40px;
+  border-top: 1px solid var(--auth-border);
+  background-color: var(--auth-bg-primary);
+}
+
+.ovael-auth-footer__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ovael-auth-footer__meta {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  color: var(--auth-text-muted);
+  letter-spacing: 0.08em;
+}
+
+.ovael-auth-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--auth-border);
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--auth-text-primary);
+  cursor: pointer;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 900px) {
+  .ovael-auth-header,
+  .ovael-auth-main,
+  .ovael-auth-footer {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .ovael-auth-stage {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .ovael-auth-stage__aside {
+    justify-self: start;
+  }
+
+  .ovael-auth-motif {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 540px) {
+  .ovael-auth-header {
+    padding: 16px 20px;
+  }
+
+  .ovael-auth-main {
+    padding: 32px 20px;
+    align-items: flex-start;
+  }
+
+  .ovael-auth-column {
+    max-width: 100%;
+  }
+
+  .ovael-auth-heading {
+    font-size: 1.5rem;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .ovael-auth-tab,
+  .ovael-auth-input,
+  .ovael-auth-submit,
+  .ovael-auth-motif__dot,
+  .ovael-auth-motif__dot--active {
+    transition: none !important;
+    animation: none !important;
+  }
+}
