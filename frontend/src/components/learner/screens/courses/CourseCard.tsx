@@ -1,5 +1,4 @@
-import { GraduationCap, Compass, Layers, FileText, ArrowRight, ChevronRight } from "lucide-react";
-import { AnimatedProgressBar } from "../../../content/MotionPrimitives";
+import { Layers3, FileText, CheckCircle2, ArrowRight, ChevronRight } from "lucide-react";
 import type { Course, LearningLaunch } from "../../../../types";
 
 export interface CourseCardProps {
@@ -7,6 +6,7 @@ export interface CourseCardProps {
   subjectName?: string;
   courseTopicsCount: number;
   courseDocsCount: number;
+  stableTopicsCount?: number;
   isSelected: boolean;
   busy: boolean;
   onLearn: (launch: LearningLaunch) => void;
@@ -18,11 +18,14 @@ export function CourseCard({
   subjectName,
   courseTopicsCount,
   courseDocsCount,
+  stableTopicsCount = 0,
   isSelected,
   busy,
   onLearn,
   onToggleSelect,
 }: CourseCardProps) {
+  const resolvedSubject = subjectName || c.subject_name || "General Subject";
+
   return (
     <article
       className={`course-card-tile ${isSelected ? "is-selected-course" : ""}`}
@@ -32,80 +35,65 @@ export function CourseCard({
           <span
             className={`course-kind-badge ${c.course_kind === "class" ? "is-class" : "is-personal"}`}
           >
-            {c.course_kind === "class" ? (
-              <>
-                <GraduationCap size={12} /> Class
-              </>
-            ) : (
-              <>
-                <Compass size={12} /> Personal
-              </>
-            )}
+            {c.course_kind === "class" ? "Class" : "Personal"}
           </span>
 
-          <span className="course-subject-badge" title={subjectName || c.subject_id}>
-            {subjectName || "Subject"}
+          <span className="course-subject-badge" title={resolvedSubject}>
+            {resolvedSubject}
           </span>
 
           {c.membership && (
             <span className="membership-tag">
-              {c.membership === "owner" ? "Owner" : "Enrolled"}
+              {c.membership === "owner" ? "Author" : "Learner"}
             </span>
           )}
         </div>
 
         <h3 className="course-card-title">{c.name}</h3>
 
-        <p className="course-card-desc">
-          {c.description
-            ? c.description.split("\n")[0]
-            : "Interactive workspace for adaptive learning, practice problems, and concept proofs."}
-        </p>
+        {c.description ? (
+          <p className="course-card-desc">
+            {c.description.split("\n")[0]}
+          </p>
+        ) : null}
       </div>
 
       <div className="course-tile-stats">
-        <div className="tile-stat-item" title={`${courseTopicsCount} total concepts mapped`}>
-          <Layers size={15} />
+        <div className="tile-stat-item" title={`${courseTopicsCount} mapped concepts`}>
+          <Layers3 size={14} className="stat-icon teal" />
           <span>
-            <strong>{courseTopicsCount}</strong> topics
+            <strong>{courseTopicsCount}</strong> {courseTopicsCount === 1 ? "concept" : "concepts"}
           </span>
         </div>
 
-        <div className="tile-stat-item" title={`${courseDocsCount} textbooks & resources`}>
-          <FileText size={15} />
+        <div className="tile-stat-item" title={`${courseDocsCount} attached study materials`}>
+          <FileText size={14} className="stat-icon cobalt" />
           <span>
-            <strong>{courseDocsCount}</strong> materials
+            <strong>{courseDocsCount}</strong> {courseDocsCount === 1 ? "material" : "materials"}
           </span>
         </div>
+
+        {stableTopicsCount > 0 ? (
+          <div className="tile-stat-item verified" title={`${stableTopicsCount} verified stable concepts`}>
+            <CheckCircle2 size={14} className="stat-icon jade" />
+            <span>
+              <strong>{stableTopicsCount}</strong> verified
+            </span>
+          </div>
+        ) : null}
       </div>
 
-      {/* Progress Bar */}
-      <div className="course-tile-progress">
-        <div className="progress-label-row">
-          <small>Topic Coverage</small>
-          <small>
-            {courseTopicsCount > 0 ? `${courseTopicsCount} mapped` : "Initial"}
-          </small>
-        </div>
-        <AnimatedProgressBar
-          value={courseTopicsCount}
-          max={Math.max(10, courseTopicsCount)}
-          variant="coral"
-        />
-      </div>
-
-      {/* Action Buttons */}
       <div className="course-tile-actions">
         <button
           type="button"
-          className="primary-button continue-learning-btn"
+          className="btn btn-accent continue-learning-btn"
           onClick={() =>
             onLearn({
               courseId: c.course_id,
               subjectId: c.subject_id,
             })
           }
-          title="Launch active tutoring session"
+          title={`Start learning in ${c.name}`}
         >
           <span>Continue</span>
           <ArrowRight size={15} />
@@ -113,19 +101,16 @@ export function CourseCard({
 
         <button
           type="button"
-          className={`quiet-button view-topics-btn ${isSelected ? "active" : ""}`}
+          className={`btn btn-secondary view-topics-btn ${isSelected ? "active" : ""}`}
           disabled={busy}
           onClick={() => onToggleSelect(c.course_id)}
           aria-expanded={isSelected}
-          title="Inspect topics and syllabus"
+          title="Inspect course syllabus"
         >
-          <span>{isSelected ? "Hide Topics" : "Syllabus"}</span>
+          <span>{isSelected ? "Hide Syllabus" : "Syllabus"}</span>
           <ChevronRight
             size={14}
-            style={{
-              transform: isSelected ? "rotate(90deg)" : "none",
-              transition: "transform 0.2s ease",
-            }}
+            className={`chevron-icon ${isSelected ? "rotated" : ""}`}
           />
         </button>
       </div>

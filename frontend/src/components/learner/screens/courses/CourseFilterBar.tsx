@@ -26,10 +26,10 @@ export function CourseFilterBar({
   return (
     <section className="courses-filter-bar" aria-label="Course filters">
       <div className="filter-search-wrap">
-        <Search size={16} className="search-icon" />
+        <Search size={16} className="search-icon" aria-hidden="true" />
         <input
           type="search"
-          aria-label="Search your courses"
+          aria-label="Search courses"
           value={searchQuery}
           onChange={(e) => onSearchQueryChange(e.target.value)}
           placeholder="Search by course title, subject domain, or objectives…"
@@ -38,7 +38,7 @@ export function CourseFilterBar({
         {searchQuery && (
           <button
             type="button"
-            className="icon-button clear-search-btn"
+            className="clear-search-btn"
             onClick={() => onSearchQueryChange("")}
             aria-label="Clear search query"
           >
@@ -48,10 +48,12 @@ export function CourseFilterBar({
       </div>
 
       <div className="filter-actions-group">
-        {/* Filter Kind Pills */}
+        {/* Filter Kind Segmented Control */}
         <div className="filter-pill-group" role="radiogroup" aria-label="Course type filter">
           <button
             type="button"
+            role="radio"
+            aria-checked={filterKind === "all"}
             className={`filter-pill-btn ${filterKind === "all" ? "active" : ""}`}
             onClick={() => onFilterKindChange("all")}
           >
@@ -59,6 +61,8 @@ export function CourseFilterBar({
           </button>
           <button
             type="button"
+            role="radio"
+            aria-checked={filterKind === "personal"}
             className={`filter-pill-btn ${filterKind === "personal" ? "active" : ""}`}
             onClick={() => onFilterKindChange("personal")}
           >
@@ -66,6 +70,8 @@ export function CourseFilterBar({
           </button>
           <button
             type="button"
+            role="radio"
+            aria-checked={filterKind === "class"}
             className={`filter-pill-btn ${filterKind === "class" ? "active" : ""}`}
             onClick={() => onFilterKindChange("class")}
           >
@@ -80,7 +86,7 @@ export function CourseFilterBar({
             aria-label="Sort courses by"
             value={sortBy}
             onChange={(e) => onSortByChange(e.target.value as "name" | "topics" | "materials")}
-            className="sort-dropdown"
+            className="sort-dropdown styled-select"
           >
             <option value="name">Alphabetical (A–Z)</option>
             <option value="topics">Topic Count</option>

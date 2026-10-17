@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import {
   BookOpen,
   Plus,
-  Layers,
+  Layers3,
   FileText,
   X,
   Sparkles,
@@ -93,8 +93,8 @@ export function CoursesScreen({
       {/* Page Header */}
       <header className="page-heading courses-header">
         <div className="courses-header-info">
-          <p className="eyebrow blue">Curriculum & Learning Paths</p>
-          <h1>Courses</h1>
+          <p className="eyebrow cobalt">Curriculum & Learning Paths</p>
+          <h1 className="courses-title">Courses</h1>
           <p className="page-lead">
             Build personal courses, organize learning topics, and connect textbooks and notes for adaptive tutoring.
           </p>
@@ -104,11 +104,11 @@ export function CoursesScreen({
           <div className="courses-stats-pills" aria-label="Course summary metrics">
             <span className="stat-pill" title={`${courses.length} active courses`}>
               <BookOpen size={14} />
-              <strong>{courses.length}</strong> courses
+              <strong>{courses.length}</strong> {courses.length === 1 ? "course" : "courses"}
             </span>
-            <span className="stat-pill" title={`${totalTopics} total topics across subjects`}>
-              <Layers size={14} />
-              <strong>{totalTopics}</strong> topics
+            <span className="stat-pill" title={`${totalTopics} total concepts across subjects`}>
+              <Layers3 size={14} />
+              <strong>{totalTopics}</strong> concepts
             </span>
             <span className="stat-pill" title={`${totalMaterials} attached study materials`}>
               <FileText size={14} />
@@ -118,7 +118,7 @@ export function CoursesScreen({
 
           <button
             type="button"
-            className="primary-button create-course-trigger"
+            className="btn btn-accent create-course-trigger"
             onClick={() => {
               setShowCreateForm((prev) => !prev);
               setNotice("");
@@ -126,7 +126,7 @@ export function CoursesScreen({
             aria-expanded={showCreateForm}
           >
             {showCreateForm ? <X size={16} /> : <Plus size={16} />}
-            {showCreateForm ? "Close Studio" : "Create Course"}
+            <span>{showCreateForm ? "Close Studio" : "Create Course"}</span>
           </button>
         </div>
       </header>

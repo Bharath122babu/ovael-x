@@ -37,6 +37,9 @@ export function CourseList({
         {filteredCourses.map((c) => {
           const subjectObj = subjects.find((s) => s.subject_id === c.subject_id);
           const courseTopics = mapNodes.filter((n) => n.subject_id === c.subject_id);
+          const stableTopicsCount = courseTopics.filter(
+            (n) => n.status === "stable" || n.status === "mastered",
+          ).length;
           const courseDocs = documents.filter((d) => d.course_id === c.course_id);
           const isSelected = selectedCourseId === c.course_id;
 
@@ -47,6 +50,7 @@ export function CourseList({
               subjectName={subjectObj?.name}
               courseTopicsCount={courseTopics.length}
               courseDocsCount={courseDocs.length}
+              stableTopicsCount={stableTopicsCount}
               isSelected={isSelected}
               busy={busy}
               onLearn={onLearn}
@@ -56,11 +60,11 @@ export function CourseList({
         })}
       </div>
 
-      {/* Empty States */}
+      {/* Empty State: No courses at all */}
       {courses.length === 0 && (
         <section className="courses-empty-state" aria-label="No courses available">
           <div className="empty-icon-circle">
-            <BookOpen size={36} />
+            <BookOpen size={32} />
           </div>
           <h2>Begin Your Learning Journey</h2>
           <p>
@@ -69,19 +73,20 @@ export function CourseList({
           </p>
           <button
             type="button"
-            className="primary-button"
+            className="btn btn-accent"
             onClick={onCreateCourseClick}
           >
             <Plus size={16} />
-            Create Your First Course
+            <span>Create Your First Course</span>
           </button>
         </section>
       )}
 
+      {/* Empty State: No courses matching filters */}
       {courses.length > 0 && filteredCourses.length === 0 && (
         <section className="courses-empty-state" aria-label="No matching courses">
           <div className="empty-icon-circle">
-            <Filter size={32} />
+            <Filter size={28} />
           </div>
           <h2>No matching courses found</h2>
           <p>
@@ -90,10 +95,10 @@ export function CourseList({
           </p>
           <button
             type="button"
-            className="quiet-button"
+            className="btn btn-secondary"
             onClick={onResetFilters}
           >
-            Reset Filters
+            <span>Reset Filters</span>
           </button>
         </section>
       )}

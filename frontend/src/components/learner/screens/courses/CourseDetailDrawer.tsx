@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Search, ArrowRight, Plus, Sparkles } from "lucide-react";
 import { api } from "../../../../api";
 import type { Course, LearningLaunch } from "../../../../types";
@@ -25,6 +25,11 @@ export function CourseDetailDrawer({
   const [topicInput, setTopicInput] = useState("");
   const [topicSearch, setTopicSearch] = useState("");
   const [busy, setBusy] = useState(false);
+  const panelRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [course.course_id]);
 
   async function handleAddTopic(e: React.FormEvent) {
     e.preventDefault();
@@ -44,11 +49,18 @@ export function CourseDetailDrawer({
     }
   }
 
+  const filteredConcepts = concepts.filter((c) =>
+    topicSearch ? c.name.toLowerCase().includes(topicSearch.toLowerCase()) : true,
+  );
+
   return (
-    <section className="topics-inspector-panel" aria-label="Course topics syllabus">
+    <section ref={panelRef} className="topics-inspector-panel" aria-label="Course topics syllabus">
       <div className="topics-inspector-header">
         <div className="inspector-title-group">
-          <span className="eyebrow coral">Syllabus & Concept Hierarchy</span>
+          <div className="inspector-eyebrow-row">
+            <span className="eyebrow cobalt">Curriculum Syllabus</span>
+            <span className="concept-count-pill">{concepts.length} {concepts.length === 1 ? "concept" : "concepts"}</span>
+          </div>
           <h2>{course.name}</h2>
           <p>
             Browse topic concepts, jump straight into targeted problem solving, or add custom topics.
@@ -57,21 +69,21 @@ export function CourseDetailDrawer({
 
         <button
           type="button"
-          className="icon-button close-inspector-btn"
+          className="close-inspector-btn"
           onClick={onClose}
-          aria-label="Close topic inspector"
+          aria-label="Close syllabus inspector"
         >
           <X size={18} />
         </button>
       </div>
 
-      {/* Search within concepts if there are many */}
-      {concepts.length > 5 && (
+      {/* Search within concepts if there are more than 4 */}
+      {concepts.length > 4 && (
         <div className="topics-search-wrap">
-          <Search size={15} />
+          <Search size={14} className="search-icon" aria-hidden="true" />
           <input
             type="search"
-            aria-label="Search course concepts"
+            aria-label="Filter course concepts"
             value={topicSearch}
             onChange={(e) => setTopicSearch(e.target.value)}
             placeholder="Filter topics in this course…"
@@ -80,7 +92,7 @@ export function CourseDetailDrawer({
           {topicSearch && (
             <button
               type="button"
-              className="icon-button"
+              className="clear-search-btn"
               onClick={() => setTopicSearch("")}
               aria-label="Clear topic search"
             >
@@ -92,34 +104,30 @@ export function CourseDetailDrawer({
 
       {/* Topics List */}
       <ul className="course-topics-list" aria-label="Topics in this course">
-        {concepts
-          .filter((c) =>
-            topicSearch ? c.name.toLowerCase().includes(topicSearch.toLowerCase()) : true
-          )
-          .map((c, index) => (
-            <li key={c.concept_id} className="course-topic-row">
-              <div className="topic-meta-group">
-                <span className="topic-index-badge">{index + 1}</span>
-                <span className="topic-name">{c.name}</span>
-              </div>
+        {filteredConcepts.map((c, index) => (
+          <li key={c.concept_id} className="course-topic-row">
+            <div className="topic-meta-group">
+              <span className="topic-index-badge">{index + 1}</span>
+              <span className="topic-name">{c.name}</span>
+            </div>
 
-              <button
-                type="button"
-                className="primary-button learn-topic-btn"
-                onClick={() =>
-                  onLearn({
-                    courseId: course.course_id,
-                    conceptId: c.concept_id,
-                    conceptName: c.name,
-                  })
-                }
-                title={`Start practice on ${c.name}`}
-              >
-                <span>Practice Topic</span>
-                <ArrowRight size={14} />
-              </button>
-            </li>
-          ))}
+            <button
+              type="button"
+              className="btn btn-secondary btn-xs learn-topic-btn"
+              onClick={() =>
+                onLearn({
+                  courseId: course.course_id,
+                  conceptId: c.concept_id,
+                  conceptName: c.name,
+                })
+              }
+              title={`Start practice on ${c.name}`}
+            >
+              <span>Practice</span>
+              <ArrowRight size={13} />
+            </button>
+          </li>
+        ))}
       </ul>
 
       {concepts.length === 0 && (
@@ -142,10 +150,10 @@ export function CourseDetailDrawer({
             />
             <button
               type="submit"
-              className="secondary-button add-topic-btn"
+              className="btn btn-secondary btn-sm add-topic-btn"
               disabled={busy || !topicInput.trim()}
             >
-              <Plus size={15} />
+              <Plus size={14} />
               <span>Add Topic</span>
             </button>
           </form>
@@ -153,7 +161,7 @@ export function CourseDetailDrawer({
 
       {!course.subject_id.startsWith("USR:") && (
         <div className="curated-subject-note">
-          <Sparkles size={16} />
+          <Sparkles size={15} />
           <p>
             This subject belongs to the shared institutional catalog. Its concepts and learning dependencies
             are curated and verified. To customize topics, create a course under <em>"New subject"</em>.
