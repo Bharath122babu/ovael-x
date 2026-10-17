@@ -649,15 +649,11 @@
 }
 
 @media (max-width: 640px) {
-  .progress-nav-shell,
   .history-page,
   .graph-page,
   .proof-page,
   .settings-page {
     padding: 18px 14px;
-  }
-  .progress-tabs-bar {
-    padding: 6px 14px;
   }
   .history-stat-card.radial-card {
     flex-direction: column;
