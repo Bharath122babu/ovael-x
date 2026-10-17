@@ -84,13 +84,33 @@ export function Composer({
   const audio = useRef<HTMLInputElement>(null);
   const materialInput = useRef<HTMLInputElement>(null);
   const file = useRef<HTMLInputElement>(null);
+  const attachmentRef = useRef<HTMLDivElement>(null);
 
-  // Auto-expanding composer textarea
+  // Close attachment popover on Escape or click outside
+  useEffect(() => {
+    if (!attachments) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setAttachments(false);
+    };
+    const handleClickOutside = (e: MouseEvent) => {
+      if (attachmentRef.current && !attachmentRef.current.contains(e.target as Node)) {
+        setAttachments(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [attachments]);
+
+  // Auto-expanding composer textarea with comfortable bounds
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    const nextHeight = Math.min(Math.max(el.scrollHeight, 44), 180);
+    const nextHeight = Math.min(Math.max(el.scrollHeight, 40), 160);
     el.style.height = `${nextHeight}px`;
   }, [answer, goal]);
 
@@ -237,8 +257,9 @@ export function Composer({
           {/* Visual Illustration Panel Toggle */}
           <button
             type="button"
-            className="tool-btn illustration-toggle"
+            className={`tool-btn illustration-toggle ${illustrations ? "active" : ""}`}
             onClick={onToggleIllustrations}
+            title={illustrations ? "Hide conceptual visual panel" : "Show conceptual visual panel"}
           >
             <span>{illustrations ? "Hide illustration" : "Illustration"}</span>
           </button>
@@ -250,7 +271,9 @@ export function Composer({
         className="chat-composer-box"
         onSubmit={(e) => {
           e.preventDefault();
-          onSubmit();
+          if (!disabled && questionReady) {
+            onSubmit();
+          }
         }}
       >
         {/* Boolean True / False Selection */}
@@ -304,7 +327,9 @@ export function Composer({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                 e.preventDefault();
-                onSubmit();
+                if (!disabled && questionReady) {
+                  onSubmit();
+                }
               }
             }}
             className="chat-textarea"
@@ -314,20 +339,21 @@ export function Composer({
         {/* Composer Controls Bottom Strip */}
         <div className="composer-bottom-bar">
           {/* Attachment Menu Popover */}
-          <div className="attachment-wrap">
+          <div className="attachment-wrap" ref={attachmentRef}>
             <button
               type="button"
               className="icon-button attachment-trigger-btn"
               aria-label="Add attachment or input method"
+              aria-haspopup="menu"
               aria-expanded={attachments}
               disabled={disabled}
               onClick={() => setAttachments(!attachments)}
               title="Attach files, OCR, or drawings"
             >
-              <Plus size={18} />
+              <Plus size={17} />
             </button>
             {attachments && (
-              <div className="attachment-menu-popover" role="menu">
+              <div className="attachment-menu-popover" role="menu" aria-orientation="vertical">
                 <button
                   type="button"
                   role="menuitem"
@@ -411,8 +437,8 @@ export function Composer({
             {/* Send Button */}
             <button
               type="submit"
-              className="chat-send-btn"
-              aria-label="Send message"
+              className={`chat-send-btn ${busy ? "loading" : ""}`}
+              aria-label={busy ? "Sending message…" : "Send message"}
               disabled={disabled || !questionReady}
               title={
                 disabled
@@ -423,9 +449,9 @@ export function Composer({
               }
             >
               {busy ? (
-                <RefreshCw size={17} className="spin-icon" />
+                <RefreshCw size={16} className="spin-icon" aria-hidden="true" />
               ) : (
-                <Send size={17} />
+                <Send size={16} aria-hidden="true" />
               )}
             </button>
           </div>
