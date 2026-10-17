@@ -24,8 +24,8 @@ export function AuthVisualAccent({
       aria-hidden="true"
       style={{
         width: "100%",
-        maxWidth: "460px",
-        margin: "1.25rem auto 0",
+        maxWidth: "520px",
+        margin: "0 auto",
         display: "flex",
         justifyContent: "center",
       }}

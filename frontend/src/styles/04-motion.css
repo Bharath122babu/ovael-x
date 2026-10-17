@@ -328,21 +328,25 @@ button:not(:disabled):active,
 
 /* Visual Accent Column */
 .auth-accent-column {
-  background-color: var(--auth-accent-bg, #1B243E);
+  background-color: var(--auth-accent-bg, #162038);
   color: #FFFFFF;
-  padding: clamp(32px, 4.5vw, 48px);
+  padding: clamp(36px, 5vw, 64px);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-left: 1px solid rgba(180, 223, 229, 0.14);
+  align-items: center;
+  border-left: 1px solid rgba(180, 223, 229, 0.12);
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 [data-theme="dark"] .auth-accent-column {
-  background-color: var(--auth-accent-bg, #131A29);
-  border-left-color: rgba(180, 223, 229, 0.1);
+  background-color: var(--auth-accent-bg, #0C1220);
+  border-left-color: rgba(180, 223, 229, 0.08);
 }
 
 .auth-accent-column::before {
@@ -350,8 +354,9 @@ button:not(:disabled):active,
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(ellipse at 15% 15%, rgba(210, 253, 255, 0.08) 0px, transparent 40%),
-    radial-gradient(ellipse at 85% 85%, rgba(244, 151, 108, 0.07) 0px, transparent 45%);
+    radial-gradient(ellipse at 85% 15%, rgba(210, 253, 255, 0.12) 0px, transparent 45%),
+    radial-gradient(ellipse at 15% 85%, rgba(244, 151, 108, 0.08) 0px, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(180, 223, 229, 0.04) 0px, transparent 65%);
   pointer-events: none;
   z-index: 1;
 }
@@ -359,7 +364,9 @@ button:not(:disabled):active,
 .auth-accent-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 22px;
+  max-width: 520px;
+  width: 100%;
   position: relative;
   z-index: 2;
 }
@@ -367,29 +374,30 @@ button:not(:disabled):active,
 .auth-accent-badge {
   display: inline-flex;
   width: fit-content;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: var(--radius-full);
-  background: rgba(251, 232, 166, 0.15);
-  border: 1px solid rgba(251, 232, 166, 0.3);
+  background: rgba(251, 232, 166, 0.14);
+  border: 1px solid rgba(251, 232, 166, 0.32);
   color: var(--brand-yellow);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .auth-accent-headline {
-  font-size: clamp(22px, 2.2vw, 28px);
+  font-size: clamp(26px, 2.5vw, 36px);
   font-weight: 800;
   color: #FFFFFF;
   margin: 0;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
 }
 
 .auth-accent-description {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--brand-pale-cyan);
+  opacity: 0.9;
   line-height: 1.6;
   margin: 0;
 }
@@ -405,40 +413,66 @@ button:not(:disabled):active,
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: var(--radius-full);
   background: rgba(180, 223, 229, 0.12);
   border: 1px solid rgba(180, 223, 229, 0.25);
   color: #FFFFFF;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast);
 }
 
 .feature-pill .pill-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--brand-coral);
 }
 
 .auth-visual-wrapper {
-  margin-top: 8px;
+  margin-top: 10px;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 /* Auth Responsive Rules */
 @media (max-width: 960px) {
   .auth-card-container {
     grid-template-columns: 1fr;
-    max-width: 560px;
+    max-width: none;
     min-height: auto;
-    margin: 0 auto;
+    margin: 0;
+    width: 100%;
+  }
+  .auth-form-column {
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 36px 24px;
+    justify-content: flex-start;
+  }
+  [data-theme="dark"] .auth-form-column {
+    border-bottom-color: rgba(180, 223, 229, 0.1);
+  }
+  .auth-top-row,
+  .auth-form-body,
+  .auth-form-footer {
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .auth-form-body {
+    margin-top: 24px;
+    margin-bottom: 24px;
   }
   .auth-accent-column {
+    min-height: auto;
     border-left: 0;
     border-top: 1px solid rgba(180, 223, 229, 0.15);
-    padding: 32px 28px;
+    padding: 44px 24px;
   }
   [data-theme="dark"] .auth-accent-column {
     border-top-color: rgba(180, 223, 229, 0.12);
@@ -448,46 +482,44 @@ button:not(:disabled):active,
 @media (max-width: 520px) {
   .auth-page-shell,
   .auth-page {
-    padding: 12px 10px;
-    padding-top: max(12px, env(safe-area-inset-top));
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    padding: 0;
   }
   .auth-card-container {
-    border-radius: var(--radius-lg, 14px);
+    border-radius: 0;
   }
   .auth-form-column {
-    padding: 22px 16px;
-    gap: 15px;
+    padding: 24px 16px;
+    gap: 16px;
   }
   .auth-heading-group {
-    gap: 4px;
+    gap: 6px;
   }
   .auth-title {
-    font-size: 22px;
+    font-size: 24px;
   }
   .auth-subtitle {
-    font-size: 13px;
+    font-size: 13.5px;
   }
   .auth-form {
-    gap: 14px;
+    gap: 16px;
   }
   .auth-input {
-    min-height: 44px;
+    min-height: 46px;
     font-size: 14px;
   }
   .auth-submit-btn {
-    min-height: 44px;
-    font-size: 14px;
+    min-height: 46px;
+    font-size: 14.5px;
   }
   .auth-accent-column {
-    padding: 24px 16px;
-    gap: 12px;
+    padding: 32px 16px;
+    gap: 16px;
   }
   .auth-accent-headline {
-    font-size: 20px;
+    font-size: 22px;
   }
   .auth-accent-description {
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .auth-visual-accent {
     display: flex;
@@ -497,16 +529,9 @@ button:not(:disabled):active,
 }
 
 @media (max-width: 360px) {
-  .auth-page-shell,
-  .auth-page {
-    padding: 8px 6px;
-  }
-  .auth-card-container {
-    border-radius: var(--radius-md, 10px);
-  }
   .auth-form-column {
-    padding: 16px 12px;
-    gap: 12px;
+    padding: 18px 12px;
+    gap: 14px;
   }
   .auth-top-row {
     gap: 8px;
@@ -521,10 +546,10 @@ button:not(:disabled):active,
     min-height: 34px;
   }
   .auth-title {
-    font-size: 20px;
+    font-size: 21px;
   }
   .auth-accent-column {
-    padding: 16px 12px;
+    padding: 24px 12px;
   }
   .auth-feature-pills {
     gap: 6px;

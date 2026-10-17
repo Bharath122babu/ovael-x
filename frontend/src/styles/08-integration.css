@@ -1,5 +1,5 @@
 /* Backend integration surfaces */
-.auth-page {
+.legacy-auth-page {
   min-height: 100vh;
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(380px, 0.8fr);
@@ -622,7 +622,7 @@
 }
 
 @media (max-width: 900px) {
-  .auth-page {
+  .legacy-auth-page {
     grid-template-columns: 1fr;
   }
   .auth-intro {

@@ -606,8 +606,10 @@ export function AuthScreen({
             </div>
           </header>
 
-          {/* Mode Tabs (Sign In / Register) */}
-          <div className="auth-mode-selector" role="tablist" aria-label="Authentication type">
+          {/* Centered Form Workspace Container */}
+          <div className="auth-form-body">
+            {/* Mode Tabs (Sign In / Register) */}
+            <div className="auth-mode-selector" role="tablist" aria-label="Authentication type">
             <button
               type="button"
               role="tab"
@@ -1070,45 +1072,49 @@ export function AuthScreen({
               </div>
             </form>
           )}
+          </div> {/* /auth-form-body */}
 
-          {/* Dev Demo Account Utility */}
-          {import.meta.env.DEV && !recoveryKey && (
-            <div className="auth-dev-tools">
-              <button
-                type="button"
-                className="demo-account-pill-btn"
-                onClick={handleFillDemo}
-                onMouseDown={(e) => e.preventDefault()}
-                title="Populate test credentials (Bharat / OVAEL-demo-2026!)"
-              >
-                <Sparkles size={14} className="sparkle-icon" />
-                <span>Fill synthetic demo credentials</span>
-              </button>
+          {/* Bottom Auxiliary & Security Utilities */}
+          <footer className="auth-form-footer">
+            {/* Dev Demo Account Utility */}
+            {import.meta.env.DEV && !recoveryKey && (
+              <div className="auth-dev-tools">
+                <button
+                  type="button"
+                  className="demo-account-pill-btn"
+                  onClick={handleFillDemo}
+                  onMouseDown={(e) => e.preventDefault()}
+                  title="Populate test credentials (Bharat / OVAEL-demo-2026!)"
+                >
+                  <Sparkles size={14} className="sparkle-icon" />
+                  <span>Fill synthetic demo credentials</span>
+                </button>
+              </div>
+            )}
+
+            {/* Offline Recovery Action */}
+            {connection === "offline" && (
+              <div className="auth-offline-notice">
+                <p>Backend service is currently unreachable.</p>
+                <button
+                  type="button"
+                  className="secondary-button compact retry-conn-btn"
+                  onClick={() => void handleRetryConnection()}
+                  disabled={reconnecting}
+                >
+                  <RefreshCw size={14} className={reconnecting ? "spin-icon" : ""} />
+                  <span>{reconnecting ? "Reconnecting…" : "Retry connection"}</span>
+                </button>
+              </div>
+            )}
+
+            {/* Footer Security / Privacy Guarantee */}
+            <div className="auth-footer-note">
+              <ShieldCheck size={16} className="shield-icon" aria-hidden="true" />
+              <span>
+                Your learning data is privacy-first and backed by Argon2id credentials and local memory.
+              </span>
             </div>
-          )}
-
-          {/* Offline Recovery Action */}
-          {connection === "offline" && (
-            <div className="auth-offline-notice">
-              <p>Backend service is currently unreachable.</p>
-              <button
-                type="button"
-                className="secondary-button compact retry-conn-btn"
-                onClick={() => void handleRetryConnection()}
-                disabled={reconnecting}
-              >
-                <RefreshCw size={14} className={reconnecting ? "spin-icon" : ""} />
-                <span>{reconnecting ? "Reconnecting…" : "Retry connection"}</span>
-              </button>
-            </div>
-          )}
-
-          {/* Footer Security / Privacy Guarantee */}
-          <footer className="auth-footer-note">
-            <ShieldCheck size={16} className="shield-icon" aria-hidden="true" />
-            <span>
-              Your learning data is privacy-first and backed by Argon2id credentials and local memory.
-            </span>
           </footer>
         </section>
 
@@ -1120,8 +1126,7 @@ export function AuthScreen({
               Understand what is holding you back.
             </h2>
             <p className="auth-accent-description">
-              Learn from your own materials, practice autonomously, and pinpoint the causal
-              misconceptions requiring a fresh approach.
+              Study your own materials, identify causal misconceptions through evidence-backed practice, and build durable mastery under your control.
             </p>
 
             <div
@@ -1129,7 +1134,7 @@ export function AuthScreen({
               onPointerLeave={handleFeaturePointerLeave}
               onBlurCapture={handleFeatureBlur}
               role="group"
-              aria-label="Explore learning visualization features"
+              aria-label="Explore learning capabilities"
             >
               <button
                 type="button"
@@ -1140,7 +1145,8 @@ export function AuthScreen({
                 onFocus={() => handleFeatureFocus("sources")}
                 onClick={(event) => handleFeatureClick("sources", event)}
               >
-                <span className="pill-dot" aria-hidden="true" /> Source-grounded lessons
+                <span className="pill-dot" aria-hidden="true" />
+                <span>Source-grounded lessons.</span>
                 <span className="feature-pill-indicator" aria-hidden="true" />
               </button>
               <button
@@ -1152,7 +1158,8 @@ export function AuthScreen({
                 onFocus={() => handleFeatureFocus("gaps")}
                 onClick={(event) => handleFeatureClick("gaps", event)}
               >
-                <span className="pill-dot" aria-hidden="true" /> Gap forensics
+                <span className="pill-dot" aria-hidden="true" />
+                <span>Gap forensics.</span>
                 <span className="feature-pill-indicator" aria-hidden="true" />
               </button>
               <button
@@ -1164,7 +1171,8 @@ export function AuthScreen({
                 onFocus={() => handleFeatureFocus("memory")}
                 onClick={(event) => handleFeatureClick("memory", event)}
               >
-                <span className="pill-dot" aria-hidden="true" /> Memory under your control
+                <span className="pill-dot" aria-hidden="true" />
+                <span>Memory under your control.</span>
                 <span className="feature-pill-indicator" aria-hidden="true" />
               </button>
             </div>
