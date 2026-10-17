@@ -183,14 +183,16 @@ export function LearnScreen({
     | undefined;
 
   async function start(startMode: "study" | "practice" | "review") {
-    if (!subjectId || !conceptId) {
+    const targetSubjectId = subjectId || course?.subject_id || courses[0]?.subject_id;
+    const targetConceptId = conceptId || concepts[0]?.concept_id || map.nodes[0]?.id;
+    if (!targetSubjectId || !targetConceptId) {
       setError("Choose a course and topic first.");
       return;
     }
     await t.start({
-      subject_id: subjectId,
-      concept_id: conceptId,
-      course_id: course?.course_id,
+      subject_id: targetSubjectId,
+      concept_id: targetConceptId,
+      course_id: course?.course_id || courses[0]?.course_id,
       mode: startMode,
       goal: goal.trim() || `Understand ${label}`,
     });

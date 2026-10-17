@@ -25,17 +25,17 @@ export function LearnHeader({
 }: LearnHeaderProps) {
   return (
     <>
-      {/* Workspace Header */}
-      <header className="chat-heading">
-        <div className="chat-heading-info">
-          <span className="chat-heading-eyebrow">
-            {courseName || "Evidence-Grounded Learning"}
-          </span>
-          <h2 className="chat-heading-title">{title}</h2>
-        </div>
+      {/* Workspace Header - rendered during active session */}
+      {hasSession && (
+        <header className="chat-heading">
+          <div className="chat-heading-info">
+            <span className="chat-heading-eyebrow">
+              {courseName || "Evidence-Grounded Learning"}
+            </span>
+            <h2 className="chat-heading-title">{title}</h2>
+          </div>
 
-        <div className="chat-heading-actions">
-          {hasSession && (
+          <div className="chat-heading-actions">
             <button
               type="button"
               className="secondary-button compact new-chat-btn"
@@ -46,9 +46,9 @@ export function LearnHeader({
               <Plus size={16} />
               <span>New chat</span>
             </button>
-          )}
-        </div>
-      </header>
+          </div>
+        </header>
+      )}
 
       {/* Recoverable Notice Banner */}
       {notice && (
