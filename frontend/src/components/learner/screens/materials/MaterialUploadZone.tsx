@@ -113,18 +113,18 @@ export function MaterialUploadZone({
 
             <button
               type="button"
-              className="primary-button upload-trigger-btn"
+              className="btn btn-accent upload-trigger-btn"
               disabled={uploading}
               onClick={() => inputRef.current?.click()}
             >
               {uploading ? (
                 <>
-                  <LoaderCircle className="spin-icon" size={16} />
+                  <LoaderCircle className="spin-icon" size={15} />
                   <span>Processing…</span>
                 </>
               ) : (
                 <>
-                  <Upload size={16} />
+                  <Upload size={15} />
                   <span>Select Files</span>
                 </>
               )}
@@ -161,7 +161,7 @@ export function MaterialUploadZone({
         <aside className="ocr-feedback-banner" role="status">
           <div className="feedback-banner-content">
             <div className="feedback-icon-box">
-              <ScanText size={22} />
+              <ScanText size={20} />
             </div>
             <div className="feedback-text">
               <strong>
@@ -184,7 +184,7 @@ export function MaterialUploadZone({
               ocrResult.document.subject_id && (
                 <button
                   type="button"
-                  className="primary-button learn-now-btn"
+                  className="btn btn-accent learn-now-btn"
                   onClick={() => onLearn(launchFor(ocrResult.document))}
                 >
                   <span>Learn from this</span>
@@ -193,7 +193,7 @@ export function MaterialUploadZone({
               )}
             <button
               type="button"
-              className="icon-button close-banner-btn"
+              className="close-inspector-btn close-banner-btn"
               onClick={onDismissOcrResult}
               aria-label="Dismiss upload result"
             >

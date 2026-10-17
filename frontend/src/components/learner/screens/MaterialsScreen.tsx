@@ -24,7 +24,7 @@ export function MaterialsScreen({
 }: {
   onLearn: (launch: LearningLaunch) => void;
 }) {
-  const { documents, courses, subjects, refresh, setError } = useOvael();
+  const { documents, courses, subjects, refresh, setError, loading, error } = useOvael();
 
   // Search & Filter State
   const [query, setQuery] = useState("");
@@ -225,8 +225,8 @@ export function MaterialsScreen({
       {/* Page Heading */}
       <header className="page-heading materials-header">
         <div className="materials-header-info">
-          <p className="eyebrow blue">Knowledge Repository</p>
-          <h1>Materials</h1>
+          <p className="eyebrow cobalt">Knowledge Repository</p>
+          <h1 className="materials-title">Materials</h1>
           <p className="page-lead">
             Upload textbooks, notes, slides, images, and audio. Documents are indexed page-by-page
             for adaptive reference and context-grounded tutoring.
@@ -237,7 +237,7 @@ export function MaterialsScreen({
         <div className="materials-stats-strip" aria-label="Library metrics">
           <span className="stat-pill" title={`${documents.length} total files`}>
             <FileText size={14} />
-            <strong>{documents.length}</strong> sources
+            <strong>{documents.length}</strong> {documents.length === 1 ? "source" : "sources"}
           </span>
           <span className="stat-pill is-ready-pill" title={`${readyCount} files ready for tutoring`}>
             <CheckCircle2 size={14} />
@@ -294,8 +294,77 @@ export function MaterialsScreen({
         onViewModeChange={setViewMode}
       />
 
-      {/* Materials Cards / Table Display */}
-      {viewMode === "grid" ? (
+      {/* Content Area with Loading, Empty & Error States */}
+      {loading && documents.length === 0 ? (
+        <section className="materials-empty-state" aria-busy="true" aria-label="Loading library materials">
+          <div className="empty-icon-circle">
+            <LoaderCircle size={36} className="spin-icon" />
+          </div>
+          <h2>Loading Knowledge Repository…</h2>
+          <p>Retrieving your indexed textbooks, lecture notes, and study media.</p>
+        </section>
+      ) : error && documents.length === 0 ? (
+        <section className="materials-empty-state materials-error-state" aria-label="Failed to load materials">
+          <div className="empty-icon-circle is-error">
+            <AlertTriangle size={36} />
+          </div>
+          <h2>Unable to Load Materials</h2>
+          <p>{error || "An error occurred while fetching study materials from the server."}</p>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => void refresh()}
+          >
+            <span>Retry</span>
+          </button>
+        </section>
+      ) : documents.length === 0 ? (
+        <section className="materials-empty-state" aria-label="No materials in library">
+          <div className="empty-icon-circle">
+            <BookOpenCheck size={38} />
+          </div>
+          <h2>Your Study Library is Empty</h2>
+          <p>
+            Upload textbooks, lecture notes, diagrams, or recorded lectures.
+            OVAEL-X indexes your content page-by-page so the AI tutor can cite exact sources and generate targeted practice.
+          </p>
+          <button
+            type="button"
+            className="btn btn-accent"
+            onClick={() => {
+              const fileInput = document.querySelector<HTMLInputElement>(
+                ".materials-upload-card input[type='file']"
+              );
+              fileInput?.click();
+            }}
+          >
+            <Upload size={15} />
+            <span>Add Your First Material</span>
+          </button>
+        </section>
+      ) : filteredDocuments.length === 0 ? (
+        <section className="materials-empty-state" aria-label="No matching materials">
+          <div className="empty-icon-circle">
+            <Filter size={32} />
+          </div>
+          <h2>No matching materials found</h2>
+          <p>
+            No materials matched your search for &ldquo;<strong>{query}</strong>&rdquo; with the selected filters.
+          </p>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => {
+              setQuery("");
+              setTypeFilter("all");
+              setStatusFilter("all");
+              setSelectedCourseFilter("all");
+            }}
+          >
+            <span>Reset Filters</span>
+          </button>
+        </section>
+      ) : viewMode === "grid" ? (
         <div className="materials-grid-layout" aria-live="polite">
           {filteredDocuments.map((doc) => (
             <MaterialCard
@@ -318,57 +387,6 @@ export function MaterialsScreen({
           onOpenPreview={openPreview}
           onRemove={remove}
         />
-      )}
-
-      {/* Empty States */}
-      {documents.length === 0 && (
-        <section className="materials-empty-state" aria-label="No materials in library">
-          <div className="empty-icon-circle">
-            <BookOpenCheck size={38} />
-          </div>
-          <h2>Your Study Library is Empty</h2>
-          <p>
-            Upload textbooks, lecture notes, diagrams, or recorded lectures.
-            OVAEL-X indexes your content page-by-page so the AI tutor can cite exact sources and generate targeted practice.
-          </p>
-          <button
-            type="button"
-            className="primary-button"
-            onClick={() => {
-              const fileInput = document.querySelector<HTMLInputElement>(
-                ".materials-upload-card input[type='file']"
-              );
-              fileInput?.click();
-            }}
-          >
-            <Upload size={16} />
-            Add Your First Material
-          </button>
-        </section>
-      )}
-
-      {documents.length > 0 && filteredDocuments.length === 0 && (
-        <section className="materials-empty-state" aria-label="No matching materials">
-          <div className="empty-icon-circle">
-            <Filter size={32} />
-          </div>
-          <h2>No matching materials found</h2>
-          <p>
-            No materials matched your search for "<strong>{query}</strong>" with the selected filters.
-          </p>
-          <button
-            type="button"
-            className="quiet-button"
-            onClick={() => {
-              setQuery("");
-              setTypeFilter("all");
-              setStatusFilter("all");
-              setSelectedCourseFilter("all");
-            }}
-          >
-            Reset Filters
-          </button>
-        </section>
       )}
 
       {/* Document Inspection & Preview Modal */}

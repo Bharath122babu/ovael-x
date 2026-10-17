@@ -472,18 +472,7 @@
   padding: 4px 0;
 }
 
-.materials-toolbar-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 14px 18px;
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-xs);
-}
+
 
 .filter-search-wrap {
   display: flex;

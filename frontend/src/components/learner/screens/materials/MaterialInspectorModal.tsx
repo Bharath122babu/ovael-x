@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { ArrowRight, LoaderCircle, ScanText, X } from "lucide-react";
 import type { DocumentRecord, LearningLaunch } from "../../../../types";
 import { bytes, launchFor } from "./materialsHelpers";
@@ -17,14 +18,30 @@ export function MaterialInspectorModal({
   onClose,
   onLearn,
 }: MaterialInspectorModalProps) {
+  useEffect(() => {
+    if (!inspectDoc) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [inspectDoc, onClose]);
+
   if (!inspectDoc) return null;
 
   return (
-    <div className="document-modal-backdrop" role="dialog" aria-modal="true">
+    <div
+      className="document-modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="document-preview-modal">
         <div className="modal-header">
           <div className="modal-title-group">
-            <span className="eyebrow blue">Material Inspection</span>
+            <span className="eyebrow cobalt">Material Inspection</span>
             <h3>{inspectDoc.filename}</h3>
             <span className="modal-meta">
               {bytes(inspectDoc.size_bytes)} · {inspectDoc.content_type} · {inspectDoc.status}
@@ -32,7 +49,7 @@ export function MaterialInspectorModal({
           </div>
           <button
             type="button"
-            className="icon-button close-modal-btn"
+            className="close-inspector-btn close-modal-btn"
             onClick={onClose}
             aria-label="Close document inspection"
           >
@@ -88,17 +105,17 @@ export function MaterialInspectorModal({
         <div className="modal-footer">
           <button
             type="button"
-            className="quiet-button"
+            className="btn btn-secondary"
             onClick={onClose}
           >
-            Close
+            <span>Close</span>
           </button>
 
           {["ready", "ready_partial"].includes(inspectDoc.status) &&
             inspectDoc.subject_id && (
               <button
                 type="button"
-                className="primary-button"
+                className="btn btn-accent"
                 onClick={() => {
                   const doc = inspectDoc;
                   onClose();

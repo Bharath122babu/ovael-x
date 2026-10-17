@@ -115,7 +115,7 @@ export function MaterialCard({
         {readyToTeach ? (
           <button
             type="button"
-            className="primary-button learn-btn"
+            className="continue-learning-btn learn-btn"
             onClick={() => onLearn(launchFor(doc))}
             title="Launch interactive tutoring session"
           >
@@ -125,7 +125,7 @@ export function MaterialCard({
         ) : (
           <button
             type="button"
-            className="quiet-button route-btn"
+            className="btn btn-secondary route-btn"
             disabled={
               !["ready", "ready_partial", "failed_retryable"].includes(doc.status) ||
               routingId === doc.document_id

@@ -34,26 +34,67 @@ export function MaterialFilterBar({
 }: MaterialFilterBarProps) {
   return (
     <section className="materials-toolbar-bar" aria-label="Library filters">
-      <div className="toolbar-search-box">
-        <Search size={16} className="search-icon" />
-        <input
-          type="search"
-          aria-label="Search your materials"
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Search files by title, subject domain, or topic concept…"
-          className="search-input"
-        />
-        {query && (
-          <button
-            type="button"
-            className="icon-button clear-btn"
-            onClick={() => onQueryChange("")}
-            aria-label="Clear search query"
-          >
-            <X size={14} />
-          </button>
-        )}
+      <div className="materials-toolbar-top">
+        <div className="toolbar-search-box">
+          <Search size={16} className="search-icon" />
+          <input
+            type="search"
+            aria-label="Search your materials"
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            placeholder="Search files by title, subject domain, or topic concept…"
+            className="search-input"
+          />
+          {query && (
+            <button
+              type="button"
+              className="clear-search-btn clear-btn"
+              onClick={() => onQueryChange("")}
+              aria-label="Clear search query"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        <div className="toolbar-top-actions">
+          {courses.length > 0 && (
+            <select
+              aria-label="Filter by course"
+              value={selectedCourseFilter}
+              onChange={(e) => onCourseFilterChange(e.target.value)}
+              className="course-filter-dropdown"
+            >
+              <option value="all">All Courses</option>
+              {courses.map((c) => (
+                <option key={c.course_id} value={c.course_id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          )}
+
+          <div className="view-mode-toggle" role="group" aria-label="View layout mode">
+            <button
+              type="button"
+              className={`view-mode-btn ${viewMode === "grid" ? "active" : ""}`}
+              onClick={() => onViewModeChange("grid")}
+              aria-label="Grid view"
+              title="Grid view"
+            >
+              <LayoutGrid size={15} />
+            </button>
+            <button
+              type="button"
+              className={`view-mode-btn ${viewMode === "list" ? "active" : ""}`}
+              onClick={() => onViewModeChange("list")}
+              aria-label="List view"
+              title="List view"
+            >
+              <List size={15} />
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="toolbar-filters-row">
@@ -85,7 +126,7 @@ export function MaterialFilterBar({
             className={`filter-pill-btn ${typeFilter === "media" ? "active" : ""}`}
             onClick={() => onTypeFilterChange("media")}
           >
-            Audio & Video
+            Audio &amp; Video
           </button>
         </div>
 
@@ -111,45 +152,6 @@ export function MaterialFilterBar({
             onClick={() => onStatusFilterChange("review")}
           >
             Review ({reviewCount})
-          </button>
-        </div>
-
-        {/* Course Scope Filter */}
-        {courses.length > 0 && (
-          <select
-            aria-label="Filter by course"
-            value={selectedCourseFilter}
-            onChange={(e) => onCourseFilterChange(e.target.value)}
-            className="course-filter-dropdown"
-          >
-            <option value="all">All Courses</option>
-            {courses.map((c) => (
-              <option key={c.course_id} value={c.course_id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {/* View Mode Toggle */}
-        <div className="view-mode-toggle" role="group" aria-label="View layout mode">
-          <button
-            type="button"
-            className={`view-mode-btn ${viewMode === "grid" ? "active" : ""}`}
-            onClick={() => onViewModeChange("grid")}
-            aria-label="Grid view"
-            title="Grid view"
-          >
-            <LayoutGrid size={15} />
-          </button>
-          <button
-            type="button"
-            className={`view-mode-btn ${viewMode === "list" ? "active" : ""}`}
-            onClick={() => onViewModeChange("list")}
-            aria-label="List view"
-            title="List view"
-          >
-            <List size={15} />
           </button>
         </div>
       </div>

@@ -117,7 +117,7 @@ export function MaterialTableView({
                     {readyToTeach ? (
                       <button
                         type="button"
-                        className="primary-button sm learn-btn"
+                        className="continue-learning-btn sm learn-btn"
                         onClick={() => onLearn(launchFor(doc))}
                       >
                         <span>Learn</span>
@@ -126,7 +126,7 @@ export function MaterialTableView({
                     ) : (
                       <button
                         type="button"
-                        className="quiet-button sm"
+                        className="btn btn-secondary sm"
                         disabled={
                           !["ready", "ready_partial", "failed_retryable"].includes(doc.status) ||
                           routingId === doc.document_id
