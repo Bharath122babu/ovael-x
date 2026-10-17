@@ -30,6 +30,7 @@ export function SettingsSidebar({ tab, onSelectTab }: SettingsSidebarProps) {
             type="button"
             className={`settings-nav-pill ${isActive ? "active" : ""}`}
             onClick={() => onSelectTab(item)}
+            aria-current={isActive ? "page" : undefined}
           >
             <IconComponent size={16} />
             <span>{cfg.label}</span>

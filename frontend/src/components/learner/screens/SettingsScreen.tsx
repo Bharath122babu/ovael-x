@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, X } from "lucide-react";
 import { MIN_PASSWORD_LENGTH } from "../../../auth";
 import { useTeaching } from "../../../context/TeachingContext";
 import { ovaelApi } from "../../../api/client";
@@ -27,6 +27,7 @@ export function SettingsScreen() {
     memory,
     localState,
     refresh,
+    error,
     setError,
     clearLocalState,
   } = useOvael();
@@ -256,17 +257,17 @@ export function SettingsScreen() {
       {/* Header */}
       <header className="page-heading settings-header">
         <div>
-          <p className="eyebrow blue">Platform Configuration</p>
-          <h1>Settings & Preferences</h1>
+          <p className="eyebrow blue">Learner Configuration</p>
+          <h1>Settings</h1>
           <p className="page-lead">
-            Manage your AI tutor personalization, display settings, credentials, and data privacy boundaries.
+            Manage your available preferences, study personalization, credentials, and account options.
           </p>
         </div>
       </header>
 
       {/* Global Status Banner */}
       {notice && (
-        <aside className="chat-notice-card" role="status">
+        <aside className="settings-notice-banner" role="status">
           <CheckCircle2 size={18} className="notice-icon" />
           <p>{notice}</p>
           <button
@@ -274,6 +275,22 @@ export function SettingsScreen() {
             className="icon-button close-notice-btn"
             onClick={() => setNotice("")}
             aria-label="Dismiss notice"
+          >
+            <X size={15} />
+          </button>
+        </aside>
+      )}
+
+      {/* Global Error Banner */}
+      {error && (
+        <aside className="settings-error-banner" role="alert">
+          <AlertCircle size={18} className="notice-icon error-icon" />
+          <p>{error}</p>
+          <button
+            type="button"
+            className="icon-button close-notice-btn"
+            onClick={() => setError("")}
+            aria-label="Dismiss error"
           >
             <X size={15} />
           </button>
