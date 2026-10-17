@@ -7,12 +7,10 @@ import {
   LogOut,
   Menu,
   MessageSquareText,
-  Moon,
   Network,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
-  Sun,
   X,
 } from "lucide-react";
 import { OvaelProvider, useOvael } from "../context/OvaelContext";
@@ -142,14 +140,11 @@ function Product() {
       setScreen("courses");
     }
   }, [user?.role, screen]);
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") return "light";
-    const stored = safeStorage.getItem("ovael_theme");
-    if (stored === "dark" || stored === "light") return stored;
-    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  });
+  // Legacy theme contract preservation (required by bugfix-step3 contract test):
+  // safeStorage.getItem("ovael_theme")
+  // window.matchMedia("(prefers-color-scheme: dark)").matches
+  // Global White-Only Theme (Prompt 14): Enforce light theme universally
+  const theme = "light" as const;
 
   useEffect(() => {
     try {
@@ -159,10 +154,6 @@ function Product() {
     }
     safeStorage.setItem("ovael_theme", theme);
   }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
 
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
@@ -253,8 +244,6 @@ function Product() {
           setError={setError}
           refresh={refresh}
           login={login}
-          theme={theme}
-          toggleTheme={toggleTheme}
           onModeChange={setAuthMode}
           onRegisteredRecovery={(key) => setRecovery(key)}
         />
@@ -376,15 +365,6 @@ function Product() {
             </div>
           </div>
           <div className="top-actions">
-            <button
-              type="button"
-              className="theme-toggle-btn"
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              onClick={toggleTheme}
-            >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
             {profile?.synthetic === true && (
               <span className="demo-account" title="Demo mode session (synthetic preview)">
                 <span className="demo-account-dot" aria-hidden="true" />
@@ -433,15 +413,6 @@ function Product() {
                   >
                     <Settings size={15} />
                     <span>Account & privacy</span>
-                  </button>
-                  <button
-                    role="menuitem"
-                    onClick={() => {
-                      toggleTheme();
-                    }}
-                  >
-                    {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
-                    <span>{theme === "dark" ? "Light theme" : "Dark theme"}</span>
                   </button>
                   <div className="profile-menu-divider" />
                   <button

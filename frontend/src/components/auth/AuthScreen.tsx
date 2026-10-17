@@ -10,11 +10,9 @@ import {
   Info,
   Key,
   Lock,
-  Moon,
   RefreshCw,
   ShieldCheck,
   Sparkles,
-  Sun,
   User,
   X,
 } from "lucide-react";
@@ -40,8 +38,8 @@ interface AuthScreenProps {
   setError: (err: string) => void;
   refresh: () => Promise<void>;
   login: (name: string, pass: string) => Promise<void>;
-  theme: "light" | "dark";
-  toggleTheme: () => void;
+  theme?: "light" | "dark";
+  toggleTheme?: () => void;
   onRegisteredRecovery?: (key: string) => void;
   onModeChange?: (mode: "login" | "register") => void;
 }
@@ -53,8 +51,8 @@ export function AuthScreen({
   setError,
   refresh,
   login,
-  theme,
-  toggleTheme,
+  theme: _theme,
+  toggleTheme: _toggleTheme,
   onRegisteredRecovery,
   onModeChange,
 }: AuthScreenProps) {
@@ -614,16 +612,6 @@ export function AuthScreen({
                       : "Offline"}
                 </span>
               </div>
-
-              <button
-                type="button"
-                className="icon-button auth-theme-toggle theme-toggle-btn"
-                aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-                title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-                onClick={toggleTheme}
-              >
-                {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-              </button>
             </div>
           </header>
 

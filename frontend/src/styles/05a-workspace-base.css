@@ -559,7 +559,7 @@ p {
   flex-shrink: 0;
 }
 .sidebar-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-surface-muted, #ECEFEF);
   color: var(--sidebar-text-hover);
 }
 .sidebar-toggle-btn:focus-visible {
@@ -578,7 +578,7 @@ p {
   border-radius: var(--radius-sm);
 }
 .side-rail .brand-name {
-  color: #FFFFFF;
+  color: var(--text-heading);
 }
 .brand:focus-visible {
   outline: 2px solid var(--color-cobalt);
@@ -642,7 +642,7 @@ p {
   transition: all var(--duration-fast) var(--ease-standard);
 }
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--bg-surface-muted, #ECEFEF);
   color: var(--sidebar-text-hover);
 }
 .nav-item:focus-visible {
@@ -768,14 +768,14 @@ p {
     left: calc(100% + 12px);
     top: 50%;
     transform: translateY(-50%);
-    background-color: var(--sidebar-bg, #14181F);
-    color: #FFFFFF;
+    background-color: var(--bg-surface, #FFFFFF);
+    color: var(--text-primary, #111318);
     font-size: 12px;
     font-weight: 600;
     padding: 5px 10px;
     border-radius: var(--radius-sm, 6px);
-    border: 1px solid var(--sidebar-border, #232934);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--border-subtle, #D8DEDF);
+    box-shadow: 0 4px 14px rgba(17, 19, 24, 0.08);
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
@@ -791,7 +791,7 @@ p {
     top: 50%;
     transform: translateY(-50%);
     border: 5px solid transparent;
-    border-right-color: var(--sidebar-bg, #14181F);
+    border-right-color: var(--bg-surface, #FFFFFF);
     pointer-events: none;
     opacity: 0;
     visibility: hidden;

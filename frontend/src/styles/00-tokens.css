@@ -63,18 +63,23 @@
   --bg-surface-yellow: rgba(251, 232, 166, 0.35);
   --bg-surface-coral: rgba(239, 73, 58, 0.08);
   --bg-header: rgba(255, 255, 255, 0.94);
-  --bg-sidebar: #14181F; /* Sleek graphite navigation surface from Reference B */
-  --bg-code: #1A1F29;
+  --bg-sidebar: #FFFFFF;
+  --bg-code: #F4F6F5;
 
-  /* --- 5. REFERENCE B SIDEBAR NAVIGATION SYSTEM --- */
-  --sidebar-bg: #14181F;
-  --sidebar-border: #232934;
-  --sidebar-text: #96A0B0;
-  --sidebar-text-hover: #E2E8F0;
+  /* --- 5. GLOBAL LIGHT THEME SIDEBAR NAVIGATION SYSTEM --- */
+  --sidebar-bg: #FFFFFF;
+  --sidebar-border: var(--border-subtle, #D8DEDF);
+  --sidebar-text: #687078;
+  --sidebar-text-hover: #111318;
   --sidebar-text-active: #FFFFFF;
-  --sidebar-active-bg: var(--color-cobalt);
-  --sidebar-active-glow: 0 0 16px rgba(53, 75, 250, 0.35);
+  --sidebar-active-bg: var(--color-cobalt, #354BFA);
+  --sidebar-active-glow: 0 2px 8px rgba(53, 75, 250, 0.25);
   --sidebar-item-radius: 8px;
+
+  /* Accent variable aliases */
+  --accent-cobalt: var(--color-cobalt, #354BFA);
+  --accent-teal: var(--color-teal, #5A9AAA);
+  --accent-coral: var(--color-coral, #EF493A);
 
   /* --- 6. SEMANTIC TYPOGRAPHY & LINKS --- */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -254,107 +259,105 @@
   --progress-fill-primary: var(--color-cobalt);
 }
 
-/* --- DARK THEME PRESERVATION & REFINEMENT --- */
+/* --- GLOBAL WHITE-ONLY THEME: Neutralize dark mode override --- */
 [data-theme="dark"] {
-  --bg-page: #0E1116;
-  --bg-app: #0E1116;
-  --bg-surface: #161A22;
-  --bg-surface-elevated: #1E232E;
-  --bg-surface-muted: #1A1F29;
-  --bg-surface-subtle: #141820;
-  --bg-surface-cyan: rgba(210, 253, 255, 0.08);
-  --bg-surface-soft-blue: rgba(180, 223, 229, 0.12);
-  --bg-surface-yellow: rgba(251, 232, 166, 0.12);
-  --bg-surface-coral: rgba(239, 73, 58, 0.12);
-  --bg-header: rgba(19, 23, 31, 0.94);
-  --bg-sidebar: #0F1217;
-  --bg-code: #0B0E13;
+  --bg-page: var(--color-canvas, #F4F6F5);
+  --bg-app: var(--color-canvas, #F4F6F5);
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #FFFFFF;
+  --bg-surface-muted: #ECEFEF;
+  --bg-surface-subtle: #F0F3F3;
+  --bg-surface-cyan: rgba(210, 253, 255, 0.4);
+  --bg-surface-soft-blue: rgba(180, 223, 229, 0.25);
+  --bg-surface-yellow: rgba(251, 232, 166, 0.35);
+  --bg-surface-coral: rgba(239, 73, 58, 0.08);
+  --bg-header: rgba(255, 255, 255, 0.94);
+  --bg-sidebar: #FFFFFF;
+  --bg-code: #F4F6F5;
 
-  --sidebar-bg: #0F1217;
-  --sidebar-border: #1C222C;
-  --sidebar-text: #8C96A6;
-  --sidebar-text-hover: #E2E8F0;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-border: var(--border-subtle, #D8DEDF);
+  --sidebar-text: #687078;
+  --sidebar-text-hover: #111318;
   --sidebar-text-active: #FFFFFF;
-  --sidebar-active-bg: #354BFA;
-  --sidebar-active-glow: 0 0 16px rgba(53, 75, 250, 0.45);
+  --sidebar-active-bg: var(--color-cobalt, #354BFA);
+  --sidebar-active-glow: 0 2px 8px rgba(53, 75, 250, 0.25);
 
-  --text-primary: #F4F6F8;
-  --text-heading: #F4F6F8;
-  --text-secondary: #9CA3AF;
-  --text-muted: #6B7280;
-  --text-link: #6882FF;
-  --text-link-hover: #8EA0FF;
+  --text-primary: var(--color-text-primary, #111318);
+  --text-heading: var(--color-text-primary, #111318);
+  --text-secondary: var(--color-text-secondary, #687078);
+  --text-muted: #8A929B;
+  --text-link: var(--color-cobalt, #354BFA);
+  --text-link-hover: var(--color-cobalt-hover, #2438E0);
 
-  --border-subtle: #242B38;
-  --border-default: #313B4D;
-  --border-strong: #455268;
-  --divider-color: #242B38;
+  --border-subtle: var(--color-border-grid, #D8DEDF);
+  --border-default: #C2CBCD;
+  --border-strong: #9BA7A9;
+  --divider-color: var(--color-border-grid, #D8DEDF);
 
-  --color-cobalt: #4E65FF;
-  --color-cobalt-hover: #5F74FF;
-  --color-cobalt-active: #3D54EE;
-  --color-cobalt-tint: rgba(78, 101, 255, 0.15);
-  --color-teal: #68B2C4;
-  --color-coral: #FF6355;
+  --color-cobalt: #354BFA;
+  --color-cobalt-hover: #2438E0;
+  --color-cobalt-active: #192BB8;
+  --color-cobalt-tint: rgba(53, 75, 250, 0.08);
+  --color-teal: #5A9AAA;
+  --color-coral: #EF493A;
 
-  --input-bg: #141820;
-  --input-text: #F4F6F8;
-  --input-placeholder: #6B7280;
-  --input-border: #2B3342;
-  --input-border-focus: #4E65FF;
+  --input-bg: #FFFFFF;
+  --input-text: var(--color-text-primary, #111318);
+  --input-placeholder: #8A929B;
+  --input-border: var(--border-subtle, #D8DEDF);
+  --input-border-focus: var(--color-cobalt, #354BFA);
 
-  --auth-accent-bg: #11141B;
-  --auth-card-border: rgba(216, 222, 223, 0.12);
-  --auth-card-shadow: 0 32px 72px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --auth-accent-bg: #141820;
+  --auth-card-border: var(--border-subtle, #D8DEDF);
+  --auth-card-shadow: 0 24px 56px -12px rgba(17, 19, 24, 0.12), 0 4px 16px -2px rgba(17, 19, 24, 0.04);
 
-  /* Button tokens for dark mode */
-  --btn-primary-bg: #354BFA;
-  --btn-primary-hover: #485EFF;
-  --btn-primary-border: #354BFA;
+  --btn-primary-bg: var(--color-cobalt, #354BFA);
+  --btn-primary-hover: var(--color-cobalt-hover, #2438E0);
+  --btn-primary-border: var(--color-cobalt, #354BFA);
   --btn-primary-text: #FFFFFF;
 
-  --btn-secondary-bg: #1E232E;
-  --btn-secondary-text: #F4F6F8;
-  --btn-secondary-border: #2B3342;
-  --btn-secondary-hover: #262C3A;
-  --btn-secondary-active: #1A1F29;
+  --btn-secondary-bg: #FFFFFF;
+  --btn-secondary-text: var(--color-text-primary, #111318);
+  --btn-secondary-border: var(--border-subtle, #D8DEDF);
+  --btn-secondary-hover: #F8FAFA;
+  --btn-secondary-active: #EEF2F2;
 
-  --btn-destructive-bg: var(--color-coral);
+  --btn-destructive-bg: var(--color-coral, #EF493A);
   --btn-destructive-text: #FFFFFF;
-  --btn-destructive-border: var(--color-coral);
-  --btn-destructive-hover: #FF7B6E;
-  --btn-destructive-active: #E85043;
+  --btn-destructive-border: var(--color-coral, #EF493A);
+  --btn-destructive-hover: #D6392B;
+  --btn-destructive-active: #C43224;
 
   --btn-subtle-bg: transparent;
-  --btn-subtle-text: var(--text-secondary);
+  --btn-subtle-text: var(--color-text-secondary, #687078);
   --btn-subtle-border: transparent;
-  --btn-subtle-hover: rgba(78, 101, 255, 0.15);
-  --btn-subtle-hover-text: var(--color-cobalt);
+  --btn-subtle-hover: var(--color-cobalt-tint);
+  --btn-subtle-hover-text: var(--color-cobalt, #354BFA);
 
   --btn-accent-text: #FFFFFF;
 
-  --btn-disabled-bg: #1A1F29;
-  --btn-disabled-text: #4B5563;
-  --btn-disabled-border: #242B38;
+  --btn-disabled-bg: #E4E8E8;
+  --btn-disabled-text: #8A929B;
+  --btn-disabled-border: #D8DEDF;
 
-  /* Feedback status tokens for dark mode */
-  --feedback-success-bg: rgba(16, 185, 129, 0.12);
-  --feedback-success-border: rgba(16, 185, 129, 0.3);
-  --feedback-success-text: #34D399;
+  --feedback-success-bg: #EBF9F3;
+  --feedback-success-border: #9EE2C3;
+  --feedback-success-text: #0E623B;
 
-  --feedback-warning-bg: rgba(245, 158, 11, 0.12);
-  --feedback-warning-border: rgba(245, 158, 11, 0.3);
-  --feedback-warning-text: #FBBF24;
+  --feedback-warning-bg: #FFF8E6;
+  --feedback-warning-border: #FBE8A6;
+  --feedback-warning-text: #855B00;
 
-  --feedback-error-bg: rgba(239, 68, 68, 0.12);
-  --feedback-error-border: rgba(239, 68, 68, 0.3);
-  --feedback-error-text: #F87171;
+  --feedback-error-bg: #FEF2F1;
+  --feedback-error-border: #FCD5D2;
+  --feedback-error-text: #B42318;
 
-  --feedback-info-bg: rgba(59, 130, 246, 0.12);
-  --feedback-info-border: rgba(59, 130, 246, 0.3);
-  --feedback-info-text: #93C5FD;
+  --feedback-info-bg: #EFF4FF;
+  --feedback-info-border: #C2D5FE;
+  --feedback-info-text: #1D4ED8;
 
-  --focus-ring: 0 0 0 3px rgba(78, 101, 255, 0.35);
+  --focus-ring: 0 0 0 3px rgba(53, 75, 250, 0.28);
 
   --canvas: var(--bg-page);
   --paper: var(--bg-surface);
@@ -367,6 +370,6 @@
   --blue-dark: var(--color-cobalt-hover);
   --blue-soft: var(--color-cobalt-tint);
 
-  --progress-track-bg: #1E232E;
+  --progress-track-bg: #E8ECEC;
   --progress-fill-primary: var(--color-cobalt);
 }

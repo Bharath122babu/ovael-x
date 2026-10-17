@@ -1,10 +1,16 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>OVAEL-X · Learning Workspace</title>
-    <meta name="theme-color" content="#f7f6f1" />
+    <meta name="theme-color" content="#F4F6F5" />
+    <script>
+      try {
+        localStorage.setItem("ovael_theme", "light");
+      } catch (e) {}
+      document.documentElement.setAttribute("data-theme", "light");
+    </script>
   </head>
   <body>
     <div id="root"></div>
