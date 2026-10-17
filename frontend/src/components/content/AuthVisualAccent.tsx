@@ -45,23 +45,23 @@ export function AuthVisualAccent({
         <defs>
           {/* Soft ambient breathing light behind central lattice */}
           <radialGradient id="authAmbientGlow" cx="50%" cy="45%" r="60%">
-            <stop offset="0%" stopColor="#354BFA" stopOpacity="0.18" />
-            <stop offset="35%" stopColor="#D2FDFF" stopOpacity="0.12" />
-            <stop offset="70%" stopColor="#5A9AAA" stopOpacity="0.05" />
-            <stop offset="100%" stopColor="#141820" stopOpacity="0" />
+            <stop offset="0%" stopColor="#354BFA" stopOpacity="0.08" />
+            <stop offset="35%" stopColor="#D2FDFF" stopOpacity="0.06" />
+            <stop offset="70%" stopColor="#5A9AAA" stopOpacity="0.02" />
+            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
           </radialGradient>
 
           {/* Subtle gradient fills from brand palette */}
           <linearGradient id="planeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#D2FDFF" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#5A9AAA" stopOpacity="0.12" />
+            <stop offset="0%" stopColor="#354BFA" stopOpacity="0.07" />
+            <stop offset="100%" stopColor="#0D9488" stopOpacity="0.03" />
           </linearGradient>
           <linearGradient id="cardGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.16" />
-            <stop offset="100%" stopColor="#B4DFE5" stopOpacity="0.06" />
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#F8FAFC" stopOpacity="0.85" />
           </linearGradient>
           <filter id="authShadowFilter" x="-15%" y="-15%" width="130%" height="130%">
-            <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="#11141B" floodOpacity="0.32" />
+            <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="#0F172A" floodOpacity="0.08" />
           </filter>
         </defs>
 
@@ -77,28 +77,28 @@ export function AuthVisualAccent({
 
         {/* Phase A — Subtle ambient coordinate accents */}
         <g className="auth-micro-drift-1 auth-feature-muted auth-svg-phase-a" opacity="0.6">
-          <rect x="88" y="42" width="5" height="5" transform="rotate(45 90.5 44.5)" stroke="#D2FDFF" strokeWidth="0.8" fill="none" />
+          <rect x="88" y="42" width="5" height="5" transform="rotate(45 90.5 44.5)" stroke="#354BFA" strokeWidth="0.8" fill="none" />
         </g>
         <g className="auth-micro-drift-2 auth-feature-muted auth-svg-phase-a" opacity="0.5">
-          <rect x="368" y="148" width="4.5" height="4.5" transform="rotate(45 370.25 150.25)" stroke="#FBE8A6" strokeWidth="0.8" fill="none" />
+          <rect x="368" y="148" width="4.5" height="4.5" transform="rotate(45 370.25 150.25)" stroke="#D97706" strokeWidth="0.8" fill="none" />
         </g>
         <g className="auth-feature-muted auth-svg-phase-a" opacity="0.35">
-          <path d="M380 46 L380 54 M376 50 L384 50" stroke="#B4DFE5" strokeWidth="0.75" />
-          <path d="M76 116 L76 124 M72 120 L80 120" stroke="#B4DFE5" strokeWidth="0.75" />
+          <path d="M380 46 L380 54 M376 50 L384 50" stroke="#94A3B8" strokeWidth="0.75" />
+          <path d="M76 116 L76 124 M72 120 L80 120" stroke="#94A3B8" strokeWidth="0.75" />
         </g>
 
         {/* Phase A — Base Isometric Ground Plane */}
         <path
           d="M230 40 L410 120 L230 200 L50 120 Z"
           fill="url(#planeGrad)"
-          stroke="#5A9AAA"
+          stroke="#94A3B8"
           strokeWidth="1.2"
           strokeDasharray="4 4"
           className="auth-feature-muted auth-svg-phase-a"
         />
 
         {/* Phase A — Network Nodes Grid on Ground */}
-        <g className="auth-feature-muted auth-svg-phase-a" stroke="#B4DFE5" strokeOpacity="0.3" strokeWidth="1">
+        <g className="auth-feature-muted auth-svg-phase-a" stroke="#CBD5E1" strokeOpacity="0.8" strokeWidth="1">
           <line x1="140" y1="80" x2="320" y2="160" />
           <line x1="320" y1="80" x2="140" y2="160" />
           <line x1="230" y1="40" x2="230" y2="200" strokeDasharray="3 3" />
@@ -109,18 +109,18 @@ export function AuthVisualAccent({
           <path
             d="M230 75 L360 135 L230 195 L100 135 Z"
             fill="url(#cardGrad1)"
-            stroke="#B4DFE5"
+            stroke="#CBD5E1"
             strokeWidth="1.5"
-            strokeOpacity="0.65"
+            strokeOpacity="0.9"
           />
         </g>
 
         {/* Phase B — Core Synthesized Causal Edges (subtle breathing pulse) */}
         <path
           d="M170 125 L230 95 L290 125 L230 155 Z"
-          fill="#FBE8A6"
-          fillOpacity="0.22"
-          stroke="#FBE8A6"
+          fill="#FEF3C7"
+          fillOpacity="0.7"
+          stroke="#D97706"
           strokeWidth="1.5"
           className="auth-accent-core-pulse auth-feature-gap-target auth-svg-phase-b auth-svg-causal-diamond"
         />
@@ -128,7 +128,7 @@ export function AuthVisualAccent({
           x="230"
           y="128"
           textAnchor="middle"
-          fill="#FBE8A6"
+          fill="#92400E"
           fontSize="8.5"
           fontWeight="700"
           fontFamily="system-ui, -apple-system, sans-serif"
@@ -167,7 +167,7 @@ export function AuthVisualAccent({
             x="145"
             y="48"
             textAnchor="middle"
-            fill="#D2FDFF"
+            fill="#0F172A"
             fontSize="8.5"
             fontWeight="700"
             fontFamily="system-ui, -apple-system, sans-serif"
@@ -178,20 +178,20 @@ export function AuthVisualAccent({
           </text>
         </g>
 
-        {/* Node B (Center Top, Brand Navy / Pale Cyan - Authority/Truth) */}
+        {/* Node B (Center Top, Brand Cobalt / Gold - Authority/Truth) */}
         <g className="auth-feature-node auth-feature-source-node auth-feature-memory-node auth-svg-phase-c auth-svg-node--central">
           <line
             x1="230"
             y1="95"
             x2="230"
             y2="30"
-            stroke="#D2FDFF"
+            stroke="#354BFA"
             strokeWidth="2"
             className="auth-connection-line auth-svg-phase-b auth-svg-stem"
           />
           {/* Phase D — Central Vertical Energy Pulse */}
           {isLogin && !prefersReduced && (
-            <circle r="2.5" fill="#D2FDFF" opacity="0.85" className="auth-traveling-pulse-stem auth-svg-phase-d">
+            <circle r="2.5" fill="#354BFA" opacity="0.85" className="auth-traveling-pulse-stem auth-svg-phase-d">
               <animateMotion
                 path="M230 190 L230 95 L230 30"
                 dur="3.8s"
@@ -199,9 +199,9 @@ export function AuthVisualAccent({
               />
             </circle>
           )}
-          <circle cx="230" cy="30" r="16" stroke="#FBE8A6" strokeWidth="1" strokeOpacity="0.25" strokeDasharray="3 3" className="auth-node-aura-b" />
-          <circle cx="230" cy="30" r="9" fill="#141820" stroke="#FBE8A6" strokeWidth="2.5" />
-          <circle cx="230" cy="30" r="4" fill="#FBE8A6" />
+          <circle cx="230" cy="30" r="16" stroke="#D97706" strokeWidth="1" strokeOpacity="0.35" strokeDasharray="3 3" className="auth-node-aura-b" />
+          <circle cx="230" cy="30" r="9" fill="#FFFFFF" stroke="#D97706" strokeWidth="2.5" />
+          <circle cx="230" cy="30" r="4" fill="#D97706" />
         </g>
 
         {/* Node C (Right, Soft Teal / Blue - Materials/Concepts) */}
@@ -211,17 +211,17 @@ export function AuthVisualAccent({
             y1="120"
             x2="315"
             y2="70"
-            stroke="#5A9AAA"
+            stroke="#0D9488"
             strokeWidth="2"
             strokeDasharray="3 2"
             className="auth-svg-phase-b auth-svg-stem"
           />
-          <circle cx="315" cy="70" r="7" fill="#5A9AAA" stroke="#141820" strokeWidth="2" />
+          <circle cx="315" cy="70" r="7" fill="#0D9488" stroke="#FFFFFF" strokeWidth="2" />
           <text
             x="315"
             y="52"
             textAnchor="middle"
-            fill="#B4DFE5"
+            fill="#0F172A"
             fontSize="8.5"
             fontWeight="700"
             fontFamily="system-ui, -apple-system, sans-serif"
@@ -239,12 +239,12 @@ export function AuthVisualAccent({
             y1="155"
             x2="230"
             y2="190"
-            stroke="#5A9AAA"
+            stroke="#354BFA"
             strokeWidth="1.5"
             strokeDasharray="2 2"
             className="auth-svg-phase-b auth-svg-stem"
           />
-          <circle cx="230" cy="190" r="6" fill="#D2FDFF" stroke="#141820" strokeWidth="2" />
+          <circle cx="230" cy="190" r="6" fill="#354BFA" stroke="#FFFFFF" strokeWidth="2" />
         </g>
 
         {/* Phase B — Horizontal Interconnects between floating nodes */}
@@ -252,9 +252,9 @@ export function AuthVisualAccent({
         <path
           d="M145 65 Q 185 35 230 30 Q 275 35 315 70"
           fill="none"
-          stroke="#D2FDFF"
+          stroke="#354BFA"
           strokeWidth="1.8"
-          strokeOpacity="0.85"
+          strokeOpacity="0.55"
           className="auth-feature-source-path auth-svg-phase-b auth-svg-path-upper"
         />
         {/* Phase D — Traveling Energy Packet along Upper Track */}

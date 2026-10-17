@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Search, ArrowRight, Plus, Sparkles } from "lucide-react";
+import { X, Search, ArrowRight, Plus, Sparkles, LoaderCircle } from "lucide-react";
 import { api } from "../../../../api";
 import type { Course, LearningLaunch } from "../../../../types";
 
 export interface CourseDetailDrawerProps {
   course: Course;
   concepts: { concept_id: string; name: string }[];
+  conceptsLoading?: boolean;
   setConcepts: React.Dispatch<React.SetStateAction<{ concept_id: string; name: string }[]>>;
   refresh: () => Promise<void>;
   setError: (msg: string) => void;
@@ -16,6 +17,7 @@ export interface CourseDetailDrawerProps {
 export function CourseDetailDrawer({
   course,
   concepts,
+  conceptsLoading = false,
   setConcepts,
   refresh,
   setError,
@@ -102,37 +104,55 @@ export function CourseDetailDrawer({
         </div>
       )}
 
-      {/* Topics List */}
-      <ul className="course-topics-list" aria-label="Topics in this course">
-        {filteredConcepts.map((c, index) => (
-          <li key={c.concept_id} className="course-topic-row">
-            <div className="topic-meta-group">
-              <span className="topic-index-badge">{index + 1}</span>
-              <span className="topic-name">{c.name}</span>
-            </div>
+      {/* Topics List & States */}
+      {conceptsLoading ? (
+        <div className="topics-loading-notice" role="status" aria-live="polite">
+          <LoaderCircle size={18} className="spin-icon" />
+          <span>Loading curriculum concepts…</span>
+        </div>
+      ) : filteredConcepts.length > 0 ? (
+        <ul className="course-topics-list" aria-label="Topics in this course">
+          {filteredConcepts.map((c, index) => (
+            <li key={c.concept_id} className="course-topic-row">
+              <div className="topic-meta-group">
+                <span className="topic-index-badge">{index + 1}</span>
+                <span className="topic-name" title={c.name}>{c.name}</span>
+              </div>
 
-            <button
-              type="button"
-              className="btn btn-secondary btn-xs learn-topic-btn"
-              onClick={() =>
-                onLearn({
-                  courseId: course.course_id,
-                  conceptId: c.concept_id,
-                  conceptName: c.name,
-                })
-              }
-              title={`Start practice on ${c.name}`}
-            >
-              <span>Practice</span>
-              <ArrowRight size={13} />
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      {concepts.length === 0 && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-xs learn-topic-btn"
+                onClick={() =>
+                  onLearn({
+                    courseId: course.course_id,
+                    subjectId: course.subject_id,
+                    conceptId: c.concept_id,
+                    conceptName: c.name,
+                    mode: "practice",
+                  })
+                }
+                title={`Start practice on ${c.name}`}
+              >
+                <span>Practice</span>
+                <ArrowRight size={13} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : concepts.length === 0 ? (
         <div className="empty-topics-notice">
           <p>No individual concepts mapped yet. Add your first topic below to begin structured practice.</p>
+        </div>
+      ) : (
+        <div className="empty-topics-notice">
+          <p>No concepts matching &ldquo;{topicSearch}&rdquo;. Try another search term.</p>
+          <button
+            type="button"
+            className="btn btn-secondary btn-xs clear-filter-btn"
+            onClick={() => setTopicSearch("")}
+          >
+            Clear topic filter
+          </button>
         </div>
       )}
 

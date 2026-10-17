@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   BookOpen,
   ChevronDown,
@@ -155,18 +155,46 @@ function Product() {
     safeStorage.setItem("ovael_theme", theme);
   }, [theme]);
 
+  const SIDEBAR_STORAGE_KEY = "ovael-x:sidebar-collapsed";
+  const SIDEBAR_STORAGE_LEGACY_KEY = "ovael_sidebar_collapsed";
+
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
-    return safeStorage.getItem("ovael_sidebar_collapsed") === "true";
+    try {
+      const saved =
+        safeStorage.getItem(SIDEBAR_STORAGE_KEY) ||
+        safeStorage.getItem(SIDEBAR_STORAGE_LEGACY_KEY);
+      if (saved === "true") return true;
+      if (saved === "false") return false;
+    } catch {
+      // Ignore storage access errors
+    }
+    return false; // Desktop expanded default
   });
 
-  const toggleSidebar = () => {
+  const toggleSidebar = useCallback(() => {
     setCollapsed((prev) => {
       const next = !prev;
-      safeStorage.setItem("ovael_sidebar_collapsed", String(next));
+      safeStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
+      safeStorage.setItem(SIDEBAR_STORAGE_LEGACY_KEY, String(next));
       return next;
     });
-  };
+  }, []);
+
+  // Sync across tabs if user changes preference elsewhere
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (
+        (event.key === SIDEBAR_STORAGE_KEY || event.key === SIDEBAR_STORAGE_LEGACY_KEY) &&
+        event.newValue !== null
+      ) {
+        setCollapsed(event.newValue === "true");
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
   const [launch, setLaunch] = useState<LearningLaunch | null>(null),
     [recovery, setRecovery] = useState("");
   useEffect(() => {
@@ -297,11 +325,26 @@ function Product() {
           <button
             type="button"
             className="sidebar-toggle-btn"
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             onClick={toggleSidebar}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!collapsed}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {collapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
+            <span className="sidebar-toggle-icon-wrap">
+              {collapsed ? (
+                <PanelLeftOpen
+                  size={18}
+                  strokeWidth={1.8}
+                  className="sidebar-toggle-icon is-open-icon"
+                />
+              ) : (
+                <PanelLeftClose
+                  size={18}
+                  strokeWidth={1.8}
+                  className="sidebar-toggle-icon is-close-icon"
+                />
+              )}
+            </span>
           </button>
           <button
             className="close-nav icon-button"

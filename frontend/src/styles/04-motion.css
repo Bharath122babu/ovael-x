@@ -328,14 +328,14 @@ button:not(:disabled):active,
 
 /* Visual Accent Column */
 .auth-accent-column {
-  background-color: var(--auth-accent-bg, #162038);
-  color: #FFFFFF;
+  background-color: var(--bg-surface-secondary, #F8FAFC);
+  color: var(--color-text-primary, #0F172A);
   padding: clamp(24px, 3.5vh, 48px) clamp(28px, 3.5vw, 56px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-left: 1px solid rgba(180, 223, 229, 0.12);
+  border-left: 1px solid var(--border-subtle, #E2E8F0);
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;
@@ -345,21 +345,55 @@ button:not(:disabled):active,
   min-height: 100dvh;
 }
 
-[data-theme="dark"] .auth-accent-column {
-  background-color: var(--auth-accent-bg, #0C1220);
-  border-left-color: rgba(180, 223, 229, 0.08);
-}
-
-.auth-accent-column::before {
-  content: "";
+/* Background Video Container in Login Visual Panel */
+.auth-video-container {
   position: absolute;
   inset: 0;
-  background-image:
-    radial-gradient(ellipse at 85% 15%, rgba(210, 253, 255, 0.12) 0px, transparent 45%),
-    radial-gradient(ellipse at 15% 85%, rgba(244, 151, 108, 0.08) 0px, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(180, 223, 229, 0.04) 0px, transparent 65%);
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #F8FAFC;
+  background-image: url("/videos/login-background-poster.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.auth-video-element {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  pointer-events: none;
+}
+
+/* Subtle white overlay to preserve the global white-only theme and effortless readability */
+.auth-video-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.48);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
   pointer-events: none;
   z-index: 1;
+}
+
+/* Reduced motion preference: suppress autoplay motion and show clean static poster */
+@media (prefers-reduced-motion: reduce) {
+  .auth-video-element {
+    display: none !important;
+  }
+}
+
+.reduce-motion .auth-video-element {
+  display: none !important;
 }
 
 .auth-accent-content {
@@ -370,7 +404,7 @@ button:not(:disabled):active,
   width: 100%;
   margin: auto 0;
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
 .auth-accent-badge {
@@ -378,9 +412,10 @@ button:not(:disabled):active,
   width: fit-content;
   padding: 5px 14px;
   border-radius: var(--radius-full);
-  background: rgba(251, 232, 166, 0.14);
-  border: 1px solid rgba(251, 232, 166, 0.32);
-  color: var(--brand-yellow);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  color: var(--color-cobalt, #354BFA);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -390,7 +425,7 @@ button:not(:disabled):active,
 .auth-accent-headline {
   font-size: clamp(24px, 2.2vw, 34px);
   font-weight: 800;
-  color: #FFFFFF;
+  color: var(--color-text-primary, #0F172A);
   margin: 0;
   line-height: 1.22;
   letter-spacing: -0.02em;
@@ -399,9 +434,9 @@ button:not(:disabled):active,
 
 .auth-accent-description {
   font-size: 13.5px;
-  color: var(--brand-pale-cyan);
-  opacity: 0.92;
-  line-height: 1.55;
+  color: var(--color-text-secondary, #475569);
+  opacity: 1;
+  line-height: 1.6;
   margin: 0;
   max-width: 480px;
 }
@@ -419,22 +454,24 @@ button:not(:disabled):active,
   gap: 6px;
   padding: 6px 14px;
   border-radius: var(--radius-full);
-  background: rgba(180, 223, 229, 0.12);
-  border: 1px solid rgba(180, 223, 229, 0.25);
-  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.85);
+  color: #1E293B;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   transition: all var(--duration-fast);
 }
 
 .feature-pill:hover {
-  background: rgba(180, 223, 229, 0.2);
-  border-color: rgba(180, 223, 229, 0.4);
+  background: #FFFFFF;
+  border-color: var(--color-cobalt, #354BFA);
+  color: var(--color-cobalt, #354BFA);
 }
 
 .feature-pill:focus-visible {
-  outline: 2px solid var(--brand-yellow);
+  outline: 2px solid var(--color-cobalt, #354BFA);
   outline-offset: 2px;
 }
 
@@ -442,7 +479,7 @@ button:not(:disabled):active,
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--brand-coral);
+  background: var(--color-cobalt, #354BFA);
 }
 
 .auth-visual-wrapper {

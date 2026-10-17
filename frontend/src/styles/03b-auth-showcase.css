@@ -19,12 +19,12 @@
   pointer-events: none;
   background: radial-gradient(
     circle 480px at var(--pointer-x, 50%) var(--pointer-y, 45%),
-    rgba(210, 253, 255, 0.08) 0%,
-    rgba(53, 75, 250, 0.04) 35%,
+    rgba(53, 75, 250, 0.04) 0%,
+    rgba(210, 253, 255, 0.03) 35%,
     transparent 70%
   );
   transition: opacity 300ms var(--ease-standard);
-  z-index: 0;
+  z-index: 2;
 }
 
 /* Feature Pills in Visual Accent Column */
@@ -41,11 +41,12 @@
   align-items: center;
   gap: 6px;
   border-radius: var(--radius-full);
-  background: rgba(180, 223, 229, 0.12);
-  border: 1px solid rgba(180, 223, 229, 0.28);
-  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.85);
+  color: #1E293B;
   text-align: left;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   transition:
     background-color 220ms var(--ease-standard),
     border-color 220ms var(--ease-standard),
@@ -55,9 +56,9 @@
 }
 
 .auth-feature-pills .feature-pill:hover {
-  background: rgba(180, 223, 229, 0.22);
-  border-color: rgba(210, 253, 255, 0.65);
-  color: #FFFFFF;
+  background: #FFFFFF;
+  border-color: var(--color-cobalt, #354BFA);
+  color: var(--color-cobalt, #354BFA);
   transform: translateY(-1px);
 }
 
@@ -66,40 +67,44 @@
 }
 
 .auth-feature-pills .feature-pill:focus-visible {
-  outline: 2px solid #D2FDFF;
+  outline: 2px solid var(--color-cobalt, #354BFA);
   outline-offset: 3px;
-  border-color: #D2FDFF;
-  box-shadow: 0 0 0 4px rgba(210, 253, 255, 0.18);
+  border-color: var(--color-cobalt, #354BFA);
+  box-shadow: 0 0 0 4px rgba(53, 75, 250, 0.18);
 }
 
 .auth-feature-pills .feature-pill.is-active {
-  background: rgba(180, 223, 229, 0.26);
-  border-color: #D2FDFF;
-  box-shadow: 0 0 12px rgba(210, 253, 255, 0.22), inset 0 0 0 1px rgba(210, 253, 255, 0.2);
-  color: #FFFFFF;
+  background: #EFF6FF;
+  border-color: var(--color-cobalt, #354BFA);
+  box-shadow: 0 0 0 1px var(--color-cobalt, #354BFA), 0 2px 6px rgba(53, 75, 250, 0.12);
+  color: var(--color-cobalt, #354BFA);
 }
 
 .auth-feature-pills .feature-pill[data-feature="gaps"].is-active {
-  background: rgba(251, 232, 166, 0.18);
-  border-color: #FBE8A6;
-  box-shadow: 0 0 12px rgba(251, 232, 166, 0.25), inset 0 0 0 1px rgba(251, 232, 166, 0.2);
-  color: #FFFFFF;
+  background: #FFFBEB;
+  border-color: #D97706;
+  box-shadow: 0 0 0 1px #D97706, 0 2px 6px rgba(217, 119, 6, 0.12);
+  color: #92400E;
 }
 
 .auth-feature-pills .feature-pill .pill-dot {
-  flex: 0 0 5px;
+  flex: 0 0 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-cobalt, #354BFA);
   transition: background-color 220ms var(--ease-standard), box-shadow 220ms var(--ease-standard);
 }
 
 .auth-feature-pills .feature-pill[data-feature="sources"].is-active .pill-dot,
 .auth-feature-pills .feature-pill[data-feature="memory"].is-active .pill-dot {
-  background: #D2FDFF;
-  box-shadow: 0 0 0 3px rgba(210, 253, 255, 0.12);
+  background: var(--color-cobalt, #354BFA);
+  box-shadow: 0 0 0 3px rgba(53, 75, 250, 0.18);
 }
 
 .auth-feature-pills .feature-pill[data-feature="gaps"].is-active .pill-dot {
-  background: #FBE8A6;
-  box-shadow: 0 0 0 3px rgba(251, 232, 166, 0.12);
+  background: #D97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18);
 }
 
 .feature-pill-indicator {
@@ -108,14 +113,14 @@
   flex: 0 0 4px;
   margin-left: 1px;
   border-radius: 50%;
-  background: #D2FDFF;
+  background: var(--color-cobalt, #354BFA);
   opacity: 0;
   transform: scale(0.55);
   transition: opacity 220ms var(--ease-standard), transform 220ms var(--ease-out);
 }
 
 .feature-pill[data-feature="gaps"] .feature-pill-indicator {
-  background: #FBE8A6;
+  background: #D97706;
 }
 
 .feature-pill.is-active .feature-pill-indicator {

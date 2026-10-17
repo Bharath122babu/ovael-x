@@ -107,6 +107,25 @@ export function AuthScreen({
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const recoveryKeyInputRef = useRef<HTMLInputElement>(null);
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoFailed, setVideoFailed] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (prefersReduced) {
+      video.pause();
+    } else {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay handled gracefully by poster/background fallback
+        });
+      }
+    }
+  }, [prefersReduced]);
+
   useEffect(() => {
     const remembered = safeStorage.getItem("ovael_remembered_username");
     if (remembered) {
@@ -1138,6 +1157,27 @@ export function AuthScreen({
           onPointerMove={handleAccentPointerMove}
           onPointerLeave={handleAccentPointerLeave}
         >
+          {/* White Abstract Background Video Layer */}
+          <div className="auth-video-container" aria-hidden="true">
+            {!videoFailed && (
+              <video
+                ref={videoRef}
+                className="auth-video-element"
+                autoPlay={!prefersReduced}
+                muted
+                loop
+                playsInline
+                poster="/videos/login-background-poster.jpg"
+                aria-hidden="true"
+                tabIndex={-1}
+                onError={() => setVideoFailed(true)}
+              >
+                <source src="/videos/login-background.mp4" type="video/mp4" />
+              </video>
+            )}
+            <div className="auth-video-overlay" aria-hidden="true" />
+          </div>
+
           <div className="auth-accent-content">
             <div className="auth-accent-badge">Evidence-Grounded Learning</div>
             <h2 className="auth-accent-headline">

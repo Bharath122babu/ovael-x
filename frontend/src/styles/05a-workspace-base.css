@@ -537,44 +537,94 @@ p {
 }
 .brand-row {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap; /* Prevents accidental second row wrap */
   align-items: center;
   justify-content: space-between;
   height: var(--header-height, 80px);
-  padding: 0 16px 0 18px;
+  min-height: var(--header-height, 80px);
+  padding: 0 14px 0 18px;
   border-bottom: 1px solid var(--sidebar-border);
   gap: 8px;
+  box-sizing: border-box;
 }
 .sidebar-toggle-btn {
+  appearance: none;
+  -webkit-appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-sm, 6px);
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  margin: 0;
   border: 1px solid transparent;
-  background: transparent;
-  color: var(--sidebar-text);
+  border-radius: var(--radius-sm, 7px);
+  background-color: transparent !important; /* Prevents solid blue rectangle bleed */
+  color: var(--sidebar-text, #687078);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-standard);
+  flex: 0 0 32px;
   flex-shrink: 0;
+  box-sizing: border-box;
+  transition:
+    background-color 180ms var(--ease-standard),
+    color 180ms var(--ease-standard),
+    border-color 180ms var(--ease-standard),
+    transform 180ms var(--ease-standard);
 }
 .sidebar-toggle-btn:hover {
-  background: var(--bg-surface-muted, #ECEFEF);
-  color: var(--sidebar-text-hover);
+  background-color: var(--bg-surface-muted, #ECEFEF) !important;
+  color: var(--sidebar-text-hover, var(--text-heading, #111318));
+  border-color: var(--sidebar-border);
 }
 .sidebar-toggle-btn:focus-visible {
   outline: 2px solid var(--color-cobalt);
-  outline-offset: 1px;
+  outline-offset: 2px;
+  color: var(--sidebar-text-hover, var(--text-heading, #111318));
+}
+.sidebar-toggle-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  flex-shrink: 0;
+}
+.sidebar-toggle-btn svg,
+.sidebar-toggle-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  stroke: currentColor;
+  flex-shrink: 0;
+  transition: transform 180ms var(--ease-standard);
+}
+.sidebar-toggle-btn:hover .is-close-icon {
+  transform: translateX(-1px);
+}
+.sidebar-toggle-btn:hover .is-open-icon {
+  transform: translateX(1px);
 }
 .brand {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
   border: 0;
   background: transparent;
   color: var(--text-heading);
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 0;
   border-radius: var(--radius-sm);
 }
 .side-rail .brand-name {
@@ -587,21 +637,37 @@ p {
   display: grid;
   width: 32px;
   height: 32px;
+  min-width: 32px;
   place-items: center;
   border: 2px solid var(--brand-navy);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 8px);
   background: var(--brand-navy);
   color: var(--brand-yellow);
   font-family: Georgia, serif;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0;
+  flex-shrink: 0;
+  transition: transform 180ms var(--ease-standard);
+}
+.brand:hover .brand-mark {
+  transform: translateY(-1px) scale(1.02);
 }
 .brand-name {
   font-size: 16px;
   font-weight: 800;
   letter-spacing: 0.08em;
   color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity 180ms var(--ease-standard),
+    transform 180ms var(--ease-standard),
+    max-width 200ms var(--ease-standard);
+  max-width: 140px;
 }
 .close-nav,
 .menu-button {
@@ -626,11 +692,14 @@ p {
 .nav-item {
   position: relative;
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   width: 100%;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   min-height: 40px;
-  padding: 8px 12px;
+  height: 40px;
+  padding: 0 10px;
   border: 1px solid transparent;
   border-radius: var(--sidebar-item-radius, 8px);
   background: transparent;
@@ -639,7 +708,11 @@ p {
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-standard);
+  box-sizing: border-box;
+  overflow: hidden;
+  transition:
+    background-color 180ms var(--ease-standard),
+    color 180ms var(--ease-standard);
 }
 .nav-item:hover {
   background: var(--bg-surface-muted, #ECEFEF);
@@ -663,10 +736,39 @@ p {
   color: #FFFFFF;
 }
 .nav-item .nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   flex-shrink: 0;
   color: inherit;
+  transition: color 180ms var(--ease-standard);
+}
+.nav-item .nav-icon svg,
+.nav-item svg.nav-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  stroke: currentColor;
+  flex-shrink: 0;
 }
 .nav-item .nav-label {
+  margin-left: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity 180ms var(--ease-standard),
+    transform 180ms var(--ease-standard),
+    max-width 200ms var(--ease-standard);
+  max-width: 160px;
   flex: 1;
 }
 .nav-item .nav-indicator {
@@ -715,20 +817,32 @@ p {
 
   .app-frame.sidebar-collapsed .brand-row {
     flex-direction: column;
-    height: var(--header-height, 80px);
+    height: auto;
+    min-height: var(--header-height, 80px);
     box-sizing: border-box;
-    padding: 6px 0;
-    gap: 6px;
+    padding: 12px 0 10px;
+    gap: 8px;
     justify-content: center;
+    align-items: center;
   }
 
   .app-frame.sidebar-collapsed .brand {
+    flex: 0 0 auto;
+    justify-content: center;
     padding: 0;
     gap: 0;
   }
 
   .app-frame.sidebar-collapsed .brand-name {
     display: none;
+    opacity: 0;
+    max-width: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+  }
+
+  .app-frame.sidebar-collapsed .sidebar-toggle-btn {
+    margin: 0 auto;
   }
 
   .app-frame.sidebar-collapsed .nav-section {

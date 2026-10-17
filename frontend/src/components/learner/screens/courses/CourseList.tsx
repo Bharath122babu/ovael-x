@@ -90,8 +90,15 @@ export function CourseList({
           </div>
           <h2>No matching courses found</h2>
           <p>
-            We couldn't find any courses matching "<strong>{searchQuery}</strong>". Try searching with
-            different keywords or reset the filter.
+            {searchQuery.trim() ? (
+              <>
+                We couldn&apos;t find any courses matching &ldquo;<strong>{searchQuery.trim()}</strong>&rdquo;. Try searching with different keywords or reset the filter.
+              </>
+            ) : (
+              <>
+                No courses found under the selected category. Try selecting another filter or reset to view all courses.
+              </>
+            )}
           </p>
           <button
             type="button"

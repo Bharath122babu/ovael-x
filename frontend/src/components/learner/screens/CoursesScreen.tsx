@@ -6,6 +6,8 @@ import {
   FileText,
   X,
   Sparkles,
+  AlertCircle,
+  LoaderCircle,
 } from "lucide-react";
 import { useOvael } from "../../../context/OvaelContext";
 import { api } from "../../../api";
@@ -20,7 +22,7 @@ export function CoursesScreen({
 }: {
   onLearn: (launch: LearningLaunch) => void;
 }) {
-  const { courses, subjects, map, documents, refresh, setError } = useOvael();
+  const { courses, subjects, map, documents, refresh, error, setError, loading } = useOvael();
 
   // Modal / studio form toggle
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -29,6 +31,8 @@ export function CoursesScreen({
   // Selected Course & Topics Management
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
   const [concepts, setConcepts] = useState<{ concept_id: string; name: string }[]>([]);
+  const [conceptsLoading, setConceptsLoading] = useState(false);
+  const [navigating, setNavigating] = useState(false);
 
   // Search & Filtering State for Courses List
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,34 +44,48 @@ export function CoursesScreen({
     let cancelled = false;
     setConcepts([]);
     if (!selectedCourseId) {
+      setConceptsLoading(false);
       return;
     }
+    setConceptsLoading(true);
     void api(`/v1/courses/${selectedCourseId}/concepts`)
       .then((rows) => {
         if (!cancelled) setConcepts(rows || []);
       })
       .catch((e) => {
         if (!cancelled) setError(e.message);
+      })
+      .finally(() => {
+        if (!cancelled) setConceptsLoading(false);
       });
     return () => {
       cancelled = true;
     };
   }, [selectedCourseId, setError]);
 
+  const handleLearn = (launch: LearningLaunch) => {
+    if (navigating) return;
+    setNavigating(true);
+    onLearn(launch);
+    setTimeout(() => setNavigating(false), 1200);
+  };
+
   // Filtered and sorted courses
   const filteredCourses = useMemo(() => {
     return courses
       .filter((c) => {
-        if (filterKind !== "all" && c.course_kind !== filterKind) return false;
+        const kind = c.course_kind || "personal";
+        if (filterKind !== "all" && kind !== filterKind) return false;
         if (!searchQuery.trim()) return true;
         const q = searchQuery.toLowerCase();
         const subName = subjects.find((s) => s.subject_id === c.subject_id)?.name || "";
         return (
           c.name.toLowerCase().includes(q) ||
           subName.toLowerCase().includes(q) ||
-          (c.description && c.description.toLowerCase().includes(q))
+          Boolean(c.description && c.description.toLowerCase().includes(q))
         );
       })
+      .slice()
       .sort((a, b) => {
         if (sortBy === "name") return a.name.localeCompare(b.name);
         if (sortBy === "topics") {
@@ -118,7 +136,7 @@ export function CoursesScreen({
 
           <button
             type="button"
-            className="btn btn-accent create-course-trigger"
+            className="create-course-trigger"
             onClick={() => {
               setShowCreateForm((prev) => !prev);
               setNotice("");
@@ -133,7 +151,7 @@ export function CoursesScreen({
 
       {/* Global Status/Notice Banner */}
       {notice && (
-        <aside className="chat-notice-card" role="status">
+        <aside className="courses-notice-banner chat-notice-card" role="status">
           <Sparkles size={18} className="notice-icon" />
           <p>{notice}</p>
           <button
@@ -141,6 +159,22 @@ export function CoursesScreen({
             className="icon-button close-notice-btn"
             onClick={() => setNotice("")}
             aria-label="Dismiss notice"
+          >
+            <X size={15} />
+          </button>
+        </aside>
+      )}
+
+      {/* Global Error Banner */}
+      {error && (
+        <aside className="courses-error-banner" role="alert">
+          <AlertCircle size={18} className="notice-icon error-icon" />
+          <p>{error}</p>
+          <button
+            type="button"
+            className="icon-button close-notice-btn"
+            onClick={() => setError("")}
+            aria-label="Dismiss error"
           >
             <X size={15} />
           </button>
@@ -167,41 +201,49 @@ export function CoursesScreen({
         sortBy={sortBy}
         onSortByChange={setSortBy}
         totalCoursesCount={courses.length}
-        personalCoursesCount={courses.filter((c) => c.course_kind === "personal").length}
+        personalCoursesCount={courses.filter((c) => (c.course_kind || "personal") === "personal").length}
         classCoursesCount={courses.filter((c) => c.course_kind === "class").length}
       />
 
-      {/* Main Course Cards Grid & Empty States */}
-      <CourseList
-        courses={courses}
-        filteredCourses={filteredCourses}
-        subjects={subjects}
-        mapNodes={map.nodes}
-        documents={documents}
-        selectedCourseId={selectedCourseId}
-        busy={false}
-        searchQuery={searchQuery}
-        onLearn={onLearn}
-        onToggleSelect={(courseId) =>
-          setSelectedCourseId((prev) => (prev === courseId ? "" : courseId))
-        }
-        onCreateCourseClick={() => setShowCreateForm(true)}
-        onResetFilters={() => {
-          setSearchQuery("");
-          setFilterKind("all");
-        }}
-      />
+      {/* Main Course Cards Grid & Empty / Loading States */}
+      {loading && courses.length === 0 ? (
+        <div className="courses-loading-state" role="status" aria-live="polite">
+          <LoaderCircle size={24} className="spin-icon courses-loading-spinner" />
+          <span>Loading your courses &amp; curricula…</span>
+        </div>
+      ) : (
+        <CourseList
+          courses={courses}
+          filteredCourses={filteredCourses}
+          subjects={subjects}
+          mapNodes={map.nodes}
+          documents={documents}
+          selectedCourseId={selectedCourseId}
+          busy={navigating}
+          searchQuery={searchQuery}
+          onLearn={handleLearn}
+          onToggleSelect={(courseId) =>
+            setSelectedCourseId((prev) => (prev === courseId ? "" : courseId))
+          }
+          onCreateCourseClick={() => setShowCreateForm(true)}
+          onResetFilters={() => {
+            setSearchQuery("");
+            setFilterKind("all");
+          }}
+        />
+      )}
 
       {/* Selected Course Topics Studio & Inspector */}
       {selectedCourseId && activeCourse && (
         <CourseDetailDrawer
           course={activeCourse}
           concepts={concepts}
+          conceptsLoading={conceptsLoading}
           setConcepts={setConcepts}
           refresh={refresh}
           setError={setError}
           onClose={() => setSelectedCourseId("")}
-          onLearn={onLearn}
+          onLearn={handleLearn}
         />
       )}
     </div>

@@ -86,11 +86,13 @@ export function CourseCard({
       <div className="course-tile-actions">
         <button
           type="button"
-          className="btn btn-accent continue-learning-btn"
+          className="continue-learning-btn"
+          disabled={busy}
           onClick={() =>
             onLearn({
               courseId: c.course_id,
               subjectId: c.subject_id,
+              mode: "study",
             })
           }
           title={`Start learning in ${c.name}`}
@@ -105,7 +107,7 @@ export function CourseCard({
           disabled={busy}
           onClick={() => onToggleSelect(c.course_id)}
           aria-expanded={isSelected}
-          title="Inspect course syllabus"
+          title={isSelected ? "Close course syllabus" : "Inspect course syllabus"}
         >
           <span>{isSelected ? "Hide Syllabus" : "Syllabus"}</span>
           <ChevronRight
