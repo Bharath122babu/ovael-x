@@ -3,6 +3,7 @@ import {
   BookOpen,
   Layers3,
   History,
+  LogOut,
   Menu,
   MessageSquareText,
   Moon,
@@ -253,6 +254,7 @@ function Product() {
         </nav>
         <div className="nav-footer">
           <span className={`status-pill ${connection === "online" ? "stable" : "uncertain"}`}>
+            <span className="status-dot" aria-hidden="true" />
             <span>{connection === "online" ? "Connected" : "Offline"}</span>
           </span>
           <span className="version-tag">v5.0</span>
@@ -305,23 +307,40 @@ function Product() {
                 </span>
               </button>
               {profileOpen && (
-                <div className="profile-menu">
+                <div className="profile-menu" role="menu">
+                  <div className="profile-menu-header">
+                    <strong>{String(profile?.display_name || user.username)}</strong>
+                    <small>{user.username}</small>
+                  </div>
+                  <div className="profile-menu-divider" />
                   <button
+                    role="menuitem"
                     onClick={() => {
                       navigate("settings");
                       setProfileOpen(false);
                     }}
                   >
-                    Account & privacy
+                    <Settings size={15} />
+                    <span>Account & privacy</span>
                   </button>
                   <button
+                    role="menuitem"
                     onClick={() => {
                       toggleTheme();
                     }}
                   >
-                    {theme === "dark" ? "Light theme" : "Dark theme"}
+                    {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+                    <span>{theme === "dark" ? "Light theme" : "Dark theme"}</span>
                   </button>
-                  <button onClick={() => void signOut()}>Sign out</button>
+                  <div className="profile-menu-divider" />
+                  <button
+                    role="menuitem"
+                    className="profile-menu-signout"
+                    onClick={() => void signOut()}
+                  >
+                    <LogOut size={15} />
+                    <span>Sign out</span>
+                  </button>
                 </div>
               )}
             </div>

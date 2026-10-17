@@ -178,8 +178,29 @@ button.primary-cta:hover:not(:disabled) {
   background-color: var(--brand-yellow-hover);
 }
 
+/* Destructive / Coral Danger Button */
+.btn-destructive,
+.btn-danger {
+  background-color: var(--btn-destructive-bg);
+  color: var(--btn-destructive-text);
+  border-color: var(--btn-destructive-border);
+}
+
+.btn-destructive:hover:not(:disabled),
+.btn-danger:hover:not(:disabled) {
+  background-color: var(--btn-destructive-hover);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(239, 73, 58, 0.28);
+}
+
+.btn-destructive:active:not(:disabled),
+.btn-danger:active:not(:disabled) {
+  background-color: var(--btn-destructive-active);
+}
+
 /* Ghost / Subtle Icon Buttons */
 .btn-ghost,
+.btn-subtle,
 .alert-close-btn,
 .toast-dismiss,
 .btn-close-sm {

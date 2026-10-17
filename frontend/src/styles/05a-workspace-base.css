@@ -529,7 +529,7 @@ p {
   z-index: 30;
   inset: 0 auto 0 0;
   display: flex;
-  width: 250px;
+  width: var(--sidebar-width, 250px);
   flex-direction: column;
   border-right: 1px solid var(--sidebar-border);
   background: var(--sidebar-bg);
@@ -539,7 +539,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: var(--header-height, 64px);
   padding: 0 18px;
   border-bottom: 1px solid var(--sidebar-border);
 }
@@ -668,23 +668,24 @@ p {
   font-family: var(--font-mono, monospace);
 }
 .app-body {
-  width: calc(100% - 250px);
+  width: calc(100% - var(--sidebar-width, 250px));
   min-width: 0;
   min-height: 100vh;
-  margin-left: 250px;
+  margin-left: var(--sidebar-width, 250px);
 }
 .top-bar {
   position: sticky;
   z-index: 20;
   top: 0;
   display: flex;
-  height: 68px;
+  height: var(--header-height, 64px);
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
+  padding: 0 var(--gutter-desktop, 28px);
   border-bottom: 1px solid var(--border-subtle);
   background: var(--bg-header);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .top-bar-left {
   display: flex;
@@ -720,6 +721,18 @@ p {
   color: var(--color-cobalt);
   background: var(--bg-surface-muted);
 }
+.demo-account {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--bg-surface-muted);
+  border: 1px solid var(--border-subtle);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+}
 .profile-wrap {
   position: relative;
 }
@@ -731,6 +744,15 @@ p {
   border: 0;
   background: transparent;
   cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.profile-button:hover {
+  opacity: 0.9;
+}
+.profile-button:focus-visible {
+  outline: 2px solid var(--color-cobalt);
+  outline-offset: 2px;
 }
 .avatar {
   display: grid;
@@ -738,34 +760,60 @@ p {
   height: 34px;
   place-items: center;
   border-radius: 50%;
-  background: var(--ink);
-  color: white;
-  font-size: 11px;
-  font-weight: 720;
+  background: var(--brand-navy);
+  color: var(--brand-yellow);
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--border-subtle);
 }
 .profile-copy {
   display: flex;
   min-width: 60px;
   flex-direction: column;
   align-items: flex-start;
+  text-align: left;
 }
 .profile-copy strong {
-  font-size: 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-heading);
 }
 .profile-copy small {
-  color: var(--muted);
-  font-size: 10px;
+  color: var(--text-secondary);
+  font-size: 11px;
 }
 .profile-menu {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
   width: 220px;
-  padding: 10px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--paper);
-  box-shadow: var(--shadow);
+  padding: 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface-elevated);
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  animation: fadeIn 150ms var(--ease-out);
+}
+.profile-menu-header {
+  padding: 6px 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.profile-menu-header strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+.profile-menu-header small {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.profile-menu-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 4px 0;
 }
 .profile-menu p {
   margin: 4px 8px 7px;
@@ -779,18 +827,30 @@ p {
   display: flex;
   width: 100%;
   align-items: center;
-  gap: 9px;
-  padding: 10px;
+  gap: 10px;
+  padding: 9px 12px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
   text-align: left;
   cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
 }
 .profile-menu button:hover,
 .profile-menu button.selected {
-  background: var(--blue-soft);
-  color: var(--blue);
+  background: var(--color-cobalt-tint);
+  color: var(--color-cobalt);
+}
+.profile-menu button.profile-menu-signout {
+  color: var(--color-coral);
+}
+.profile-menu button.profile-menu-signout:hover {
+  background: var(--color-coral-tint);
+  color: var(--color-coral-hover);
 }
 
 .page {
@@ -898,15 +958,24 @@ p {
 .status-pill {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   width: fit-content;
   border-radius: 99px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  padding: 5px 9px;
+  padding: 4px 9px;
   background: var(--bg-surface-muted);
   color: var(--text-secondary);
   text-transform: capitalize;
+}
+.status-pill .status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
 }
 .status-pill.review,
 .status-pill.uncertain {

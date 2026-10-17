@@ -126,6 +126,18 @@
   --btn-secondary-hover: #F8FAFA;
   --btn-secondary-active: #EEF2F2;
 
+  --btn-destructive-bg: var(--color-coral);
+  --btn-destructive-text: #FFFFFF;
+  --btn-destructive-border: var(--color-coral-hover);
+  --btn-destructive-hover: var(--color-coral-hover);
+  --btn-destructive-active: #C43224;
+
+  --btn-subtle-bg: transparent;
+  --btn-subtle-text: var(--color-text-secondary);
+  --btn-subtle-border: transparent;
+  --btn-subtle-hover: var(--color-cobalt-tint);
+  --btn-subtle-hover-text: var(--color-cobalt);
+
   --btn-disabled-bg: #E4E8E8;
   --btn-disabled-text: #8A929B;
   --btn-disabled-border: #D8DEDF;
@@ -164,7 +176,36 @@
   --feedback-info-border: #C7D7FE;
   --feedback-info-text: #175CD3;
 
-  /* --- 12. SPACING, RADII & MOTION --- */
+  /* --- 12. SPACING SCALE, GUTTERS & SHELL DIMENSIONS --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --gutter-desktop: 32px;
+  --gutter-tablet: 24px;
+  --gutter-mobile: 16px;
+
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 72px;
+  --header-height: 64px;
+
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 15px;
+  --font-size-md: 17px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 32px;
+  --font-size-3xl: 40px;
+
+  /* --- 13. RADII & MOTION --- */
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -277,6 +318,18 @@
   --btn-secondary-border: #2B3342;
   --btn-secondary-hover: #262C3A;
   --btn-secondary-active: #1A1F29;
+
+  --btn-destructive-bg: var(--color-coral);
+  --btn-destructive-text: #FFFFFF;
+  --btn-destructive-border: var(--color-coral);
+  --btn-destructive-hover: #FF7B6E;
+  --btn-destructive-active: #E85043;
+
+  --btn-subtle-bg: transparent;
+  --btn-subtle-text: var(--text-secondary);
+  --btn-subtle-border: transparent;
+  --btn-subtle-hover: rgba(78, 101, 255, 0.15);
+  --btn-subtle-hover-text: var(--color-cobalt);
 
   --btn-accent-text: #FFFFFF;
 
