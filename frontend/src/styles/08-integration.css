@@ -740,7 +740,7 @@ label {
   font-size: 13px;
   font-weight: 600;
 }
-input:not([type="checkbox"]):not([type="radio"]),
+input:not([type="checkbox"]):not([type="radio"]):not(.auth-input),
 select,
 textarea {
   min-width: 0;

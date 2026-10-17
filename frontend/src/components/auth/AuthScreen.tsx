@@ -965,32 +965,35 @@ export function AuthScreen({
                   </div>
                 )}
 
-                {/* Forgot Password Link (Sign In mode only) */}
-                {mode === "login" && (
-                  <div className="auth-forgot-row">
-                    <button
-                      type="button"
-                      className="auth-link-btn"
-                      onClick={() => handleModeSwitch("recover")}
-                      onMouseDown={(e) => e.preventDefault()}
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                )}
               </div>
 
-              {/* Remember My ID Checkbox (Sign In mode only) */}
+              {/* Supporting Utilities Row: Remember ID & Forgot Password */}
               {mode === "login" && (
-                <label className="auth-remember-row">
-                  <input
-                    type="checkbox"
-                    className="auth-remember-checkbox"
-                    checked={rememberId}
-                    onChange={(e) => setRememberId(e.target.checked)}
-                  />
-                  <span>Remember my learner ID</span>
-                </label>
+                <div className="auth-form-utilities-row">
+                  <label className="auth-remember-row">
+                    <input
+                      type="checkbox"
+                      className="auth-remember-checkbox"
+                      checked={rememberId}
+                      onChange={(e) => {
+                        const next = e.target.checked;
+                        setRememberId(next);
+                        if (!next) {
+                          safeStorage.removeItem("ovael_remembered_username");
+                        }
+                      }}
+                    />
+                    <span>Remember my learner ID</span>
+                  </label>
+                  <button
+                    type="button"
+                    className="auth-link-btn"
+                    onClick={() => handleModeSwitch("recover")}
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
               )}
 
               {/* Submit Action */}
