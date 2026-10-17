@@ -8,6 +8,8 @@ import {
   MessageSquareText,
   Moon,
   Network,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings,
   Sun,
   X,
@@ -103,6 +105,19 @@ function Product() {
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return safeStorage.getItem("ovael_sidebar_collapsed") === "true";
+  });
+
+  const toggleSidebar = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      safeStorage.setItem("ovael_sidebar_collapsed", String(next));
+      return next;
+    });
   };
   const [launch, setLaunch] = useState<LearningLaunch | null>(null),
     [recovery, setRecovery] = useState("");
@@ -201,7 +216,7 @@ function Product() {
         )
       : navigation;
   return (
-    <div className="app-frame">
+    <div className={`app-frame ${collapsed ? "sidebar-collapsed" : "sidebar-expanded"}`}>
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
@@ -213,7 +228,7 @@ function Product() {
         />
       )}
       <aside
-        className={`side-rail ${mobile ? "is-open" : ""}`}
+        className={`side-rail ${collapsed ? "is-collapsed" : ""} ${mobile ? "is-open" : ""}`}
         aria-label="Primary navigation"
       >
         <div className="brand-row">
@@ -224,6 +239,15 @@ function Product() {
           >
             <span className="brand-mark">O</span>
             <span className="brand-name">OVAEL-X</span>
+          </button>
+          <button
+            type="button"
+            className="sidebar-toggle-btn"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={toggleSidebar}
+          >
+            {collapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
           </button>
           <button
             className="close-nav icon-button"
@@ -242,6 +266,8 @@ function Product() {
               key={n.id}
               className={`nav-item ${screen === n.id ? "active" : ""}`}
               aria-current={screen === n.id ? "page" : undefined}
+              aria-label={collapsed ? n.label : undefined}
+              data-tooltip={n.label}
               onClick={() => navigate(n.id)}
             >
               <n.icon size={18} className="nav-icon" />
@@ -253,14 +279,18 @@ function Product() {
           ))}
         </nav>
         <div className="nav-footer">
-          <span className={`status-pill ${connection === "online" ? "stable" : "uncertain"}`}>
+          <span
+            className={`status-pill ${connection === "online" ? "stable" : "uncertain"}`}
+            title={`Connection: ${connection === "online" ? "Connected" : "Offline"}${collapsed ? " (v5.0)" : ""}`}
+            data-tooltip={collapsed ? (connection === "online" ? "Connected" : "Offline") : undefined}
+          >
             <span className="status-dot" aria-hidden="true" />
-            <span>{connection === "online" ? "Connected" : "Offline"}</span>
+            <span className="status-label">{connection === "online" ? "Connected" : "Offline"}</span>
           </span>
           <span className="version-tag">v5.0</span>
         </div>
       </aside>
-      <div className="app-body">
+      <div className={`app-body ${collapsed ? "sidebar-collapsed" : ""}`}>
         <header className="top-bar">
           <div className="top-bar-left">
             <button

@@ -533,15 +533,38 @@ p {
   flex-direction: column;
   border-right: 1px solid var(--sidebar-border);
   background: var(--sidebar-bg);
-  transition: transform var(--duration-base) var(--ease-standard);
+  transition: width var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard);
 }
 .brand-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: var(--header-height, 64px);
-  padding: 0 18px;
+  padding: 0 16px 0 18px;
   border-bottom: 1px solid var(--sidebar-border);
+  gap: 8px;
+}
+.sidebar-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-standard);
+  flex-shrink: 0;
+}
+.sidebar-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--sidebar-text-hover);
+}
+.sidebar-toggle-btn:focus-visible {
+  outline: 2px solid var(--color-cobalt);
+  outline-offset: 1px;
 }
 .brand {
   display: flex;
@@ -672,6 +695,145 @@ p {
   min-width: 0;
   min-height: 100vh;
   margin-left: var(--sidebar-width, 250px);
+  transition: width var(--duration-base) var(--ease-standard), margin-left var(--duration-base) var(--ease-standard);
+}
+
+/* ==========================================================================
+   COLLAPSIBLE SIDEBAR STATES & COMPACT ICON RAIL (PROMPT 09)
+   ========================================================================== */
+
+@media (min-width: 761px) {
+  .app-frame.sidebar-collapsed .side-rail {
+    width: var(--sidebar-collapsed-width, 72px) !important;
+    overflow: visible;
+  }
+
+  .app-frame.sidebar-collapsed .app-body {
+    width: calc(100% - var(--sidebar-collapsed-width, 72px)) !important;
+    margin-left: var(--sidebar-collapsed-width, 72px) !important;
+  }
+
+  .app-frame.sidebar-collapsed .brand-row {
+    flex-direction: column;
+    height: auto;
+    padding: 14px 0 10px;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .app-frame.sidebar-collapsed .brand {
+    padding: 0;
+    gap: 0;
+  }
+
+  .app-frame.sidebar-collapsed .brand-name {
+    display: none;
+  }
+
+  .app-frame.sidebar-collapsed .nav-section {
+    display: none;
+  }
+
+  .app-frame.sidebar-collapsed .nav-list {
+    padding: 12px 0;
+    gap: 8px;
+    overflow: visible;
+    align-items: center;
+  }
+
+  .app-frame.sidebar-collapsed .nav-item {
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    margin: 0 auto;
+    border-radius: var(--radius-md, 8px);
+    position: relative;
+  }
+
+  .app-frame.sidebar-collapsed .nav-item .nav-label {
+    display: none;
+  }
+
+  .app-frame.sidebar-collapsed .nav-item .nav-indicator {
+    display: none;
+  }
+
+  /* Tooltips for Collapsed Navigation Icons */
+  .app-frame.sidebar-collapsed .nav-item::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--sidebar-bg, #14181F);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm, 6px);
+    border: 1px solid var(--sidebar-border, #232934);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 120ms ease, visibility 120ms ease;
+    z-index: 1000;
+  }
+
+  .app-frame.sidebar-collapsed .nav-item::before {
+    content: "";
+    position: absolute;
+    left: calc(100% + 4px);
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-right-color: var(--sidebar-bg, #14181F);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 120ms ease, visibility 120ms ease;
+    z-index: 1000;
+  }
+
+  .app-frame.sidebar-collapsed .nav-item:hover::after,
+  .app-frame.sidebar-collapsed .nav-item:focus-visible::after,
+  .app-frame.sidebar-collapsed .nav-item:hover::before,
+  .app-frame.sidebar-collapsed .nav-item:focus-visible::before {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Collapsed Footer */
+  .app-frame.sidebar-collapsed .nav-footer {
+    padding: 14px 0;
+    justify-content: center;
+  }
+
+  .app-frame.sidebar-collapsed .nav-footer .status-label,
+  .app-frame.sidebar-collapsed .nav-footer .version-tag {
+    display: none;
+  }
+
+  .app-frame.sidebar-collapsed .nav-footer .status-pill {
+    padding: 6px;
+    border: none;
+    background: transparent;
+  }
+}
+
+/* Expanded state: ensure tooltip pseudo-elements are never rendered */
+.app-frame.sidebar-expanded .nav-item::after,
+.app-frame.sidebar-expanded .nav-item::before {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .sidebar-toggle-btn {
+    display: none !important;
+  }
 }
 .top-bar {
   position: sticky;
