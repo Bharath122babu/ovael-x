@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import {
   BookOpen,
+  ChevronDown,
   Layers3,
   History,
   LogOut,
@@ -22,6 +23,62 @@ import { PageTransition } from "./content/MotionPrimitives";
 import type { LearnerScreen, LearningLaunch } from "../types";
 import { AuthScreen } from "./auth/AuthScreen";
 import { safeStorage } from "../storage";
+
+interface ScreenMeta {
+  title: string;
+  description: string;
+}
+
+const SCREEN_METADATA: Record<string, ScreenMeta> = {
+  learn: {
+    title: "Chat",
+    description: "Adaptive Socratic dialogue & verified conceptual inquiry",
+  },
+  courses: {
+    title: "Courses",
+    description: "Curated curricula & structured learning tracks",
+  },
+  materials: {
+    title: "Materials",
+    description: "Indexed evidence sources & course documentation",
+  },
+  history: {
+    title: "Progress",
+    description: "Activity timeline & mastery forensics",
+  },
+  connections: {
+    title: "Connections",
+    description: "Model endpoints & API credentials",
+  },
+  settings: {
+    title: "Settings",
+    description: "Account security & workspace preferences",
+  },
+  "session-history": {
+    title: "Session History",
+    description: "Detailed learning session receipt & audit log",
+  },
+};
+
+const TEACHER_SCREEN_METADATA: Record<string, ScreenMeta> = {
+  courses: {
+    title: "Courses",
+    description: "Curated curricula, enrolled students & analytics",
+  },
+  materials: {
+    title: "Materials",
+    description: "Syllabi, reference texts & evidence sources",
+  },
+  connections: {
+    title: "Connections",
+    description: "External model providers & inference endpoints",
+  },
+  settings: {
+    title: "Settings",
+    description: "Instructor credentials & workspace preferences",
+  },
+};
+
 const navigation = [
   { id: "learn", label: "Chat", icon: MessageSquareText },
   { id: "courses", label: "Courses", icon: Layers3 },
@@ -215,6 +272,14 @@ function Product() {
           ].includes(n.id),
         )
       : navigation;
+  const currentMeta =
+    (teacher ? TEACHER_SCREEN_METADATA[screen] : null) ||
+    SCREEN_METADATA[screen] || {
+      title: nav.find((n) => n.id === screen)?.label || "Learning",
+      description: "",
+    };
+  const displayName = String(profile?.display_name || user.username || "User");
+  const userInitial = (displayName || "U")[0].toUpperCase();
   return (
     <div className={`app-frame ${collapsed ? "sidebar-collapsed" : "sidebar-expanded"}`}>
       <a className="skip-link" href="#main-content">
@@ -304,43 +369,59 @@ function Product() {
               <span className="context-eyebrow">
                 {teacher ? "Teacher Workspace" : "Learner Workspace"}
               </span>
-              <strong className="context-heading">
-                {nav.find((n) => n.id === screen)?.label || "Learning"}
-              </strong>
+              <strong className="context-heading">{currentMeta.title}</strong>
+              {currentMeta.description && (
+                <p className="context-description">{currentMeta.description}</p>
+              )}
             </div>
           </div>
           <div className="top-actions">
             <button
               type="button"
-              className="icon-button theme-toggle-btn"
+              className="theme-toggle-btn"
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
               title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
               onClick={toggleTheme}
             >
-              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             {profile?.synthetic === true && (
-              <span className="demo-account">Demo account</span>
+              <span className="demo-account" title="Demo mode session (synthetic preview)">
+                <span className="demo-account-dot" aria-hidden="true" />
+                <span className="demo-account-label">Demo account</span>
+              </span>
             )}
             <div className="profile-wrap">
               <button
-                className="profile-button"
+                type="button"
+                className={`profile-button ${profileOpen ? "is-open" : ""}`}
                 aria-expanded={profileOpen}
+                aria-haspopup="menu"
+                aria-label={`User menu for ${displayName}`}
                 onClick={() => setProfileOpen(!profileOpen)}
               >
-                <span className="avatar">{user.username[0].toUpperCase()}</span>
-                <span className="profile-copy">
-                  <strong>
-                    {String(profile?.display_name || user.username)}
-                  </strong>
-                  <small>{teacher ? "Teacher" : "Learner"}</small>
+                <span className="avatar" aria-hidden="true">
+                  {userInitial}
                 </span>
+                <span className="profile-copy">
+                  <strong className="profile-name" title={displayName}>
+                    {displayName}
+                  </strong>
+                  <small className="profile-role">
+                    {teacher ? "Teacher" : "Learner"}
+                  </small>
+                </span>
+                <ChevronDown
+                  size={14}
+                  className={`profile-chevron ${profileOpen ? "is-rotated" : ""}`}
+                  aria-hidden="true"
+                />
               </button>
               {profileOpen && (
                 <div className="profile-menu" role="menu">
                   <div className="profile-menu-header">
-                    <strong>{String(profile?.display_name || user.username)}</strong>
-                    <small>{user.username}</small>
+                    <strong className="profile-menu-name">{displayName}</strong>
+                    <small className="profile-menu-username">@{user.username}</small>
                   </div>
                   <div className="profile-menu-divider" />
                   <button
