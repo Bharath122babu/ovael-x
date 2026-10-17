@@ -194,9 +194,9 @@
 .sidebar-nav-item.active,
 .nav-tab-button.active,
 .sidebar-nav-item[aria-current="page"] {
-  background-color: var(--bg-surface-soft-blue);
-  color: var(--text-heading);
-  border-left-color: var(--brand-coral);
+  background-color: var(--color-cobalt-tint);
+  color: var(--color-cobalt);
+  border-left-color: var(--color-cobalt);
   font-weight: 700;
 }
 
@@ -205,5 +205,6 @@
   width: 7px;
   height: 7px;
   border-radius: var(--radius-full);
-  background-color: var(--brand-coral);
+  background-color: var(--color-cobalt);
 }
+

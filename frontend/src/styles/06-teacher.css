@@ -54,7 +54,7 @@
   padding: 24px 28px;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-left: 4px solid var(--brand-navy, #303C6C);
+  border-left: 4px solid var(--color-cobalt);
   border-radius: var(--radius-lg, 12px);
   box-shadow: var(--shadow-xs);
 }

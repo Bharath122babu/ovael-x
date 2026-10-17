@@ -35,7 +35,7 @@
    ========================================================================== */
 @media (hover: hover) and (pointer: fine) {
   .auth-page--login {
-    cursor: url("../assets/ovael-login-pointer.svg") 1 1, default;
+    cursor: url("../assets/ovael-login-pointer.svg") 12 12, default;
   }
 
   /* Retain standard text insertion cursor on inputs */
@@ -57,7 +57,8 @@
   .auth-page--login .primary-button,
   .auth-page--login .secondary-button,
   .auth-page--login .auth-mode-tab,
-  .auth-page--login .demo-account-pill-btn {
+  .auth-page--login .demo-account-pill-btn,
+  .auth-page--login .feature-pill {
     cursor: pointer;
   }
 
@@ -69,9 +70,21 @@
   }
 
   /* Registration screen and all other views explicitly retain standard cursor */
-  .auth-page--register {
+  .auth-page--register,
+  .auth-page--recover {
     cursor: auto;
   }
+}
+
+/* Reduced motion explicitly restores standard system pointer */
+@media (prefers-reduced-motion: reduce) {
+  .auth-page--login {
+    cursor: auto !important;
+  }
+}
+.reduce-motion .auth-page--login,
+.auth-page--reduced-motion .auth-page--login {
+  cursor: auto !important;
 }
 
 /* ==========================================================================
@@ -843,22 +856,22 @@
 }
 
 .auth-mode-tab:focus-visible {
-  outline: 2px solid var(--brand-coral);
+  outline: 2px solid var(--color-cobalt);
   outline-offset: 2px;
 }
 
 .auth-mode-tab.active {
-  background: var(--brand-navy);
+  background: var(--color-cobalt);
   color: #FFFFFF;
-  border-color: rgba(48, 60, 108, 0.2);
-  box-shadow: 0 2px 6px rgba(48, 60, 108, 0.18), 0 1px 2px rgba(48, 60, 108, 0.12);
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(53, 75, 250, 0.28);
 }
 
 [data-theme="dark"] .auth-mode-tab.active {
-  background: #243454;
+  background: var(--color-cobalt);
   color: #FFFFFF;
-  border-color: rgba(180, 223, 229, 0.25);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(53, 75, 250, 0.45);
 }
 
 /* Heading Block */
@@ -1193,28 +1206,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--brand-navy);
+  background: var(--color-cobalt);
   color: #FFFFFF;
-  border: 1px solid var(--brand-navy);
-  box-shadow: 0 4px 14px rgba(48, 60, 108, 0.2);
+  border: 1px solid var(--color-cobalt);
+  box-shadow: 0 4px 14px rgba(53, 75, 250, 0.25);
   cursor: pointer;
 }
 
 .auth-submit-btn:hover:not(:disabled) {
-  background: var(--brand-navy-hover);
-  box-shadow: 0 6px 18px rgba(48, 60, 108, 0.28);
+  background: var(--color-cobalt-hover);
+  border-color: var(--color-cobalt-hover);
+  box-shadow: 0 6px 18px rgba(53, 75, 250, 0.35);
 }
 
 [data-theme="dark"] .auth-submit-btn {
-  background: #2A3B5C;
-  border-color: #41557A;
+  background: var(--color-cobalt);
+  border-color: var(--color-cobalt);
   color: #FFFFFF;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(53, 75, 250, 0.35);
 }
 
 [data-theme="dark"] .auth-submit-btn:hover:not(:disabled) {
-  background: #344870;
-  border-color: #516892;
+  background: var(--color-cobalt-hover);
+  border-color: var(--color-cobalt-hover);
 }
 
 .btn-loading-content {

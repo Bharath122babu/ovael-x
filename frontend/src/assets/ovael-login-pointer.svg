@@ -1,24 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-  <!-- Navy silhouette outline for high contrast on light and dark surfaces -->
-  <path
-    d="M1 1 L1 22 L6.2 17.2 L10.8 27 L14.2 25.4 L9.6 15.8 L16.8 15.8 Z"
-    fill="#303C6C"
-    stroke="#303C6C"
-    stroke-width="2"
-    stroke-linejoin="round"
-    stroke-linecap="round"
-  />
-  <!-- Crisp white pointer body -->
-  <path
-    d="M1 1 L1 22 L6.2 17.2 L10.8 27 L14.2 25.4 L9.6 15.8 L16.8 15.8 Z"
-    fill="#FFFFFF"
-  />
-  <!-- Restrained OVAEL-X coral accent inner spine -->
-  <path
-    d="M3.5 7 L3.5 17 L6.5 14"
-    stroke="#F4976C"
-    stroke-width="1.4"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+  <!-- Navy high-contrast backdrop shadow for sharp visibility on light surfaces -->
+  <circle cx="12" cy="12" r="7" stroke="#1E2544" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="8 3" opacity="0.9" />
+  <line x1="12" y1="2" x2="12" y2="6" stroke="#1E2544" stroke-width="2.6" stroke-linecap="round" />
+  <line x1="12" y1="18" x2="12" y2="22" stroke="#1E2544" stroke-width="2.6" stroke-linecap="round" />
+  <line x1="2" y1="12" x2="6" y2="12" stroke="#1E2544" stroke-width="2.6" stroke-linecap="round" />
+  <line x1="18" y1="12" x2="22" y2="12" stroke="#1E2544" stroke-width="2.6" stroke-linecap="round" />
+  <circle cx="12" cy="12" r="2.2" fill="#1E2544" stroke="#1E2544" stroke-width="1.2" />
+
+  <!-- Crisp foreground reticle in Brand Pale Cyan & Coral -->
+  <circle cx="12" cy="12" r="7" stroke="#D2FDFF" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="8 3" />
+  <line x1="12" y1="3" x2="12" y2="6" stroke="#D2FDFF" stroke-width="1.2" stroke-linecap="round" />
+  <line x1="12" y1="18" x2="12" y2="21" stroke="#D2FDFF" stroke-width="1.2" stroke-linecap="round" />
+  <line x1="3" y1="12" x2="6" y2="12" stroke="#D2FDFF" stroke-width="1.2" stroke-linecap="round" />
+  <line x1="18" y1="12" x2="21" y2="12" stroke="#D2FDFF" stroke-width="1.2" stroke-linecap="round" />
+
+  <!-- Precision pinpoint center -->
+  <circle cx="12" cy="12" r="1.6" fill="#FFFFFF" />
+  <circle cx="12" cy="12" r="0.8" fill="#F4976C" />
 </svg>

@@ -49,9 +49,31 @@ button, input, select, textarea {
 }
 
 :focus-visible {
-  outline: 2px solid var(--brand-coral);
+  outline: 2px solid var(--color-cobalt);
   outline-offset: 2px;
   box-shadow: var(--focus-ring);
+}
+
+/* Editorial Structural Grid Dividers */
+hr,
+.divider,
+.editorial-divider {
+  border: 0;
+  height: 1px;
+  background-color: var(--border-subtle);
+  margin: 16px 0;
+}
+
+.grid-border-bottom {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.grid-border-top {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.grid-border-right {
+  border-right: 1px solid var(--border-subtle);
 }
 
 /* ==========================================================================

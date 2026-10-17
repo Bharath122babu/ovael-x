@@ -102,6 +102,8 @@ export function AuthScreen({
   const focusedFeatureRef = useRef<AuthFeatureKey | null>(null);
   const entranceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const accentColumnRef = useRef<HTMLElement>(null);
+  const rAFRef = useRef<number | null>(null);
 
   const usernameInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -119,6 +121,7 @@ export function AuthScreen({
     return () => {
       if (entranceTimerRef.current) clearTimeout(entranceTimerRef.current);
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      if (rAFRef.current) cancelAnimationFrame(rAFRef.current);
       setRecoveryKey("");
     };
   }, []);
@@ -158,16 +161,34 @@ export function AuthScreen({
     );
   };
 
-  const handleFeatureClick = (feature: AuthFeatureKey, event: React.MouseEvent<HTMLButtonElement>) => {
-    const pointerType = (event.nativeEvent as PointerEvent).pointerType;
-    const isTouchInteraction =
-      pointerType === "touch" ||
-      (typeof window !== "undefined" &&
-        window.matchMedia("(hover: none), (pointer: coarse)").matches);
+  const handleAccentPointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (prefersReduced) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-    if (isTouchInteraction) {
-      setActiveFeature(activeFeature === feature ? null : feature);
+    if (rAFRef.current) cancelAnimationFrame(rAFRef.current);
+    rAFRef.current = requestAnimationFrame(() => {
+      const el = accentColumnRef.current;
+      if (el) {
+        el.style.setProperty("--pointer-x", `${x.toFixed(1)}%`);
+        el.style.setProperty("--pointer-y", `${y.toFixed(1)}%`);
+      }
+    });
+  };
+
+  const handleAccentPointerLeave = () => {
+    if (rAFRef.current) cancelAnimationFrame(rAFRef.current);
+    const el = accentColumnRef.current;
+    if (el) {
+      el.style.setProperty("--pointer-x", "50%");
+      el.style.setProperty("--pointer-y", "45%");
     }
+  };
+
+  const handleFeatureClick = (feature: AuthFeatureKey) => {
+    setActiveFeature((prev) => (prev === feature ? null : feature));
   };
 
   useEffect(() => {
@@ -596,7 +617,7 @@ export function AuthScreen({
 
               <button
                 type="button"
-                className="icon-button auth-theme-toggle"
+                className="icon-button auth-theme-toggle theme-toggle-btn"
                 aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
                 title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
                 onClick={toggleTheme}
@@ -1122,7 +1143,13 @@ export function AuthScreen({
         </section>
 
         {/* Visual Accent Column */}
-        <section className="auth-accent-column" aria-label="OVAEL-X Features and Knowledge Visual">
+        <section
+          ref={accentColumnRef}
+          className="auth-accent-column"
+          aria-label="OVAEL-X Features and Knowledge Visual"
+          onPointerMove={handleAccentPointerMove}
+          onPointerLeave={handleAccentPointerLeave}
+        >
           <div className="auth-accent-content">
             <div className="auth-accent-badge">Evidence-Grounded Learning</div>
             <h2 className="auth-accent-headline">
@@ -1146,7 +1173,7 @@ export function AuthScreen({
                 aria-pressed={activeFeature === "sources"}
                 onPointerEnter={(event) => handleFeaturePointerEnter("sources", event)}
                 onFocus={() => handleFeatureFocus("sources")}
-                onClick={(event) => handleFeatureClick("sources", event)}
+                onClick={() => handleFeatureClick("sources")}
               >
                 <span className="pill-dot" aria-hidden="true" />
                 <span>Source-grounded lessons.</span>
@@ -1159,7 +1186,7 @@ export function AuthScreen({
                 aria-pressed={activeFeature === "gaps"}
                 onPointerEnter={(event) => handleFeaturePointerEnter("gaps", event)}
                 onFocus={() => handleFeatureFocus("gaps")}
-                onClick={(event) => handleFeatureClick("gaps", event)}
+                onClick={() => handleFeatureClick("gaps")}
               >
                 <span className="pill-dot" aria-hidden="true" />
                 <span>Gap forensics.</span>
@@ -1172,7 +1199,7 @@ export function AuthScreen({
                 aria-pressed={activeFeature === "memory"}
                 onPointerEnter={(event) => handleFeaturePointerEnter("memory", event)}
                 onFocus={() => handleFeatureFocus("memory")}
-                onClick={(event) => handleFeatureClick("memory", event)}
+                onClick={() => handleFeatureClick("memory")}
               >
                 <span className="pill-dot" aria-hidden="true" />
                 <span>Memory under your control.</span>

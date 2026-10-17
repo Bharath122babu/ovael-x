@@ -5,7 +5,7 @@ export type AuthFeatureKey = "sources" | "gaps" | "memory";
 /**
  * AuthVisualAccent: Layered isometric SVG synthesis graphic
  * representing causal knowledge networks, evidence nodes, and learning synthesis
- * utilizing the 5 exact OVAEL-X brand colors.
+ * utilizing the editorial geometry, disciplined lines, and OVAEL-X brand palette.
  */
 export function AuthVisualAccent({
   className = "",
@@ -45,67 +45,67 @@ export function AuthVisualAccent({
         <defs>
           {/* Soft ambient breathing light behind central lattice */}
           <radialGradient id="authAmbientGlow" cx="50%" cy="45%" r="60%">
-            <stop offset="0%" stopColor="#F4976C" stopOpacity="0.22" />
+            <stop offset="0%" stopColor="#354BFA" stopOpacity="0.18" />
             <stop offset="35%" stopColor="#D2FDFF" stopOpacity="0.12" />
-            <stop offset="70%" stopColor="#B4DFE5" stopOpacity="0.04" />
-            <stop offset="100%" stopColor="#1E2544" stopOpacity="0" />
+            <stop offset="70%" stopColor="#5A9AAA" stopOpacity="0.05" />
+            <stop offset="100%" stopColor="#141820" stopOpacity="0" />
           </radialGradient>
 
           {/* Subtle gradient fills from brand palette */}
           <linearGradient id="planeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#D2FDFF" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#B4DFE5" stopOpacity="0.15" />
+            <stop offset="0%" stopColor="#D2FDFF" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#5A9AAA" stopOpacity="0.12" />
           </linearGradient>
           <linearGradient id="cardGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.16" />
             <stop offset="100%" stopColor="#B4DFE5" stopOpacity="0.06" />
           </linearGradient>
           <filter id="authShadowFilter" x="-15%" y="-15%" width="130%" height="130%">
-            <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="#1E2544" floodOpacity="0.28" />
+            <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="#11141B" floodOpacity="0.32" />
           </filter>
         </defs>
 
-        {/* Ambient background illumination */}
+        {/* Phase A — Ambient background illumination */}
         <ellipse
           cx="230"
           cy="115"
           rx="185"
           ry="95"
           fill="url(#authAmbientGlow)"
-          className="auth-accent-ambient auth-feature-muted"
+          className="auth-accent-ambient auth-feature-muted auth-svg-phase-a"
         />
 
-        {/* Subtle ambient coordinate accents */}
-        <g className="auth-micro-drift-1 auth-feature-muted" opacity="0.6">
+        {/* Phase A — Subtle ambient coordinate accents */}
+        <g className="auth-micro-drift-1 auth-feature-muted auth-svg-phase-a" opacity="0.6">
           <rect x="88" y="42" width="5" height="5" transform="rotate(45 90.5 44.5)" stroke="#D2FDFF" strokeWidth="0.8" fill="none" />
         </g>
-        <g className="auth-micro-drift-2 auth-feature-muted" opacity="0.5">
+        <g className="auth-micro-drift-2 auth-feature-muted auth-svg-phase-a" opacity="0.5">
           <rect x="368" y="148" width="4.5" height="4.5" transform="rotate(45 370.25 150.25)" stroke="#FBE8A6" strokeWidth="0.8" fill="none" />
         </g>
-        <g className="auth-feature-muted" opacity="0.35">
+        <g className="auth-feature-muted auth-svg-phase-a" opacity="0.35">
           <path d="M380 46 L380 54 M376 50 L384 50" stroke="#B4DFE5" strokeWidth="0.75" />
           <path d="M76 116 L76 124 M72 120 L80 120" stroke="#B4DFE5" strokeWidth="0.75" />
         </g>
 
-        {/* Base Isometric Ground Plane */}
+        {/* Phase A — Base Isometric Ground Plane */}
         <path
           d="M230 40 L410 120 L230 200 L50 120 Z"
           fill="url(#planeGrad)"
-          stroke="#B4DFE5"
+          stroke="#5A9AAA"
           strokeWidth="1.2"
           strokeDasharray="4 4"
-          className="auth-feature-muted"
+          className="auth-feature-muted auth-svg-phase-a"
         />
 
-        {/* Network Nodes Grid on Ground */}
-        <g className="auth-feature-muted" stroke="#B4DFE5" strokeOpacity="0.3" strokeWidth="1">
+        {/* Phase A — Network Nodes Grid on Ground */}
+        <g className="auth-feature-muted auth-svg-phase-a" stroke="#B4DFE5" strokeOpacity="0.3" strokeWidth="1">
           <line x1="140" y1="80" x2="320" y2="160" />
           <line x1="320" y1="80" x2="140" y2="160" />
           <line x1="230" y1="40" x2="230" y2="200" strokeDasharray="3 3" />
         </g>
 
-        {/* Primary Central Knowledge Plane (Card with subtle float) */}
-        <g filter="url(#authShadowFilter)" className="auth-accent-floating-card auth-feature-muted">
+        {/* Phase A — Primary Central Knowledge Plane (Card with subtle float) */}
+        <g filter="url(#authShadowFilter)" className="auth-accent-floating-card auth-feature-muted auth-svg-phase-a">
           <path
             d="M230 75 L360 135 L230 195 L100 135 Z"
             fill="url(#cardGrad1)"
@@ -115,14 +115,14 @@ export function AuthVisualAccent({
           />
         </g>
 
-        {/* Core Synthesized Causal Edges (subtle breathing pulse) */}
+        {/* Phase B — Core Synthesized Causal Edges (subtle breathing pulse) */}
         <path
           d="M170 125 L230 95 L290 125 L230 155 Z"
           fill="#FBE8A6"
           fillOpacity="0.22"
           stroke="#FBE8A6"
           strokeWidth="1.5"
-          className="auth-accent-core-pulse auth-feature-gap-target"
+          className="auth-accent-core-pulse auth-feature-gap-target auth-svg-phase-b auth-svg-causal-diamond"
         />
         <text
           x="230"
@@ -133,26 +133,27 @@ export function AuthVisualAccent({
           fontWeight="700"
           fontFamily="system-ui, -apple-system, sans-serif"
           letterSpacing="0.06em"
-          className="auth-feature-gap-target"
+          className="auth-feature-gap-target auth-svg-phase-c"
           pointerEvents="none"
         >
           CAUSAL GAPS
         </text>
 
-        {/* Vertical Data Beams / Evidence Pillars */}
-        {/* Node A (Left, Coral - High Alert/Focus) */}
-        <g className="auth-feature-node auth-feature-source-node auth-feature-gap-node">
+        {/* Phase B / C — Vertical Data Beams / Evidence Pillars */}
+        {/* Node A (Left, Coral / Warm - High Alert/Focus) */}
+        <g className="auth-feature-node auth-feature-source-node auth-feature-gap-node auth-svg-phase-c auth-svg-node--sources">
           <line
             x1="145"
             y1="120"
             x2="145"
             y2="65"
-            stroke="#F4976C"
+            stroke="#EF493A"
             strokeWidth="2"
             strokeDasharray="3 2"
+            className="auth-svg-phase-b auth-svg-stem"
           />
-          <circle cx="145" cy="65" r="7" fill="#F4976C" stroke="#FFFFFF" strokeWidth="2" />
-          <circle cx="145" cy="65" r="14" fill="#F4976C" fillOpacity="0.25" className="auth-node-aura">
+          <circle cx="145" cy="65" r="7" fill="#EF493A" stroke="#FFFFFF" strokeWidth="2" />
+          <circle cx="145" cy="65" r="14" fill="#EF493A" fillOpacity="0.25" className="auth-node-aura">
             {isLogin && !prefersReduced && (
               <animate
                 attributeName="r"
@@ -178,7 +179,7 @@ export function AuthVisualAccent({
         </g>
 
         {/* Node B (Center Top, Brand Navy / Pale Cyan - Authority/Truth) */}
-        <g className="auth-feature-node auth-feature-source-node auth-feature-memory-node">
+        <g className="auth-feature-node auth-feature-source-node auth-feature-memory-node auth-svg-phase-c auth-svg-node--central">
           <line
             x1="230"
             y1="95"
@@ -186,11 +187,11 @@ export function AuthVisualAccent({
             y2="30"
             stroke="#D2FDFF"
             strokeWidth="2"
-            className="auth-connection-line"
+            className="auth-connection-line auth-svg-phase-b auth-svg-stem"
           />
-          {/* Central Vertical Energy Pulse */}
+          {/* Phase D — Central Vertical Energy Pulse */}
           {isLogin && !prefersReduced && (
-            <circle r="2.5" fill="#D2FDFF" opacity="0.85">
+            <circle r="2.5" fill="#D2FDFF" opacity="0.85" className="auth-traveling-pulse-stem auth-svg-phase-d">
               <animateMotion
                 path="M230 190 L230 95 L230 30"
                 dur="3.8s"
@@ -199,22 +200,23 @@ export function AuthVisualAccent({
             </circle>
           )}
           <circle cx="230" cy="30" r="16" stroke="#FBE8A6" strokeWidth="1" strokeOpacity="0.25" strokeDasharray="3 3" className="auth-node-aura-b" />
-          <circle cx="230" cy="30" r="9" fill="#1E2544" stroke="#FBE8A6" strokeWidth="2.5" />
+          <circle cx="230" cy="30" r="9" fill="#141820" stroke="#FBE8A6" strokeWidth="2.5" />
           <circle cx="230" cy="30" r="4" fill="#FBE8A6" />
         </g>
 
-        {/* Node C (Right, Soft Blue - Materials/Concepts) */}
-        <g className="auth-feature-node auth-feature-source-node auth-feature-memory-node">
+        {/* Node C (Right, Soft Teal / Blue - Materials/Concepts) */}
+        <g className="auth-feature-node auth-feature-source-node auth-feature-memory-node auth-svg-phase-c auth-svg-node--memory">
           <line
             x1="315"
             y1="120"
             x2="315"
             y2="70"
-            stroke="#B4DFE5"
+            stroke="#5A9AAA"
             strokeWidth="2"
             strokeDasharray="3 2"
+            className="auth-svg-phase-b auth-svg-stem"
           />
-          <circle cx="315" cy="70" r="7" fill="#B4DFE5" stroke="#1E2544" strokeWidth="2" />
+          <circle cx="315" cy="70" r="7" fill="#5A9AAA" stroke="#141820" strokeWidth="2" />
           <text
             x="315"
             y="52"
@@ -231,20 +233,21 @@ export function AuthVisualAccent({
         </g>
 
         {/* Node D (Bottom Center, Pale Cyan - Grounded Inference) */}
-        <g className="auth-feature-node auth-feature-memory-node">
+        <g className="auth-feature-node auth-feature-memory-node auth-svg-phase-c auth-svg-node--inference">
           <line
             x1="230"
             y1="155"
             x2="230"
             y2="190"
-            stroke="#B4DFE5"
+            stroke="#5A9AAA"
             strokeWidth="1.5"
             strokeDasharray="2 2"
+            className="auth-svg-phase-b auth-svg-stem"
           />
-          <circle cx="230" cy="190" r="6" fill="#D2FDFF" stroke="#1E2544" strokeWidth="2" />
+          <circle cx="230" cy="190" r="6" fill="#D2FDFF" stroke="#141820" strokeWidth="2" />
         </g>
 
-        {/* Horizontal Interconnects between floating nodes */}
+        {/* Phase B — Horizontal Interconnects between floating nodes */}
         {/* Upper Track: Smooth Curved Interconnect */}
         <path
           d="M145 65 Q 185 35 230 30 Q 275 35 315 70"
@@ -252,11 +255,11 @@ export function AuthVisualAccent({
           stroke="#D2FDFF"
           strokeWidth="1.8"
           strokeOpacity="0.85"
-          className="auth-feature-source-path"
+          className="auth-feature-source-path auth-svg-phase-b auth-svg-path-upper"
         />
-        {/* Traveling Energy Packet along Upper Track */}
+        {/* Phase D — Traveling Energy Packet along Upper Track */}
         {isLogin && !prefersReduced && (
-          <g className="auth-traveling-packet">
+          <g className="auth-traveling-packet auth-svg-phase-d">
             <circle r="3" fill="#FBE8A6">
               <animateMotion
                 path="M145 65 Q 185 35 230 30 Q 275 35 315 70"
@@ -274,15 +277,34 @@ export function AuthVisualAccent({
           </g>
         )}
 
-        {/* Lower Track: Animated Causal Stream */}
+        {/* Phase B — Lower Track: Animated Causal Stream */}
         <path
           d="M145 65 Q 185 105 230 95 Q 275 105 315 70"
           fill="none"
-          stroke="#F4976C"
+          stroke="#EF493A"
           strokeWidth="1.6"
           strokeDasharray="4 3"
-          className="auth-accent-stream-line auth-feature-gap-path"
+          className="auth-accent-stream-line auth-feature-gap-path auth-svg-phase-b auth-svg-path-lower"
         />
+        {/* Phase D — Traveling Packet along Lower Causal Stream */}
+        {isLogin && !prefersReduced && (
+          <g className="auth-traveling-packet auth-traveling-packet--lower auth-svg-phase-d">
+            <circle r="2.5" fill="#EF493A">
+              <animateMotion
+                path="M145 65 Q 185 105 230 95 Q 275 105 315 70"
+                dur="5.6s"
+                repeatCount="indefinite"
+              />
+            </circle>
+            <circle r="6" fill="#EF493A" fillOpacity="0.22">
+              <animateMotion
+                path="M145 65 Q 185 105 230 95 Q 275 105 315 70"
+                dur="5.6s"
+                repeatCount="indefinite"
+              />
+            </circle>
+          </g>
+        )}
 
         {/* Selected-feature overlays: illustrative only, not live learner data. */}
         <g className="auth-feature-overlay auth-feature-overlay--sources" pointerEvents="none">
@@ -334,18 +356,18 @@ export function AuthVisualAccent({
           />
         </g>
 
-        {/* Decorative mini badges */}
-        <g transform="translate(280, 16)" className="auth-accent-badge-a auth-feature-muted">
-          <rect width="82" height="22" rx="11" fill="rgba(20, 26, 48, 0.9)" stroke="#B4DFE5" strokeWidth="1" filter="url(#authShadowFilter)" />
+        {/* Phase C — Decorative mini badges */}
+        <g transform="translate(280, 16)" className="auth-accent-badge-a auth-feature-muted auth-svg-phase-c auth-svg-badge">
+          <rect width="82" height="22" rx="11" fill="rgba(20, 24, 32, 0.9)" stroke="#5A9AAA" strokeWidth="1" filter="url(#authShadowFilter)" />
           <circle cx="11" cy="11" r="3.5" fill="#D2FDFF" />
           <text x="21" y="14.5" fill="#D2FDFF" fontSize="8.5" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.06em">
             LOCAL-FIRST
           </text>
         </g>
 
-        <g transform="translate(75, 172)" className="auth-accent-badge-b auth-feature-muted">
-          <rect width="90" height="22" rx="11" fill="rgba(20, 26, 48, 0.9)" stroke="#FBE8A6" strokeWidth="1" filter="url(#authShadowFilter)" />
-          <circle cx="11" cy="11" r="3.5" fill="#F4976C" />
+        <g transform="translate(75, 172)" className="auth-accent-badge-b auth-feature-muted auth-svg-phase-c auth-svg-badge">
+          <rect width="90" height="22" rx="11" fill="rgba(20, 24, 32, 0.9)" stroke="#FBE8A6" strokeWidth="1" filter="url(#authShadowFilter)" />
+          <circle cx="11" cy="11" r="3.5" fill="#EF493A" />
           <text x="21" y="14.5" fill="#FBE8A6" fontSize="8.5" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.06em">
             EVIDENCE-LED
           </text>

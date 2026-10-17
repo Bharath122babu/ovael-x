@@ -1,7 +1,33 @@
 /* ==========================================================================
-   AUTH LEARNING SHOWCASE — FEATURE-LINKED SVG STATES
+   AUTH LEARNING SHOWCASE — FEATURE-LINKED SVG STATES & 5-PHASE REVEAL
+   Unifying Reference A spacious SaaS presentation & Reference C editorial geometry.
    Kept local to the login / account-creation experience.
    ========================================================================== */
+
+/* Ambient lighting backdrop responding to pointer coordinates */
+.auth-accent-column {
+  --pointer-x: 50%;
+  --pointer-y: 45%;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-accent-column::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 480px at var(--pointer-x, 50%) var(--pointer-y, 45%),
+    rgba(210, 253, 255, 0.08) 0%,
+    rgba(53, 75, 250, 0.04) 35%,
+    transparent 70%
+  );
+  transition: opacity 300ms var(--ease-standard);
+  z-index: 0;
+}
+
+/* Feature Pills in Visual Accent Column */
 .auth-feature-pills .feature-pill {
   position: relative;
   appearance: none;
@@ -97,6 +123,7 @@
   transform: scale(1);
 }
 
+/* Feature Selection Feedback on Knowledge SVG */
 .auth-knowledge-svg .auth-feature-muted,
 .auth-knowledge-svg .auth-feature-node,
 .auth-knowledge-svg .auth-feature-source-path,
@@ -119,21 +146,31 @@
 .auth-knowledge-svg[data-active-feature="sources"] .auth-feature-muted,
 .auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-muted,
 .auth-knowledge-svg[data-active-feature="memory"] .auth-feature-muted {
-  opacity: 0.34;
+  opacity: 0.32;
 }
 
 .auth-knowledge-svg[data-active-feature="sources"] .auth-feature-node,
 .auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-node,
 .auth-knowledge-svg[data-active-feature="memory"] .auth-feature-node {
-  opacity: 0.42;
+  opacity: 0.38;
 }
 
-.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-source-node,
-.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-node,
+.auth-knowledge-svg[data-active-feature="sources"] .auth-feature-source-node {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px rgba(210, 253, 255, 0.45));
+  transform: scale(1.05);
+}
+
+.auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-node {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px rgba(251, 232, 166, 0.45));
+  transform: scale(1.05);
+}
+
 .auth-knowledge-svg[data-active-feature="memory"] .auth-feature-memory-node {
   opacity: 1;
-  filter: drop-shadow(0 0 2px rgba(210, 253, 255, 0.16));
-  transform: scale(1.015);
+  filter: drop-shadow(0 0 6px rgba(90, 154, 170, 0.45));
+  transform: scale(1.05);
 }
 
 .auth-knowledge-svg[data-active-feature="sources"] .auth-feature-gap-path,
@@ -141,17 +178,18 @@
 .auth-knowledge-svg[data-active-feature="memory"] .auth-feature-source-path,
 .auth-knowledge-svg[data-active-feature="memory"] .auth-feature-gap-path,
 .auth-knowledge-svg[data-active-feature="memory"] .auth-feature-gap-target {
-  opacity: 0.3;
+  opacity: 0.28;
 }
 
 .auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-source-path {
-  opacity: 0.3;
+  opacity: 0.28;
 }
 
 .auth-knowledge-svg[data-active-feature="sources"] .auth-feature-source-path {
   stroke: #D2FDFF;
-  stroke-width: 2.4;
+  stroke-width: 2.6;
   stroke-opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(210, 253, 255, 0.5));
 }
 
 .auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-path,
@@ -161,7 +199,8 @@
 }
 
 .auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-gap-target {
-  fill: rgba(251, 232, 166, 0.12);
+  fill: rgba(251, 232, 166, 0.2);
+  filter: drop-shadow(0 0 6px rgba(251, 232, 166, 0.4));
 }
 
 .auth-knowledge-svg .auth-feature-overlay {
@@ -184,7 +223,7 @@
 
 .auth-knowledge-svg[data-active-feature="sources"] .auth-feature-overlay--sources .auth-feature-draw-path,
 .auth-knowledge-svg[data-active-feature="gaps"] .auth-feature-overlay--gaps .auth-feature-draw-path {
-  opacity: 0.9;
+  opacity: 0.95;
   stroke-dashoffset: 0;
 }
 
@@ -232,10 +271,147 @@
   50% { opacity: 0.95; transform: scale(1.08); }
 }
 
+/* ==========================================================================
+   5-PHASE CINEMATIC ENTRANCE STAGED ANIMATIONS
+   Scoped strictly to login mode (.auth-page--login)
+   ========================================================================== */
+
+/* Phase A — Structure Reveal */
+.auth-page--login .auth-svg-phase-a {
+  animation: authStructureReveal 500ms var(--ease-out) 40ms both;
+}
+
+/* Phase B — Connection Paths Stroke Drawing */
+.auth-page--login .auth-svg-path-upper,
+.auth-page--login .auth-svg-path-lower {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: authPathDrawUpper 620ms var(--ease-out) 260ms both;
+}
+
+.auth-page--login .auth-svg-causal-diamond {
+  stroke-dasharray: 280;
+  stroke-dashoffset: 280;
+  animation: authDiamondDraw 620ms var(--ease-out) 320ms both;
+}
+
+.auth-page--login .auth-svg-stem {
+  stroke-dasharray: 70;
+  stroke-dashoffset: 70;
+  animation: authStemDraw 420ms var(--ease-out) 380ms both;
+}
+
+/* Phase C — Knowledge Nodes Entrance */
+.auth-page--login .auth-svg-node--sources {
+  animation: authNodePop 400ms var(--ease-out) 500ms both;
+}
+.auth-page--login .auth-svg-node--central {
+  animation: authNodePop 400ms var(--ease-out) 620ms both;
+}
+.auth-page--login .auth-svg-node--memory {
+  animation: authNodePop 400ms var(--ease-out) 740ms both;
+}
+.auth-page--login .auth-svg-node--inference {
+  animation: authNodePop 400ms var(--ease-out) 840ms both;
+}
+.auth-page--login .auth-svg-badge {
+  animation: authBadgeFade 380ms var(--ease-out) 920ms both;
+}
+
+/* Phase D — Evidence Flow Reveal */
+.auth-page--login .auth-traveling-packet,
+.auth-page--login .auth-traveling-pulse-stem {
+  animation: authFlowFadeIn 450ms var(--ease-out) 900ms both;
+}
+
+/* Keyframes */
+@keyframes authStructureReveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authPathDrawUpper {
+  0% {
+    stroke-dashoffset: 220;
+    opacity: 0.2;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes authDiamondDraw {
+  0% {
+    stroke-dashoffset: 280;
+    opacity: 0.2;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes authStemDraw {
+  0% {
+    stroke-dashoffset: 70;
+    opacity: 0.2;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes authNodePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes authBadgeFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authFlowFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Reduced Motion Overrides */
 .auth-visual-accent--reduced-motion .auth-knowledge-svg *,
 .reduce-motion .auth-knowledge-svg * {
   animation: none !important;
   transition: none !important;
+  stroke-dashoffset: 0 !important;
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -246,8 +422,23 @@
   .auth-knowledge-svg .auth-feature-overlay,
   .auth-knowledge-svg .auth-feature-halo,
   .auth-knowledge-svg .auth-feature-gap-outline,
-  .auth-knowledge-svg .auth-feature-memory-link {
+  .auth-knowledge-svg .auth-feature-memory-link,
+  .auth-page--login .auth-svg-phase-a,
+  .auth-page--login .auth-svg-path-upper,
+  .auth-page--login .auth-svg-path-lower,
+  .auth-page--login .auth-svg-causal-diamond,
+  .auth-page--login .auth-svg-stem,
+  .auth-page--login .auth-svg-node--sources,
+  .auth-page--login .auth-svg-node--central,
+  .auth-page--login .auth-svg-node--memory,
+  .auth-page--login .auth-svg-node--inference,
+  .auth-page--login .auth-svg-badge,
+  .auth-page--login .auth-traveling-packet,
+  .auth-page--login .auth-traveling-pulse-stem {
     animation: none !important;
     transition: none !important;
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
