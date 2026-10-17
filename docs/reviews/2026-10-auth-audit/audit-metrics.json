@@ -1,0 +1,1112 @@
+{
+  "viewports": {
+    "desktop-1366x768": {
+      "light": {
+        "window": {
+          "innerWidth": 1366,
+          "innerHeight": 768
+        },
+        "scroll": {
+          "scrollHeight": 768,
+          "clientHeight": 768,
+          "hasVerticalScroll": false,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "hasHorizontalScroll": false
+        },
+        "layout": {
+          "container": {
+            "x": 0,
+            "y": 0,
+            "width": 1366,
+            "height": 768,
+            "top": 0,
+            "right": 1366,
+            "bottom": 768,
+            "left": 0
+          },
+          "formCol": {
+            "x": 0,
+            "y": 0,
+            "width": 655.671875,
+            "height": 768,
+            "top": 0,
+            "right": 655.671875,
+            "bottom": 768,
+            "left": 0
+          },
+          "accentCol": {
+            "x": 655.671875,
+            "y": 0,
+            "width": 710.328125,
+            "height": 768,
+            "top": 0,
+            "right": 1366,
+            "bottom": 768,
+            "left": 655.671875
+          },
+          "formBody": {
+            "x": 34.140625,
+            "y": 99.828125,
+            "width": 440,
+            "height": 510.015625,
+            "top": 99.828125,
+            "right": 474.140625,
+            "bottom": 609.84375,
+            "left": 34.140625
+          },
+          "topRow": {
+            "x": 34.140625,
+            "y": 24.5625,
+            "width": 440,
+            "height": 40,
+            "top": 24.5625,
+            "right": 474.140625,
+            "bottom": 64.5625,
+            "left": 34.140625
+          }
+        },
+        "componentDimensions": {
+          "themeToggle": {
+            "width": 36,
+            "height": 36
+          },
+          "stateBadge": {
+            "width": 70.78125,
+            "height": 32
+          },
+          "usernameInput": {
+            "width": 440,
+            "height": 46
+          },
+          "passwordInput": {
+            "width": 440,
+            "height": 46
+          },
+          "submitBtn": {
+            "width": 440,
+            "height": 42.46875
+          },
+          "svgArtwork": null
+        },
+        "typography": {
+          "heading": {
+            "fontSize": "28px",
+            "lineHeight": "34.16px"
+          },
+          "subtitle": {
+            "fontSize": "13.5px",
+            "color": "rgb(70, 83, 117)"
+          },
+          "eyebrow": {
+            "fontSize": "11px",
+            "color": "rgb(200, 90, 40)"
+          },
+          "accentHeading": {
+            "fontSize": "30.052px",
+            "lineHeight": "36.6634px"
+          },
+          "accentDesc": null
+        },
+        "featureIndicators": []
+      },
+      "dark": {
+        "window": {
+          "innerWidth": 1366,
+          "innerHeight": 768
+        },
+        "scroll": {
+          "scrollHeight": 768,
+          "clientHeight": 768,
+          "hasVerticalScroll": false,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "hasHorizontalScroll": false
+        },
+        "layout": {
+          "container": {
+            "x": 0,
+            "y": 0,
+            "width": 1366,
+            "height": 768,
+            "top": 0,
+            "right": 1366,
+            "bottom": 768,
+            "left": 0
+          },
+          "formCol": {
+            "x": 0,
+            "y": 0,
+            "width": 655.671875,
+            "height": 768,
+            "top": 0,
+            "right": 655.671875,
+            "bottom": 768,
+            "left": 0
+          },
+          "accentCol": {
+            "x": 655.671875,
+            "y": 0,
+            "width": 710.328125,
+            "height": 768,
+            "top": 0,
+            "right": 1366,
+            "bottom": 768,
+            "left": 655.671875
+          },
+          "formBody": {
+            "x": 34.140625,
+            "y": 99.828125,
+            "width": 440,
+            "height": 510.015625,
+            "top": 99.828125,
+            "right": 474.140625,
+            "bottom": 609.84375,
+            "left": 34.140625
+          },
+          "topRow": {
+            "x": 34.140625,
+            "y": 24.5625,
+            "width": 440,
+            "height": 40,
+            "top": 24.5625,
+            "right": 474.140625,
+            "bottom": 64.5625,
+            "left": 34.140625
+          }
+        },
+        "componentDimensions": {
+          "themeToggle": {
+            "width": 36,
+            "height": 36
+          },
+          "stateBadge": {
+            "width": 70.78125,
+            "height": 32
+          },
+          "usernameInput": {
+            "width": 440,
+            "height": 46
+          },
+          "passwordInput": {
+            "width": 440,
+            "height": 46
+          },
+          "submitBtn": {
+            "width": 440,
+            "height": 42.46875
+          },
+          "svgArtwork": null
+        },
+        "typography": {
+          "heading": {
+            "fontSize": "28px",
+            "lineHeight": "34.16px"
+          },
+          "subtitle": {
+            "fontSize": "13.5px",
+            "color": "rgb(187, 198, 215)"
+          },
+          "eyebrow": {
+            "fontSize": "11px",
+            "color": "rgb(244, 151, 108)"
+          },
+          "accentHeading": {
+            "fontSize": "30.052px",
+            "lineHeight": "36.6634px"
+          },
+          "accentDesc": null
+        },
+        "featureIndicators": []
+      }
+    },
+    "large-desktop-1920x1080": {
+      "light": {
+        "window": {
+          "innerWidth": 1920,
+          "innerHeight": 1080
+        },
+        "scroll": {
+          "scrollHeight": 1080,
+          "clientHeight": 1080,
+          "hasVerticalScroll": false,
+          "scrollWidth": 1920,
+          "clientWidth": 1920,
+          "hasHorizontalScroll": false
+        },
+        "layout": {
+          "container": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080,
+            "top": 0,
+            "right": 1920,
+            "bottom": 1080,
+            "left": 0
+          },
+          "formCol": {
+            "x": 0,
+            "y": 0,
+            "width": 921.59375,
+            "height": 1080,
+            "top": 0,
+            "right": 921.59375,
+            "bottom": 1080,
+            "left": 0
+          },
+          "accentCol": {
+            "x": 921.59375,
+            "y": 0,
+            "width": 998.40625,
+            "height": 1080,
+            "top": 0,
+            "right": 1920,
+            "bottom": 1080,
+            "left": 921.59375
+          },
+          "formBody": {
+            "x": 48,
+            "y": 255.828125,
+            "width": 440,
+            "height": 510.015625,
+            "top": 255.828125,
+            "right": 488,
+            "bottom": 765.84375,
+            "left": 48
+          },
+          "topRow": {
+            "x": 48,
+            "y": 34.546875,
+            "width": 440,
+            "height": 40,
+            "top": 34.546875,
+            "right": 488,
+            "bottom": 74.546875,
+            "left": 48
+          }
+        },
+        "componentDimensions": {
+          "themeToggle": {
+            "width": 36,
+            "height": 36
+          },
+          "stateBadge": {
+            "width": 70.78125,
+            "height": 32
+          },
+          "usernameInput": {
+            "width": 440,
+            "height": 46
+          },
+          "passwordInput": {
+            "width": 440,
+            "height": 46
+          },
+          "submitBtn": {
+            "width": 440,
+            "height": 42.46875
+          },
+          "svgArtwork": null
+        },
+        "typography": {
+          "heading": {
+            "fontSize": "28px",
+            "lineHeight": "34.16px"
+          },
+          "subtitle": {
+            "fontSize": "13.5px",
+            "color": "rgb(70, 83, 117)"
+          },
+          "eyebrow": {
+            "fontSize": "11px",
+            "color": "rgb(200, 90, 40)"
+          },
+          "accentHeading": {
+            "fontSize": "34px",
+            "lineHeight": "41.48px"
+          },
+          "accentDesc": null
+        },
+        "featureIndicators": []
+      },
+      "dark": {
+        "window": {
+          "innerWidth": 1920,
+          "innerHeight": 1080
+        },
+        "scroll": {
+          "scrollHeight": 1080,
+          "clientHeight": 1080,
+          "hasVerticalScroll": false,
+          "scrollWidth": 1920,
+          "clientWidth": 1920,
+          "hasHorizontalScroll": false
+        },
+        "layout": {
+          "container": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080,
+            "top": 0,
+            "right": 1920,
+            "bottom": 1080,
+            "left": 0
+          },
+          "formCol": {
+            "x": 0,
+            "y": 0,
+            "width": 921.59375,
+            "height": 1080,
+            "top": 0,
+            "right": 921.59375,
+            "bottom": 1080,
+            "left": 0
+          },
+          "accentCol": {
+            "x": 921.59375,
+            "y": 0,
+            "width": 998.40625,
+            "height": 1080,
+            "top": 0,
+            "right": 1920,
+            "bottom": 1080,
+            "left": 921.59375
+          },
+          "formBody": {
+            "x": 48,
+            "y": 255.828125,
+            "width": 440,
+            "height": 510.015625,
+            "top": 255.828125,
+            "right": 488,
+            "bottom": 765.84375,
+            "left": 48
+          },
+          "topRow": {
+            "x": 48,
+            "y": 34.546875,
+            "width": 440,
+            "height": 40,
+            "top": 34.546875,
+            "right": 488,
+            "bottom": 74.546875,
+            "left": 48
+          }
+        },
+        "componentDimensions": {
+          "themeToggle": {
+            "width": 36,
+            "height": 36
+          },
+          "stateBadge": {
+            "width": 70.78125,
+            "height": 32
+          },
+          "usernameInput": {
+            "width": 440,
+            "height": 46
+          },
+          "passwordInput": {
+            "width": 440,
+            "height": 46
+          },
+          "submitBtn": {
+            "width": 440,
+            "height": 42.46875
+          },
+          "svgArtwork": null
+        },
+        "typography": {
+          "heading": {
+            "fontSize": "28px",
+            "lineHeight": "34.16px"
+          },
+          "subtitle": {
+            "fontSize": "13.5px",
+            "color": "rgb(187, 198, 215)"
+          },
+          "eyebrow": {
+            "fontSize": "11px",
+            "color": "rgb(244, 151, 108)"
+          },
+          "accentHeading": {
+            "fontSize": "34px",
+            "lineHeight": "41.48px"
+          },
+          "accentDesc": null
+        },
+        "featureIndicators": []
+      }
+    },
+    "tablet-768x1024": {
+      "light": {
+        "window": {
+          "innerWidth": 768,
+          "innerHeight": 1024
+        },
+        "scroll": {
+          "scrollHeight": 1428,
+          "clientHeight": 1024,
+          "hasVerticalScroll": true,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "hasHorizontalScroll": false
+        },
+        "layout": {
+          "container": {
+            "x": 0,
+            "y": 0,
+            "width": 768,
+            "height": 1427.53125,
+            "top": 0,
+            "right": 768,
+            "bottom": 1427.53125,
+            "left": 0
+          },
+          "formCol": {
+            "x": 0,
+            "y": 0,
+            "width": 768,
+            "height": 796.46875,
+            "top": 0,
+            "right": 768,
+            "bottom": 796.46875,
+            "left": 0
+          },
+          "accentCol": {
+            "x": 0,
+            "y": 796.46875,
+            "width": 768,
+            "height": 631.0625,
+            "top": 796.46875,
+            "right": 768,
+            "bottom": 1427.53125,
+            "left": 0
+          },
+          "formBody": {
+            "x": 164,
+            "y": 116,
+            "width": 440,
+            "height": 505.125,
+            "top": 116,
+            "right": 604,
+            "bottom": 621.125,
+            "left": 164
+          },
+          "topRow": {
+            "x": 164,
+            "y": 36,
+            "width": 440,
+            "height": 40,
+            "top": 36,
+            "right": 604,
+            "bottom": 76,
+            "left": 164
+          }
+        },
+        "componentDimensions": {
+          "themeToggle": {
+            "width": 36,
+            "height": 36
+          },
+          "stateBadge": {
+            "width": 70.78125,
+            "height": 32
+          },
+          "usernameInput": {
+            "width": 440,
+            "height": 46
+          },
+          "passwordInput": {
+            "width": 440,
+            "height": 46
+          },
+          "submitBtn": {
+            "width": 440,
+            "height": 42.46875
+          },
+          "svgArtwork": null
+        },
+        "typography": {
+          "heading": {
+            "fontSize": "24px",
+            "lineHeight": "29.28px"
+          },
+          "subtitle": {
+            "fontSize": "13.5px",
+            "color": "rgb(70, 83, 117)"
+          },
+          "eyebrow": {
+            "fontSize": "11px",
+            "color": "rgb(200, 90, 40)"
+          },
+          "accentHeading": {
+            "fontSize": "24px",
+            "lineHeight": "29.28px"
+          },
+          "accentDesc": null
+        },
+        "featureIndicators": []
+      },
+      "dark": {
+        "window": {
+          "innerWidth": 768,
+          "innerHeight": 1024
+        },
+        "scroll": {
+          "scrollHeight": 1428,
+          "clientHeight": 1024,
+          "hasVerticalScroll": true,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "hasHorizontalScroll": false
+        },
+        "layout": {
+          "container": {
+            "x": 0,
+            "y": 0,
+            "width": 768,
+            "height": 1427.53125,
+            "top": 0,
+            "right": 768,
+            "bottom": 1427.53125,
+            "left": 0
+          },
+          "formCol": {
+            "x": 0,
+            "y": 0,
+            "width": 768,
+            "height": 796.46875,
+            "top": 0,
+            "right": 768,
+            "bottom": 796.46875,
+            "left": 0
+          },
+          "accentCol": {
+            "x": 0,
+            "y": 796.46875,
+            "width": 768,
+            "height": 631.0625,
+            "top": 796.46875,
+            "right": 768,
+            "bottom": 1427.53125,
+            "left": 0
+          },
+          "formBody": {
+            "x": 164,
+            "y": 116,
+            "width": 440,
+            "height": 505.125,
+            "top": 116,
+            "right": 604,
+            "bottom": 621.125,
+            "left": 164
+          },
+          "topRow": {
+            "x": 164,
+            "y": 36,
+            "width": 440,
+            "height": 40,
+            "top": 36,
+            "right": 604,
+            "bottom": 76,
+            "left": 164
+          }
+        },
+        "componentDimensions": {
+          "themeToggle": {
+            "width": 36,
+            "height": 36
+          },
+          "stateBadge": {
+            "width": 70.78125,
+            "height": 32
+          },
+          "usernameInput": {
+            "width": 440,
+            "height": 46
+          },
+          "passwordInput": {
+            "width": 440,
+            "height": 46
+          },
+          "submitBtn": {
+            "width": 440,
+            "height": 42.46875
+          },
+          "svgArtwork": null
+        },
+        "typography": {
+          "heading": {
+            "fontSize": "24px",
+            "lineHeight": "29.28px"
+          },
+          "subtitle": {
+            "fontSize": "13.5px",
+            "color": "rgb(187, 198, 215)"
+          },
+          "eyebrow": {
+            "fontSize": "11px",
+            "color": "rgb(244, 151, 108)"
+          },
+          "accentHeading": {
+            "fontSize": "24px",
+            "lineHeight": "29.28px"
+          },
+          "accentDesc": null
+        },
+        "featureIndicators": []
+      }
+    },
+    "mobile-390x844": {
+      "light": {
+        "window": {
+          "innerWidth": 390,
+          "innerHeight": 844
+        },
+        "scroll": {
+          "scrollHeight": 1344,
+          "clientHeight": 844,
+          "hasVerticalScroll": true,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "hasHorizontalScroll": false
+        },
+        "layout": {
+          "container": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 1343.859375,
+            "top": 0,
+            "right": 390,
+            "bottom": 1343.859375,
+            "left": 0
+          },
+          "formCol": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 785.390625,
+            "top": 0,
+            "right": 390,
+            "bottom": 785.390625,
+            "left": 0
+          },
+          "accentCol": {
+            "x": 0,
+            "y": 785.390625,
+            "width": 390,
+            "height": 558.46875,
+            "top": 785.390625,
+            "right": 390,
+            "bottom": 1343.859375,
+            "left": 0
+          },
+          "formBody": {
+            "x": 16,
+            "y": 104,
+            "width": 358,
+            "height": 518.046875,
+            "top": 104,
+            "right": 374,
+            "bottom": 622.046875,
+            "left": 16
+          },
+          "topRow": {
+            "x": 16,
+            "y": 24,
+            "width": 358,
+            "height": 40,
+            "top": 24,
+            "right": 374,
+            "bottom": 64,
+            "left": 16
+          }
+        },
+        "componentDimensions": {
+          "themeToggle": {
+            "width": 36,
+            "height": 36
+          },
+          "stateBadge": {
+            "width": 70.78125,
+            "height": 32
+          },
+          "usernameInput": {
+            "width": 358,
+            "height": 46
+          },
+          "passwordInput": {
+            "width": 358,
+            "height": 46
+          },
+          "submitBtn": {
+            "width": 358,
+            "height": 42.46875
+          },
+          "svgArtwork": null
+        },
+        "typography": {
+          "heading": {
+            "fontSize": "24px",
+            "lineHeight": "29.28px"
+          },
+          "subtitle": {
+            "fontSize": "13.5px",
+            "color": "rgb(70, 83, 117)"
+          },
+          "eyebrow": {
+            "fontSize": "11px",
+            "color": "rgb(200, 90, 40)"
+          },
+          "accentHeading": {
+            "fontSize": "22px",
+            "lineHeight": "26.84px"
+          },
+          "accentDesc": null
+        },
+        "featureIndicators": []
+      },
+      "dark": {
+        "window": {
+          "innerWidth": 390,
+          "innerHeight": 844
+        },
+        "scroll": {
+          "scrollHeight": 1344,
+          "clientHeight": 844,
+          "hasVerticalScroll": true,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "hasHorizontalScroll": false
+        },
+        "layout": {
+          "container": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 1343.859375,
+            "top": 0,
+            "right": 390,
+            "bottom": 1343.859375,
+            "left": 0
+          },
+          "formCol": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 785.390625,
+            "top": 0,
+            "right": 390,
+            "bottom": 785.390625,
+            "left": 0
+          },
+          "accentCol": {
+            "x": 0,
+            "y": 785.390625,
+            "width": 390,
+            "height": 558.46875,
+            "top": 785.390625,
+            "right": 390,
+            "bottom": 1343.859375,
+            "left": 0
+          },
+          "formBody": {
+            "x": 16,
+            "y": 104,
+            "width": 358,
+            "height": 518.046875,
+            "top": 104,
+            "right": 374,
+            "bottom": 622.046875,
+            "left": 16
+          },
+          "topRow": {
+            "x": 16,
+            "y": 24,
+            "width": 358,
+            "height": 40,
+            "top": 24,
+            "right": 374,
+            "bottom": 64,
+            "left": 16
+          }
+        },
+        "componentDimensions": {
+          "themeToggle": {
+            "width": 36,
+            "height": 36
+          },
+          "stateBadge": {
+            "width": 70.78125,
+            "height": 32
+          },
+          "usernameInput": {
+            "width": 358,
+            "height": 46
+          },
+          "passwordInput": {
+            "width": 358,
+            "height": 46
+          },
+          "submitBtn": {
+            "width": 358,
+            "height": 42.46875
+          },
+          "svgArtwork": null
+        },
+        "typography": {
+          "heading": {
+            "fontSize": "24px",
+            "lineHeight": "29.28px"
+          },
+          "subtitle": {
+            "fontSize": "13.5px",
+            "color": "rgb(187, 198, 215)"
+          },
+          "eyebrow": {
+            "fontSize": "11px",
+            "color": "rgb(244, 151, 108)"
+          },
+          "accentHeading": {
+            "fontSize": "22px",
+            "lineHeight": "26.84px"
+          },
+          "accentDesc": null
+        },
+        "featureIndicators": []
+      }
+    },
+    "short-1366x600": {
+      "light": {
+        "window": {
+          "innerWidth": 1366,
+          "innerHeight": 600
+        },
+        "scroll": {
+          "scrollHeight": 720,
+          "clientHeight": 600,
+          "hasVerticalScroll": true,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "hasHorizontalScroll": false
+        },
+        "layout": {
+          "container": {
+            "x": 0,
+            "y": 0,
+            "width": 1366,
+            "height": 720.359375,
+            "top": 0,
+            "right": 1366,
+            "bottom": 720.359375,
+            "left": 0
+          },
+          "formCol": {
+            "x": 0,
+            "y": 0,
+            "width": 655.671875,
+            "height": 720.359375,
+            "top": 0,
+            "right": 655.671875,
+            "bottom": 720.359375,
+            "left": 0
+          },
+          "accentCol": {
+            "x": 655.671875,
+            "y": 0,
+            "width": 710.328125,
+            "height": 720.359375,
+            "top": 0,
+            "right": 1366,
+            "bottom": 720.359375,
+            "left": 655.671875
+          },
+          "formBody": {
+            "x": 34.140625,
+            "y": 76,
+            "width": 440,
+            "height": 510.015625,
+            "top": 76,
+            "right": 474.140625,
+            "bottom": 586.015625,
+            "left": 34.140625
+          },
+          "topRow": {
+            "x": 34.140625,
+            "y": 20,
+            "width": 440,
+            "height": 40,
+            "top": 20,
+            "right": 474.140625,
+            "bottom": 60,
+            "left": 34.140625
+          }
+        },
+        "componentDimensions": {
+          "themeToggle": {
+            "width": 36,
+            "height": 36
+          },
+          "stateBadge": {
+            "width": 70.78125,
+            "height": 32
+          },
+          "usernameInput": {
+            "width": 440,
+            "height": 46
+          },
+          "passwordInput": {
+            "width": 440,
+            "height": 46
+          },
+          "submitBtn": {
+            "width": 440,
+            "height": 42.46875
+          },
+          "svgArtwork": null
+        },
+        "typography": {
+          "heading": {
+            "fontSize": "28px",
+            "lineHeight": "34.16px"
+          },
+          "subtitle": {
+            "fontSize": "13.5px",
+            "color": "rgb(70, 83, 117)"
+          },
+          "eyebrow": {
+            "fontSize": "11px",
+            "color": "rgb(200, 90, 40)"
+          },
+          "accentHeading": {
+            "fontSize": "30.052px",
+            "lineHeight": "36.6634px"
+          },
+          "accentDesc": null
+        },
+        "featureIndicators": []
+      },
+      "dark": {
+        "window": {
+          "innerWidth": 1366,
+          "innerHeight": 600
+        },
+        "scroll": {
+          "scrollHeight": 720,
+          "clientHeight": 600,
+          "hasVerticalScroll": true,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "hasHorizontalScroll": false
+        },
+        "layout": {
+          "container": {
+            "x": 0,
+            "y": 0,
+            "width": 1366,
+            "height": 720.359375,
+            "top": 0,
+            "right": 1366,
+            "bottom": 720.359375,
+            "left": 0
+          },
+          "formCol": {
+            "x": 0,
+            "y": 0,
+            "width": 655.671875,
+            "height": 720.359375,
+            "top": 0,
+            "right": 655.671875,
+            "bottom": 720.359375,
+            "left": 0
+          },
+          "accentCol": {
+            "x": 655.671875,
+            "y": 0,
+            "width": 710.328125,
+            "height": 720.359375,
+            "top": 0,
+            "right": 1366,
+            "bottom": 720.359375,
+            "left": 655.671875
+          },
+          "formBody": {
+            "x": 34.140625,
+            "y": 76,
+            "width": 440,
+            "height": 510.015625,
+            "top": 76,
+            "right": 474.140625,
+            "bottom": 586.015625,
+            "left": 34.140625
+          },
+          "topRow": {
+            "x": 34.140625,
+            "y": 20,
+            "width": 440,
+            "height": 40,
+            "top": 20,
+            "right": 474.140625,
+            "bottom": 60,
+            "left": 34.140625
+          }
+        },
+        "componentDimensions": {
+          "themeToggle": {
+            "width": 36,
+            "height": 36
+          },
+          "stateBadge": {
+            "width": 70.78125,
+            "height": 32
+          },
+          "usernameInput": {
+            "width": 440,
+            "height": 46
+          },
+          "passwordInput": {
+            "width": 440,
+            "height": 46
+          },
+          "submitBtn": {
+            "width": 440,
+            "height": 42.46875
+          },
+          "svgArtwork": null
+        },
+        "typography": {
+          "heading": {
+            "fontSize": "28px",
+            "lineHeight": "34.16px"
+          },
+          "subtitle": {
+            "fontSize": "13.5px",
+            "color": "rgb(187, 198, 215)"
+          },
+          "eyebrow": {
+            "fontSize": "11px",
+            "color": "rgb(244, 151, 108)"
+          },
+          "accentHeading": {
+            "fontSize": "30.052px",
+            "lineHeight": "36.6634px"
+          },
+          "accentDesc": null
+        },
+        "featureIndicators": []
+      }
+    }
+  },
+  "elements": {},
+  "contrastCheck": {},
+  "motionCheck": {},
+  "tabNavigation": [
+    "auth-input with-leading-icon with-trailing-action",
+    "password-toggle-btn icon-button",
+    "auth-remember-checkbox"
+  ]
+}

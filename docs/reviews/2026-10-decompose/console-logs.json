@@ -1,0 +1,50 @@
+[
+  {
+    "screen": "login-signin (desktop-light)",
+    "type": "ERROR",
+    "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "location": "http://127.0.0.1:5173/v1/auth/me:0"
+  },
+  {
+    "screen": "login-signin (desktop-light)",
+    "type": "ERROR",
+    "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "location": "http://127.0.0.1:5173/v1/auth/refresh:0"
+  },
+  {
+    "screen": "login-signin (desktop-dark)",
+    "type": "ERROR",
+    "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "location": "http://127.0.0.1:5173/v1/auth/me:0"
+  },
+  {
+    "screen": "login-signin (desktop-dark)",
+    "type": "ERROR",
+    "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "location": "http://127.0.0.1:5173/v1/auth/refresh:0"
+  },
+  {
+    "screen": "login-signin (mobile-light)",
+    "type": "ERROR",
+    "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "location": "http://127.0.0.1:5173/v1/auth/me:0"
+  },
+  {
+    "screen": "login-signin (mobile-light)",
+    "type": "ERROR",
+    "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "location": "http://127.0.0.1:5173/v1/auth/refresh:0"
+  },
+  {
+    "screen": "login-signin (mobile-dark)",
+    "type": "ERROR",
+    "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "location": "http://127.0.0.1:5173/v1/auth/me:0"
+  },
+  {
+    "screen": "login-signin (mobile-dark)",
+    "type": "ERROR",
+    "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "location": "http://127.0.0.1:5173/v1/auth/refresh:0"
+  }
+]

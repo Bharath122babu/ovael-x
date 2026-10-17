@@ -1,490 +1,293 @@
-import { useEffect, useState } from "react";
-import {
-  ArrowRight,
-  Check,
-  FileCheck2,
-  GitBranch,
-  LoaderCircle,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
-import { ovaelApi } from "../../api/client";
+import { useEffect, useMemo, useState } from "react";
 import { useOvael } from "../../context/OvaelContext";
-import { AnimatedProgressBar } from "../content/MotionPrimitives";
-type TeacherTab = "overview" | "materials" | "graph" | "gaps";
+import { topicMermaid } from "../../learningVisuals";
+import type { TeacherTab } from "./types";
+import { useTeacherData } from "./hooks/useTeacherData";
+import { useTeacherActions } from "./hooks/useTeacherActions";
+import { TeacherHeader } from "./TeacherHeader";
+import { TeacherOnboarding } from "./TeacherOnboarding";
+import { OverviewTab } from "./tabs/OverviewTab";
+import { RosterTab } from "./tabs/RosterTab";
+import { TeacherMaterialsTab } from "./tabs/TeacherMaterialsTab";
+import { CurriculumGraphTab } from "./tabs/CurriculumGraphTab";
+import { ForensicGapsTab } from "./tabs/ForensicGapsTab";
+import { TeacherModals } from "./modals/TeacherModals";
+
 export function TeacherWorkspace() {
   const { courses, documents, refresh, setError } = useOvael();
-  const classCourses = courses.filter(
-    (course) => course.course_kind === "class",
+  const classCourses = useMemo(
+    () => courses.filter((course) => course.course_kind === "class"),
+    [courses],
   );
+
   const [tab, setTab] = useState<TeacherTab>("overview");
   const [courseId, setCourseId] = useState(classCourses[0]?.course_id || "");
-  const [learners, setLearners] = useState<Array<Record<string, unknown>>>([]);
-  const [gaps, setGaps] = useState<Record<string, unknown>>({});
-  const [proposals, setProposals] = useState<Array<Record<string, unknown>>>(
-    [],
-  );
-  const [activeGraph, setActiveGraph] = useState<Record<
-    string,
-    unknown
-  > | null>(null);
-  const [courseName, setCourseName] = useState("");
-  const [subjectName, setSubjectName] = useState("");
-  const [learnerName, setLearnerName] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+
+  // Search & Filter queries
+  const [rosterQuery, setRosterQuery] = useState("");
+  const [materialsQuery, setMaterialsQuery] = useState("");
+  const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null);
+
   const effectiveCourseId = courseId || classCourses[0]?.course_id || "";
   const course =
     classCourses.find((item) => item.course_id === effectiveCourseId) ||
     classCourses[0];
-  const courseDocuments = documents.filter(
-    (document) => document.course_id === course?.course_id,
+
+  const courseDocuments = useMemo(
+    () => documents.filter((document) => document.course_id === course?.course_id),
+    [documents, course?.course_id],
   );
+
+  const {
+    learners,
+    setLearners,
+    gaps,
+    interventions,
+    proposals,
+    setProposals,
+    activeGraph,
+    setActiveGraph,
+  } = useTeacherData(course?.course_id || "", setError);
+
+  const actions = useTeacherActions({
+    course,
+    courseDocuments,
+    refresh,
+    setError,
+    setSuccessMsg,
+    setCourseId,
+    setLearners,
+    setProposals,
+    setActiveGraph,
+    setTab,
+  });
+
+  // Sync edit form with current course
+  const { setEditName, setEditDescription } = actions;
   useEffect(() => {
-    let cancelled = false;
-    setLearners([]);
-    setGaps({});
-    setProposals([]);
-    setActiveGraph(null);
-    if (!course?.course_id) return;
-    void Promise.allSettled([
-      ovaelApi.teacherLearners(course.course_id),
-      ovaelApi.teacherGaps(course.course_id),
-      ovaelApi.graphProposals(course.course_id),
-      ovaelApi.activeCourseGraph(course.course_id),
-    ]).then(([learnerResult, gapResult, proposalResult, graphResult]) => {
-      if (cancelled) return;
-      if (
-        [learnerResult, gapResult, proposalResult, graphResult].some(
-          (result) => result.status === "rejected",
-        )
-      )
-        setError(
-          "Some course details could not load. Refresh the workspace to retry.",
-        );
-      if (learnerResult.status === "fulfilled")
-        setLearners(learnerResult.value);
-      if (gapResult.status === "fulfilled") setGaps(gapResult.value);
-      if (proposalResult.status === "fulfilled")
-        setProposals(proposalResult.value);
-      if (graphResult.status === "fulfilled") setActiveGraph(graphResult.value);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [course?.course_id, setError]);
-  const createCourse = async () => {
-    if (!courseName.trim() || !subjectName.trim()) return;
-    setBusy(true);
-    try {
-      const created = await ovaelApi.createCourse({
-        name: courseName,
-        subject_name: subjectName,
-        description: "Teacher-managed OVAEL-X course",
-        course_kind: "class",
-      });
-      await refresh();
-      setCourseId(created.course_id);
-      setCourseName("");
-      setSubjectName("");
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Course could not be created",
-      );
-    } finally {
-      setBusy(false);
+    if (course) {
+      setEditName(course.name);
+      setEditDescription(course.description || "");
     }
-  };
-  const enroll = async () => {
-    if (!course || !learnerName.trim()) return;
-    setBusy(true);
-    try {
-      await ovaelApi.enrollLearner(course.course_id, learnerName.trim());
-      setLearnerName("");
-      setLearners(await ovaelApi.teacherLearners(course.course_id));
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Learner could not be enrolled",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-  const propose = async () => {
-    if (!course || !courseDocuments.length) return;
-    setBusy(true);
-    try {
-      await ovaelApi.proposeGraph(
-        course.course_id,
-        courseDocuments.map((document) => document.document_id),
-        `Build a teachable graph for ${course.name}`,
-      );
-      setProposals(await ovaelApi.graphProposals(course.course_id));
-      setTab("graph");
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Graph proposal failed",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-  const approve = async (revisionId: string) => {
-    if (!course) return;
-    setBusy(true);
-    try {
-      await ovaelApi.approveGraph(course.course_id, revisionId);
-      setProposals(await ovaelApi.graphProposals(course.course_id));
-      setActiveGraph(await ovaelApi.activeCourseGraph(course.course_id));
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Graph could not be approved",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-  if (!course)
+  }, [course, setEditName, setEditDescription]);
+
+  // Dismiss success message after 4.5 seconds
+  useEffect(() => {
+    if (!successMsg) return;
+    const timer = setTimeout(() => setSuccessMsg(""), 4500);
+    return () => clearTimeout(timer);
+  }, [successMsg]);
+
+  // If no class courses exist, show the clean onboarding view
+  if (!course) {
     return (
-      <div className="page teacher-page">
-        <header className="teacher-header">
-          <div>
-            <p className="eyebrow blue">Teacher workspace</p>
-            <h1>Create your first course.</h1>
-            <p>
-              A class course gets its own dynamic subject agent, materials,
-              graph, enrolment, and privacy-minimized gap view.
-            </p>
-          </div>
-        </header>
-        <section className="teacher-surface create-course">
-          <label>
-            Course name
-            <input
-              value={courseName}
-              onChange={(event) => setCourseName(event.target.value)}
-              placeholder="Data Structures · CS-203"
-            />
-          </label>
-          <label>
-            Subject name
-            <input
-              value={subjectName}
-              onChange={(event) => setSubjectName(event.target.value)}
-              placeholder="Data Structures"
-            />
-          </label>
-          <button
-            className="primary-button"
-            disabled={busy || !courseName.trim() || !subjectName.trim()}
-            onClick={() => void createCourse()}
-          >
-            {busy && <LoaderCircle className="spin" size={16} />} Create class
-            course
-          </button>
-        </section>
-      </div>
+      <TeacherOnboarding
+        courseName={actions.courseName}
+        subjectName={actions.subjectName}
+        busy={actions.busy}
+        onCourseNameChange={actions.setCourseName}
+        onSubjectNameChange={actions.setSubjectName}
+        onCreateCourse={() => void actions.createCourse()}
+      />
     );
-  const tabs: Array<{ id: TeacherTab; label: string }> = [
-    { id: "overview", label: "Course overview" },
-    { id: "materials", label: "Materials" },
-    { id: "graph", label: "Course graph" },
-    { id: "gaps", label: "Gap insights" },
-  ];
+  }
+
+  // Derived metrics
   const gapCounts = (gaps.gap_counts || {}) as Record<string, number>;
-  const sharing = Number(gaps.learners_sharing || 0);
+  const sharingCount = Number(gaps.learners_sharing || 0);
+  const totalLearners = learners.length;
+  const sharingRatio = totalLearners > 0 ? Math.round((sharingCount / totalLearners) * 100) : 0;
+
   const latestProposal = proposals[0];
-  const graph = (latestProposal?.graph ||
+  const isProposalPending =
+    Boolean(latestProposal && String(latestProposal.status) !== "approved");
+
+  const graphData = (latestProposal?.graph ||
     activeGraph?.graph ||
     activeGraph ||
     {}) as Record<string, unknown>;
-  const nodes = Array.isArray(graph.nodes)
-    ? (graph.nodes as Array<Record<string, unknown>>)
+  const rawNodes = Array.isArray(graphData.nodes)
+    ? (graphData.nodes as Array<Record<string, unknown>>)
     : [];
+  const rawEdges = Array.isArray(graphData.edges)
+    ? (graphData.edges as Array<Record<string, unknown>>)
+    : [];
+
+  const graphNodes = rawNodes.map((node, index) => ({
+    id: String(node.id || node.concept_id || `concept_${index}`),
+    label: String(
+      node.label || node.name || node.id || node.concept_id || `Concept ${index + 1}`,
+    ),
+  }));
+
+  const graphEdges = rawEdges.map((edge) => ({
+    source: String(edge.source || edge.from || ""),
+    target: String(edge.target || edge.to || ""),
+    relation: String(edge.relation || edge.kind || "prerequisite"),
+  }));
+
+  const mermaidChartSource =
+    graphNodes.length > 0 ? topicMermaid(graphNodes, graphEdges) : "";
+
+  // Cohort actions from interventions endpoint
+  const cohortActions = Array.isArray(interventions.cohort_actions)
+    ? (interventions.cohort_actions as Array<Record<string, unknown>>)
+    : [];
+  const topInterventions = Array.isArray(interventions.top_interventions)
+    ? (interventions.top_interventions as Array<Record<string, unknown>>)
+    : [];
+
+  // Filtered views
+  const filteredLearners = learners.filter((learner) =>
+    String(learner.username || "")
+      .toLowerCase()
+      .includes(rosterQuery.toLowerCase()),
+  );
+
+  const filteredDocuments = courseDocuments.filter((doc) =>
+    doc.filename.toLowerCase().includes(materialsQuery.toLowerCase()),
+  );
+
   return (
     <div className="page teacher-page">
-      <header className="teacher-header">
-        <div>
-          <p className="eyebrow blue">Teacher workspace</p>
-          <h1>{course.name}</h1>
-          <p>
-            {learners.length} enrolled learner{learners.length === 1 ? "" : "s"}{" "}
-            · {course.subject_id}
-          </p>
-        </div>
-        <select
-          aria-label="Current course"
-          disabled={busy}
-          value={course.course_id}
-          onChange={(event) => setCourseId(event.target.value)}
-        >
-          {classCourses.map((item) => (
-            <option key={item.course_id} value={item.course_id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </header>
-      <nav className="teacher-tabs" aria-label="Course sections">
-        {tabs.map((item) => (
-          <button
-            key={item.id}
-            className={tab === item.id ? "active" : ""}
-            onClick={() => setTab(item.id)}
-          >
-            {item.label}
-            {item.id === "graph" && proposals.length > 0 && (
-              <span>{proposals.length}</span>
-            )}
-          </button>
-        ))}
-      </nav>
+      {/* Main Workspace Header & Tabs */}
+      <TeacherHeader
+        course={course}
+        classCourses={classCourses}
+        tab={tab}
+        busy={actions.busy}
+        successMsg={successMsg}
+        totalLearners={totalLearners}
+        materialsCount={courseDocuments.length}
+        proposalsCount={proposals.length}
+        isProposalPending={isProposalPending}
+        gapCountsCount={Object.keys(gapCounts).length}
+        onCourseSelect={setCourseId}
+        onTabChange={setTab}
+        onEditCourseClick={() => actions.setShowEditModal(true)}
+        onCreateCourseClick={() => actions.setShowCreateModal(true)}
+        onCloseToast={() => setSuccessMsg("")}
+      />
+
+      {/* TAB 1: EXECUTIVE OVERVIEW */}
       {tab === "overview" && (
-        <div className="teacher-overview">
-          <section className="course-signal">
-            <div>
-              <p className="eyebrow">Course signal</p>
-              <h2>
-                {sharing
-                  ? `${sharing} learner-authorized snapshot${sharing === 1 ? "" : "s"} available.`
-                  : "No learner has shared a course snapshot yet."}
-              </h2>
-              <p>
-                Teacher insights are aggregated from explicit learner sharing.
-                Raw answers, transcripts, and private conversations never enter
-                this view.
-              </p>
-              <button className="primary-button" onClick={() => setTab("gaps")}>
-                Review gap evidence <ArrowRight size={16} />
-              </button>
-            </div>
-            <div className="cohort-strip">
-              <div>
-                <strong>{learners.length}</strong>
-                <span>Enrolled</span>
-              </div>
-              <div>
-                <strong>{sharing}</strong>
-                <span>Sharing</span>
-              </div>
-              <div>
-                <strong>{Object.keys(gapCounts).length}</strong>
-                <span>Gap concepts</span>
-              </div>
-            </div>
-            {learners.length > 0 && (
-              <div style={{ marginTop: "12px", width: "100%" }}>
-                <AnimatedProgressBar
-                  value={sharing}
-                  max={learners.length}
-                  variant="coral"
-                  label="Learners sharing progress"
-                />
-              </div>
-            )}
-          </section>
-          <div className="teacher-grid">
-            <section className="teacher-panel">
-              <p className="eyebrow">Enrollment</p>
-              <h2>Add a learner</h2>
-              <div className="inline-form">
-                <input
-                  aria-label="Learner username"
-                  value={learnerName}
-                  onChange={(event) => setLearnerName(event.target.value)}
-                  placeholder="Learner ID"
-                />
-                <button
-                  className="primary-button compact"
-                  disabled={busy || !learnerName.trim()}
-                  onClick={() => void enroll()}
-                >
-                  <Users size={15} /> Enroll
-                </button>
-              </div>
-              <div className="readiness-list">
-                {learners.map((learner) => (
-                  <div key={String(learner.user_id)}>
-                    <Users size={18} />
-                    <div>
-                      <strong>{String(learner.username)}</strong>
-                      <small>
-                        {learner.progress_shared
-                          ? "Progress shared"
-                          : "Private by default"}
-                      </small>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-            <section className="teacher-panel">
-              <p className="eyebrow">Material readiness</p>
-              <h2>
-                {courseDocuments.length} course source
-                {courseDocuments.length === 1 ? "" : "s"}
-              </h2>
-              <p>
-                Upload materials in the course library, then ask OVAEL-X to
-                propose a reviewable graph.
-              </p>
-              <button
-                className="secondary-button"
-                disabled={!courseDocuments.length || busy}
-                onClick={() => void propose()}
-              >
-                <GitBranch size={16} /> Propose course graph
-              </button>
-            </section>
-          </div>
-          <section className="privacy-teacher">
-            <ShieldCheck size={18} />
-            <div>
-              <strong>Privacy-minimized by contract</strong>
-              <p>
-                {String(
-                  gaps.privacy ||
-                    "Aggregate derived progress only; no raw learner conversations",
-                )}
-              </p>
-            </div>
-          </section>
-        </div>
+        <OverviewTab
+          isProposalPending={isProposalPending}
+          latestProposal={latestProposal}
+          courseDocuments={courseDocuments}
+          totalLearners={totalLearners}
+          sharingCount={sharingCount}
+          sharingRatio={sharingRatio}
+          gapCounts={gapCounts}
+          learners={learners}
+          graphNodes={graphNodes}
+          proposals={proposals}
+          learnerName={actions.learnerName}
+          busy={actions.busy}
+          privacyText={String(gaps.privacy || "")}
+          onLearnerNameChange={actions.setLearnerName}
+          onEnroll={() => void actions.enroll()}
+          onTabChange={setTab}
+          onProposeModalOpen={() => actions.setShowProposeModal(true)}
+        />
       )}
+
+      {/* TAB 2: ROSTER & ENROLLMENT */}
+      {tab === "roster" && (
+        <RosterTab
+          learnersCount={learners.length}
+          filteredLearners={filteredLearners}
+          learnerName={actions.learnerName}
+          rosterQuery={rosterQuery}
+          busy={actions.busy}
+          onLearnerNameChange={actions.setLearnerName}
+          onRosterQueryChange={setRosterQuery}
+          onEnroll={() => void actions.enroll()}
+          onUnenrollSelect={actions.setUnenrollTarget}
+        />
+      )}
+
+      {/* TAB 3: MATERIALS & PIPELINE */}
       {tab === "materials" && (
-        <section className="teacher-surface">
-          <div className="surface-header">
-            <div>
-              <p className="eyebrow">Course material</p>
-              <h2>Sources that shape teaching</h2>
-            </div>
-            <button
-              className="primary-button"
-              disabled={!courseDocuments.length || busy}
-              onClick={() => void propose()}
-            >
-              <GitBranch size={16} /> Propose graph
-            </button>
-          </div>
-          <div className="material-review-table">
-            <div className="table-head">
-              <span>Material</span>
-              <span>Teaching status</span>
-              <span>Size</span>
-              <span />
-            </div>
-            {courseDocuments.map((document) => (
-              <div key={document.document_id}>
-                <span>
-                  <FileCheck2 size={18} />
-                  <strong>{document.filename}</strong>
-                </span>
-                <span>{document.status.replaceAll("_", " ")}</span>
-                <span>{Math.round(document.size_bytes / 1024)} KB</span>
-                <span>
-                  <Check size={14} />
-                </span>
-              </div>
-            ))}
-          </div>
-          {!courseDocuments.length && (
-            <div className="empty-state">
-              No materials are assigned to this course yet. Sign in as a course
-              owner and upload from Materials with this course selected.
-            </div>
-          )}
-        </section>
+        <TeacherMaterialsTab
+          courseDocumentsCount={courseDocuments.length}
+          filteredDocuments={filteredDocuments}
+          courseSubjectName={course.subject_name}
+          materialsQuery={materialsQuery}
+          uploading={actions.uploading}
+          busy={actions.busy}
+          onMaterialsQueryChange={setMaterialsQuery}
+          onFileUpload={(e) => void actions.handleFileUpload(e)}
+          onProposeModalOpen={() => actions.setShowProposeModal(true)}
+        />
       )}
+
+      {/* TAB 4: KNOWLEDGE GRAPH & REVISIONS */}
       {tab === "graph" && (
-        <section className="teacher-surface">
-          <div className="surface-header">
-            <div>
-              <p className="eyebrow">Course concept graph</p>
-              <h2>
-                {nodes.length
-                  ? `${nodes.length} inferred concepts`
-                  : "No graph proposal yet"}
-              </h2>
-              <p>
-                {latestProposal
-                  ? `Revision ${String(latestProposal.revision_id || "pending")} · ${String(latestProposal.status || "review")}`
-                  : "Generated only from selected course sources"}
-              </p>
-            </div>
-            {latestProposal && String(latestProposal.status) !== "approved" && (
-              <button
-                className="primary-button"
-                disabled={busy}
-                onClick={() => void approve(String(latestProposal.revision_id))}
-              >
-                <Check size={16} /> Approve graph
-              </button>
-            )}
-          </div>
-          <div className="course-graph-layout">
-            <div className="outline-tree">
-              {nodes.map((node) => (
-                <button key={String(node.id || node.concept_id)}>
-                  <span className="tree-state proposed" />
-                  <strong>
-                    {String(
-                      node.label || node.name || node.id || node.concept_id,
-                    )}
-                  </strong>
-                  <small>proposed</small>
-                </button>
-              ))}
-            </div>
-            <aside className="graph-review-detail">
-              <p className="eyebrow">Approval boundary</p>
-              <h2>Human review remains authoritative.</h2>
-              <p>
-                OVAEL-X can infer a private graph from books, but it does not
-                become learner-model authority until the course owner approves
-                it.
-              </p>
-            </aside>
-          </div>
-        </section>
+        <CurriculumGraphTab
+          courseName={course.name}
+          graphNodes={graphNodes}
+          graphEdges={graphEdges}
+          latestProposal={latestProposal}
+          mermaidChartSource={mermaidChartSource}
+          courseDocumentsCount={courseDocuments.length}
+          gapCounts={gapCounts}
+          selectedConceptId={selectedConceptId}
+          busy={actions.busy}
+          onSelectedConceptChange={setSelectedConceptId}
+          onApprove={(revId) => void actions.approve(revId)}
+          onProposeModalOpen={() => actions.setShowProposeModal(true)}
+        />
       )}
+
+      {/* TAB 5: GAP FORENSICS & INTERVENTIONS */}
       {tab === "gaps" && (
-        <section className="teacher-surface">
-          <div className="surface-header">
-            <div>
-              <p className="eyebrow">Aggregated gap insights</p>
-              <h2>Where teaching attention is warranted</h2>
-            </div>
-          </div>
-          <div className="gap-table">
-            <div className="table-head">
-              <span>Concept</span>
-              <span>Course signal</span>
-              <span>Learners</span>
-              <span>Source</span>
-            </div>
-            {Object.entries(gapCounts).map(([conceptId, count]) => (
-              <div key={conceptId}>
-                <span>
-                  <strong>{conceptId}</strong>
-                  <small>Privacy-minimized projection</small>
-                </span>
-                <span>Gap evidence</span>
-                <span>
-                  <Users size={15} /> {count}
-                </span>
-                <span>Learner-authorized snapshot</span>
-              </div>
-            ))}
-          </div>
-          {Object.keys(gapCounts).length === 0 && (
-            <div className="empty-state">
-              Gap counts appear only after enrolled learners explicitly share a
-              course progress snapshot.
-            </div>
-          )}
-        </section>
+        <ForensicGapsTab
+          sharingCount={sharingCount}
+          totalLearners={totalLearners}
+          gapCounts={gapCounts}
+          cohortActions={cohortActions}
+          topInterventions={topInterventions}
+          authorityText={String(interventions.authority || "")}
+        />
       )}
+
+      {/* MODALS */}
+      <TeacherModals
+        course={course}
+        courseDocumentsCount={courseDocuments.length}
+        busy={actions.busy}
+        showCreateModal={actions.showCreateModal}
+        courseName={actions.courseName}
+        subjectName={actions.subjectName}
+        onCourseNameChange={actions.setCourseName}
+        onSubjectNameChange={actions.setSubjectName}
+        onCloseCreateModal={() => actions.setShowCreateModal(false)}
+        onCreateCourse={() => void actions.createCourse()}
+        showEditModal={actions.showEditModal}
+        editName={actions.editName}
+        editDescription={actions.editDescription}
+        onEditNameChange={actions.setEditName}
+        onEditDescriptionChange={actions.setEditDescription}
+        onCloseEditModal={() => actions.setShowEditModal(false)}
+        onUpdateCourseMeta={() => void actions.updateCourseMeta()}
+        onDeleteClick={() => {
+          actions.setShowEditModal(false);
+          actions.setConfirmDelete(true);
+        }}
+        confirmDelete={actions.confirmDelete}
+        onCloseDeleteModal={() => actions.setConfirmDelete(false)}
+        onConfirmDelete={() => void actions.deleteCurrentCourse()}
+        unenrollTarget={actions.unenrollTarget}
+        onCloseUnenrollModal={() => actions.setUnenrollTarget(null)}
+        onConfirmUnenroll={() => void actions.handleUnenroll()}
+        showProposeModal={actions.showProposeModal}
+        proposalObjective={actions.proposalObjective}
+        onObjectiveChange={actions.setProposalObjective}
+        onCloseProposeModal={() => actions.setShowProposeModal(false)}
+        onPropose={() => void actions.propose()}
+      />
     </div>
   );
 }

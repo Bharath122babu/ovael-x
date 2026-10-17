@@ -1,0 +1,210 @@
+/* ==========================================================================
+   APPLICATION SHELL, HEADER & NAVIGATION RAIL
+   ========================================================================== */
+
+.app-shell-root,
+.ovael-app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-page);
+}
+
+.app-header,
+.top-navbar {
+  height: 64px;
+  padding: 0 24px;
+  background-color: var(--bg-header);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left,
+.header-center,
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon,
+.brand-logo-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background-color: var(--brand-navy);
+  color: var(--brand-yellow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.brand-text,
+.brand-name {
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: var(--text-heading);
+}
+
+.system-pill {
+  padding: 2px 9px;
+  border-radius: var(--radius-full);
+  background-color: var(--brand-yellow);
+  color: var(--text-on-yellow);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* Workspace Mode Switcher (Learner vs Teacher) */
+.workspace-switcher-pills,
+.auth-tab-selector {
+  display: inline-flex;
+  background-color: var(--bg-surface-muted);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+.workspace-tab-btn,
+.auth-tab-btn {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  min-height: 32px;
+  padding: 5px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.workspace-tab-btn.active,
+.auth-tab-btn.active {
+  background-color: var(--btn-primary-bg, var(--brand-navy));
+  color: var(--btn-primary-text, var(--text-inverse));
+  box-shadow: var(--shadow-xs);
+}
+
+/* Account & Profile Badge */
+.user-profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-surface-soft-blue);
+  border: 1px solid var(--brand-soft-blue);
+}
+
+.user-avatar-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  background-color: var(--brand-navy);
+  color: var(--brand-yellow);
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.user-display-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.user-role-tag {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Sidebar Navigation Rail */
+.workspace-layout {
+  display: flex;
+  flex: 1;
+  min-height: calc(100vh - 64px);
+}
+
+.workspace-sidebar-rail,
+.learner-sidebar {
+  width: 248px;
+  flex-shrink: 0;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-subtle);
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 8px 12px 4px;
+}
+
+.sidebar-nav-item,
+.nav-tab-button {
+  width: 100%;
+  justify-content: flex-start;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  border-left: 3px solid transparent;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+}
+
+.sidebar-nav-item:hover:not(:disabled),
+.nav-tab-button:hover:not(:disabled) {
+  background-color: var(--bg-surface-cyan);
+  color: var(--text-heading);
+  box-shadow: none;
+}
+
+.sidebar-nav-item.active,
+.nav-tab-button.active,
+.sidebar-nav-item[aria-current="page"] {
+  background-color: var(--color-cobalt-tint);
+  color: var(--color-cobalt);
+  border-left-color: var(--color-cobalt);
+  font-weight: 700;
+}
+
+.active-pip {
+  margin-left: auto;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-cobalt);
+}
+

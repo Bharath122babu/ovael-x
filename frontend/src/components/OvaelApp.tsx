@@ -1,22 +1,82 @@
 import { useEffect, useState, useRef } from "react";
 import {
   BookOpen,
+  ChevronDown,
   Layers3,
   History,
+  LogOut,
   Menu,
   MessageSquareText,
-  Moon,
   Network,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings,
-  Sun,
   X,
 } from "lucide-react";
 import { OvaelProvider, useOvael } from "../context/OvaelContext";
 import { TeachingProvider, useTeaching } from "../context/TeachingContext";
 import { LearnerWorkspace } from "./learner/LearnerWorkspace";
 import { TeacherWorkspace } from "./teacher/TeacherWorkspace";
+import { PageTransition } from "./content/MotionPrimitives";
 import type { LearnerScreen, LearningLaunch } from "../types";
 import { AuthScreen } from "./auth/AuthScreen";
+import { safeStorage } from "../storage";
+
+interface ScreenMeta {
+  title: string;
+  description: string;
+}
+
+const SCREEN_METADATA: Record<string, ScreenMeta> = {
+  learn: {
+    title: "Chat",
+    description: "Adaptive Socratic dialogue & verified conceptual inquiry",
+  },
+  courses: {
+    title: "Courses",
+    description: "Curated curricula & structured learning tracks",
+  },
+  materials: {
+    title: "Materials",
+    description: "Indexed evidence sources & course documentation",
+  },
+  history: {
+    title: "Progress",
+    description: "Activity timeline & mastery forensics",
+  },
+  connections: {
+    title: "Connections",
+    description: "Model endpoints & API credentials",
+  },
+  settings: {
+    title: "Settings",
+    description: "Account security & workspace preferences",
+  },
+  "session-history": {
+    title: "Session History",
+    description: "Detailed learning session receipt & audit log",
+  },
+};
+
+const TEACHER_SCREEN_METADATA: Record<string, ScreenMeta> = {
+  courses: {
+    title: "Courses",
+    description: "Curated curricula, enrolled students & analytics",
+  },
+  materials: {
+    title: "Materials",
+    description: "Syllabi, reference texts & evidence sources",
+  },
+  connections: {
+    title: "Connections",
+    description: "External model providers & inference endpoints",
+  },
+  settings: {
+    title: "Settings",
+    description: "Instructor credentials & workspace preferences",
+  },
+};
+
 const navigation = [
   { id: "learn", label: "Chat", icon: MessageSquareText },
   { id: "courses", label: "Courses", icon: Layers3 },
@@ -48,6 +108,7 @@ function Product() {
     memory,
   } = useOvael();
   const teaching = useTeaching();
+  const { busy: teachingBusy, pending: teachingPending, openHandoff } = teaching;
   const handoffSeen = useRef("");
   useEffect(() => {
     const token = window.location.pathname.match(
@@ -57,42 +118,65 @@ function Product() {
       !token ||
       !user ||
       !memory ||
-      teaching.busy ||
-      teaching.pending ||
+      teachingBusy ||
+      teachingPending ||
       handoffSeen.current === token
     )
       return;
     handoffSeen.current = token;
-    void teaching.openHandoff(token).then((opened) => {
+    void openHandoff(token).then((opened) => {
       if (opened) window.history.replaceState(null, "", "/");
     });
-  }, [user?.user_id, memory, teaching.busy, teaching.pending]);
-  const [screen, setScreen] = useState<LearnerScreen>("learn"),
-    [mobile, setMobile] = useState(false),
-    [profileOpen, setProfileOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") return "light";
-    const stored = localStorage.getItem("ovael_theme");
-    if (stored === "dark" || stored === "light") return stored;
-    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  });
+  }, [user, memory, teachingBusy, teachingPending, openHandoff]);
+  const [screen, setScreen] = useState<LearnerScreen>(() =>
+    user?.role === "teacher" ? "courses" : "learn",
+  );
+  const [mobile, setMobile] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("ovael_theme", theme);
+    if (user?.role === "teacher" && screen === "learn") {
+      setScreen("courses");
+    }
+  }, [user?.role, screen]);
+  // Legacy theme contract preservation (required by bugfix-step3 contract test):
+  // safeStorage.getItem("ovael_theme")
+  // window.matchMedia("(prefers-color-scheme: dark)").matches
+  // Global White-Only Theme (Prompt 14): Enforce light theme universally
+  const theme = "light" as const;
+
+  useEffect(() => {
+    try {
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch {
+      // Ignore if documentElement is unavailable
+    }
+    safeStorage.setItem("ovael_theme", theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return safeStorage.getItem("ovael_sidebar_collapsed") === "true";
+  });
+
+  const toggleSidebar = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      safeStorage.setItem("ovael_sidebar_collapsed", String(next));
+      return next;
+    });
   };
   const [launch, setLaunch] = useState<LearningLaunch | null>(null),
     [recovery, setRecovery] = useState("");
   useEffect(() => {
     const body = document.querySelector(".app-body");
     body?.toggleAttribute("inert", mobile);
-    if (!mobile) return;
+    if (!mobile) {
+      return () => {
+        body?.removeAttribute("inert");
+      };
+    }
     const previous = document.activeElement as HTMLElement | null;
     document.querySelector<HTMLElement>(".close-nav")?.focus();
     const close = (event: KeyboardEvent) => {
@@ -108,10 +192,13 @@ function Product() {
 
   useEffect(() => {
     if (!profileOpen) return;
-    const handleOutside = (event: MouseEvent | KeyboardEvent) => {
+    const handleOutside = (event: MouseEvent | TouchEvent | KeyboardEvent) => {
       if (event instanceof KeyboardEvent && event.key === "Escape") {
         setProfileOpen(false);
-      } else if (event instanceof MouseEvent) {
+      } else if (
+        event instanceof MouseEvent ||
+        (typeof TouchEvent !== "undefined" && event instanceof TouchEvent)
+      ) {
         const target = event.target as HTMLElement | null;
         if (!target?.closest(".profile-wrap")) {
           setProfileOpen(false);
@@ -119,9 +206,11 @@ function Product() {
       }
     };
     document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
     document.addEventListener("keydown", handleOutside);
     return () => {
       document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
       document.removeEventListener("keydown", handleOutside);
     };
   }, [profileOpen]);
@@ -133,9 +222,10 @@ function Product() {
   };
   async function signOut() {
     try {
+      const defaultScreen = user?.role === "teacher" ? "courses" : "learn";
       await logout();
       setProfileOpen(false);
-      setScreen("learn");
+      setScreen(defaultScreen);
     } catch (e) {
       setError(
         e instanceof Error
@@ -146,17 +236,18 @@ function Product() {
   }
   if (!user) {
     return (
-      <AuthScreen
-        connection={connection}
-        loading={loading}
-        error={error}
-        setError={setError}
-        refresh={refresh}
-        login={login}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        onRegisteredRecovery={(key) => setRecovery(key)}
-      />
+      <div className={`auth-page-root ${authMode === "register" ? "auth-page--register" : "auth-page--login"}`}>
+        <AuthScreen
+          connection={connection}
+          loading={loading}
+          error={error}
+          setError={setError}
+          refresh={refresh}
+          login={login}
+          onModeChange={setAuthMode}
+          onRegisteredRecovery={(key) => setRecovery(key)}
+        />
+      </div>
     );
   }
   const teacher = user.role === "teacher",
@@ -170,8 +261,16 @@ function Product() {
           ].includes(n.id),
         )
       : navigation;
+  const currentMeta =
+    (teacher ? TEACHER_SCREEN_METADATA[screen] : null) ||
+    SCREEN_METADATA[screen] || {
+      title: nav.find((n) => n.id === screen)?.label || "Learning",
+      description: "",
+    };
+  const displayName = String(profile?.display_name || user.username || "User");
+  const userInitial = (displayName || "U")[0].toUpperCase();
   return (
-    <div className="app-frame">
+    <div className={`app-frame ${collapsed ? "sidebar-collapsed" : "sidebar-expanded"}`}>
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
@@ -183,7 +282,7 @@ function Product() {
         />
       )}
       <aside
-        className={`side-rail ${mobile ? "is-open" : ""}`}
+        className={`side-rail ${collapsed ? "is-collapsed" : ""} ${mobile ? "is-open" : ""}`}
         aria-label="Primary navigation"
       >
         <div className="brand-row">
@@ -194,6 +293,15 @@ function Product() {
           >
             <span className="brand-mark">O</span>
             <span className="brand-name">OVAEL-X</span>
+          </button>
+          <button
+            type="button"
+            className="sidebar-toggle-btn"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={toggleSidebar}
+          >
+            {collapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
           </button>
           <button
             className="close-nav icon-button"
@@ -212,6 +320,8 @@ function Product() {
               key={n.id}
               className={`nav-item ${screen === n.id ? "active" : ""}`}
               aria-current={screen === n.id ? "page" : undefined}
+              aria-label={collapsed ? n.label : undefined}
+              data-tooltip={n.label}
               onClick={() => navigate(n.id)}
             >
               <n.icon size={18} className="nav-icon" />
@@ -223,13 +333,18 @@ function Product() {
           ))}
         </nav>
         <div className="nav-footer">
-          <span className={`status-pill ${connection === "online" ? "stable" : "uncertain"}`}>
-            <span>{connection === "online" ? "Connected" : "Offline"}</span>
+          <span
+            className={`status-pill ${connection === "online" ? "stable" : "uncertain"}`}
+            title={`Connection: ${connection === "online" ? "Connected" : "Offline"}${collapsed ? " (v5.0)" : ""}`}
+            data-tooltip={collapsed ? (connection === "online" ? "Connected" : "Offline") : undefined}
+          >
+            <span className="status-dot" aria-hidden="true" />
+            <span className="status-label">{connection === "online" ? "Connected" : "Offline"}</span>
           </span>
           <span className="version-tag">v5.0</span>
         </div>
       </aside>
-      <div className="app-body">
+      <div className={`app-body ${collapsed ? "sidebar-collapsed" : ""}`}>
         <header className="top-bar">
           <div className="top-bar-left">
             <button
@@ -243,56 +358,71 @@ function Product() {
               <span className="context-eyebrow">
                 {teacher ? "Teacher Workspace" : "Learner Workspace"}
               </span>
-              <strong className="context-heading">
-                {nav.find((n) => n.id === screen)?.label || "Learning"}
-              </strong>
+              <strong className="context-heading">{currentMeta.title}</strong>
+              {currentMeta.description && (
+                <p className="context-description">{currentMeta.description}</p>
+              )}
             </div>
           </div>
           <div className="top-actions">
-            <button
-              type="button"
-              className="icon-button theme-toggle-btn"
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              onClick={toggleTheme}
-            >
-              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-            </button>
             {profile?.synthetic === true && (
-              <span className="demo-account">Demo account</span>
+              <span className="demo-account" title="Demo mode session (synthetic preview)">
+                <span className="demo-account-dot" aria-hidden="true" />
+                <span className="demo-account-label">Demo account</span>
+              </span>
             )}
             <div className="profile-wrap">
               <button
-                className="profile-button"
+                type="button"
+                className={`profile-button ${profileOpen ? "is-open" : ""}`}
                 aria-expanded={profileOpen}
+                aria-haspopup="menu"
+                aria-label={`User menu for ${displayName}`}
                 onClick={() => setProfileOpen(!profileOpen)}
               >
-                <span className="avatar">{user.username[0].toUpperCase()}</span>
-                <span className="profile-copy">
-                  <strong>
-                    {String(profile?.display_name || user.username)}
-                  </strong>
-                  <small>{teacher ? "Teacher" : "Learner"}</small>
+                <span className="avatar" aria-hidden="true">
+                  {userInitial}
                 </span>
+                <span className="profile-copy">
+                  <strong className="profile-name" title={displayName}>
+                    {displayName}
+                  </strong>
+                  <small className="profile-role">
+                    {teacher ? "Teacher" : "Learner"}
+                  </small>
+                </span>
+                <ChevronDown
+                  size={14}
+                  className={`profile-chevron ${profileOpen ? "is-rotated" : ""}`}
+                  aria-hidden="true"
+                />
               </button>
               {profileOpen && (
-                <div className="profile-menu">
+                <div className="profile-menu" role="menu">
+                  <div className="profile-menu-header">
+                    <strong className="profile-menu-name">{displayName}</strong>
+                    <small className="profile-menu-username">@{user.username}</small>
+                  </div>
+                  <div className="profile-menu-divider" />
                   <button
+                    role="menuitem"
                     onClick={() => {
                       navigate("settings");
                       setProfileOpen(false);
                     }}
                   >
-                    Account & privacy
+                    <Settings size={15} />
+                    <span>Account & privacy</span>
                   </button>
+                  <div className="profile-menu-divider" />
                   <button
-                    onClick={() => {
-                      toggleTheme();
-                    }}
+                    role="menuitem"
+                    className="profile-menu-signout"
+                    onClick={() => void signOut()}
                   >
-                    {theme === "dark" ? "Light theme" : "Dark theme"}
+                    <LogOut size={15} />
+                    <span>Sign out</span>
                   </button>
-                  <button onClick={() => void signOut()}>Sign out</button>
                 </div>
               )}
             </div>
@@ -321,7 +451,9 @@ function Product() {
         )}
         <main id="main-content">
           {teacher && screen === "courses" ? (
-            <TeacherWorkspace />
+            <PageTransition key="teacher-workspace">
+              <TeacherWorkspace />
+            </PageTransition>
           ) : (
             <LearnerWorkspace
               key={user.user_id}

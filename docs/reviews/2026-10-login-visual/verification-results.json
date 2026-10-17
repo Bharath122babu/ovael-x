@@ -1,0 +1,159 @@
+{
+  "overflowChecks": [
+    {
+      "viewport": "desktop-1440",
+      "width": 1440,
+      "theme": "light",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "noHorizontalScroll": true
+    },
+    {
+      "viewport": "desktop-1440",
+      "width": 1440,
+      "theme": "dark",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "noHorizontalScroll": true
+    },
+    {
+      "viewport": "laptop-1024",
+      "width": 1024,
+      "theme": "light",
+      "scrollWidth": 1024,
+      "clientWidth": 1024,
+      "noHorizontalScroll": true
+    },
+    {
+      "viewport": "laptop-1024",
+      "width": 1024,
+      "theme": "dark",
+      "scrollWidth": 1024,
+      "clientWidth": 1024,
+      "noHorizontalScroll": true
+    },
+    {
+      "viewport": "tablet-768",
+      "width": 768,
+      "theme": "light",
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "noHorizontalScroll": true
+    },
+    {
+      "viewport": "tablet-768",
+      "width": 768,
+      "theme": "dark",
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "noHorizontalScroll": true
+    },
+    {
+      "viewport": "mobile-390",
+      "width": 390,
+      "theme": "light",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "noHorizontalScroll": true
+    },
+    {
+      "viewport": "mobile-390",
+      "width": 390,
+      "theme": "dark",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "noHorizontalScroll": true
+    },
+    {
+      "viewport": "narrow-320",
+      "width": 320,
+      "theme": "light",
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "noHorizontalScroll": true
+    },
+    {
+      "viewport": "narrow-320",
+      "width": 320,
+      "theme": "dark",
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "noHorizontalScroll": true
+    }
+  ],
+  "contrastTable": [
+    {
+      "theme": "light",
+      "cardBg": "rgb(255, 255, 255)",
+      "titleContrast": "10.56:1",
+      "subtitleContrast": "7.62:1",
+      "labelContrast": "10.56:1",
+      "inputTextContrast": "10.56:1",
+      "buttonContrast": "10.56:1",
+      "phToken": "#5F6D8D"
+    },
+    {
+      "theme": "dark",
+      "cardBg": "rgb(23, 29, 45)",
+      "titleContrast": "15.93:1",
+      "subtitleContrast": "9.74:1",
+      "labelContrast": "14.95:1",
+      "inputTextContrast": "14.15:1",
+      "buttonContrast": "11.18:1",
+      "phToken": "#8E9DB5"
+    }
+  ],
+  "learnerDiffs": [
+    {
+      "screen": "learner-courses-desktop-light",
+      "identical": false
+    },
+    {
+      "screen": "learner-materials-desktop-light",
+      "identical": false
+    },
+    {
+      "screen": "learner-chat-desktop-light",
+      "identical": false
+    },
+    {
+      "screen": "learner-settings-desktop-light",
+      "identical": true
+    },
+    {
+      "screen": "learner-progress-desktop-light",
+      "identical": false
+    },
+    {
+      "screen": "learner-connections-desktop-light",
+      "identical": false
+    },
+    {
+      "screen": "learner-courses-desktop-dark",
+      "identical": false
+    },
+    {
+      "screen": "learner-materials-desktop-dark",
+      "identical": false
+    },
+    {
+      "screen": "learner-chat-desktop-dark",
+      "identical": false
+    },
+    {
+      "screen": "learner-settings-desktop-dark",
+      "identical": true
+    },
+    {
+      "screen": "learner-progress-desktop-dark",
+      "identical": false
+    },
+    {
+      "screen": "learner-connections-desktop-dark",
+      "identical": false
+    }
+  ],
+  "autofillWorks": true,
+  "demoFillWorks": true,
+  "reducedMotionWorks": true
+}

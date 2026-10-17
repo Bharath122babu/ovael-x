@@ -1,0 +1,267 @@
+{
+  "checks": [
+    {
+      "name": "Viewport desktop-1920x1080 (light): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=1920, scrollWidth=1920"
+    },
+    {
+      "name": "Viewport desktop-1920x1080: Left auth region is ~46-49% of viewport",
+      "passed": true,
+      "detail": "Actual left ratio = 48.0%, form width = 440px"
+    },
+    {
+      "name": "Viewport desktop-1920x1080: Form body width constrained to ~420-460px",
+      "passed": true,
+      "detail": "Actual form width = 440px"
+    },
+    {
+      "name": "Viewport desktop-1920x1080 (dark): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=1920, scrollWidth=1920"
+    },
+    {
+      "name": "Viewport desktop-1920x1080: Left auth region is ~46-49% of viewport",
+      "passed": true,
+      "detail": "Actual left ratio = 48.0%, form width = 440px"
+    },
+    {
+      "name": "Viewport desktop-1920x1080: Form body width constrained to ~420-460px",
+      "passed": true,
+      "detail": "Actual form width = 440px"
+    },
+    {
+      "name": "Viewport desktop-1440x900 (light): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=1440, scrollWidth=1440"
+    },
+    {
+      "name": "Viewport desktop-1440x900: Left auth region is ~46-49% of viewport",
+      "passed": true,
+      "detail": "Actual left ratio = 48.0%, form width = 440px"
+    },
+    {
+      "name": "Viewport desktop-1440x900: Form body width constrained to ~420-460px",
+      "passed": true,
+      "detail": "Actual form width = 440px"
+    },
+    {
+      "name": "Viewport desktop-1440x900 (dark): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=1440, scrollWidth=1440"
+    },
+    {
+      "name": "Viewport desktop-1440x900: Left auth region is ~46-49% of viewport",
+      "passed": true,
+      "detail": "Actual left ratio = 48.0%, form width = 440px"
+    },
+    {
+      "name": "Viewport desktop-1440x900: Form body width constrained to ~420-460px",
+      "passed": true,
+      "detail": "Actual form width = 440px"
+    },
+    {
+      "name": "Viewport laptop-1366x768 (light): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=1366, scrollWidth=1366"
+    },
+    {
+      "name": "Viewport laptop-1366x768: Left auth region is ~46-49% of viewport",
+      "passed": true,
+      "detail": "Actual left ratio = 48.0%, form width = 440px"
+    },
+    {
+      "name": "Viewport laptop-1366x768: Form body width constrained to ~420-460px",
+      "passed": true,
+      "detail": "Actual form width = 440px"
+    },
+    {
+      "name": "Viewport laptop-1366x768 (dark): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=1366, scrollWidth=1366"
+    },
+    {
+      "name": "Viewport laptop-1366x768: Left auth region is ~46-49% of viewport",
+      "passed": true,
+      "detail": "Actual left ratio = 48.0%, form width = 440px"
+    },
+    {
+      "name": "Viewport laptop-1366x768: Form body width constrained to ~420-460px",
+      "passed": true,
+      "detail": "Actual form width = 440px"
+    },
+    {
+      "name": "Viewport tablet-1024x768 (light): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=1024, scrollWidth=1024"
+    },
+    {
+      "name": "Viewport tablet-1024x768: Left auth region is ~46-49% of viewport",
+      "passed": true,
+      "detail": "Actual left ratio = 48.0%, form width = 439px"
+    },
+    {
+      "name": "Viewport tablet-1024x768: Form body width constrained to ~420-460px",
+      "passed": true,
+      "detail": "Actual form width = 439px"
+    },
+    {
+      "name": "Viewport tablet-1024x768 (dark): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=1024, scrollWidth=1024"
+    },
+    {
+      "name": "Viewport tablet-1024x768: Left auth region is ~46-49% of viewport",
+      "passed": true,
+      "detail": "Actual left ratio = 48.0%, form width = 439px"
+    },
+    {
+      "name": "Viewport tablet-1024x768: Form body width constrained to ~420-460px",
+      "passed": true,
+      "detail": "Actual form width = 439px"
+    },
+    {
+      "name": "Viewport tablet-820x1180 (light): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=820, scrollWidth=820"
+    },
+    {
+      "name": "Viewport tablet-820x1180 (dark): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=820, scrollWidth=820"
+    },
+    {
+      "name": "Viewport mobile-390x844 (light): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=390, scrollWidth=390"
+    },
+    {
+      "name": "Viewport mobile-390x844 (dark): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=390, scrollWidth=390"
+    },
+    {
+      "name": "Viewport mobile-320x568 (light): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=320, scrollWidth=320"
+    },
+    {
+      "name": "Viewport mobile-320x568 (dark): No horizontal overflow",
+      "passed": true,
+      "detail": "clientWidth=320, scrollWidth=320"
+    },
+    {
+      "name": "Initial view is Sign In (\"Welcome back.\")",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Mode switch to Create Account updates title (\"Create your account\")",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create Account tab has aria-selected=\"true\"",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Mode switch back to Sign In updates title smoothly",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Feature indicator \"Source-grounded lessons.\" exists",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Hovering \"Source-grounded lessons.\" sets data-active-feature=\"sources\" on SVG",
+      "passed": true,
+      "detail": "activeAttr=sources"
+    },
+    {
+      "name": "Feature indicator \"Gap forensics.\" exists",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Hovering \"Gap forensics.\" sets data-active-feature=\"gaps\" on SVG",
+      "passed": true,
+      "detail": "activeAttr=gaps"
+    },
+    {
+      "name": "Feature indicator \"Memory under your control.\" exists",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Hovering \"Memory under your control.\" sets data-active-feature=\"memory\" on SVG",
+      "passed": true,
+      "detail": "activeAttr=memory"
+    },
+    {
+      "name": "Password length counter shows exact character count",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Password toggle retains caret/selection range and keeps input focused",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Registration succeeds and displays dedicated recovery card",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Continue button is disabled until checkbox is checked",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Continue button is enabled after checkbox is checked",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Continuing successfully enters workspace",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo pill populates credentials",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Submitting demo credentials signs in to workspace",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "viewports": [],
+  "screenshots": [
+    "auth-desktop-1920x1080-light.png",
+    "auth-desktop-1920x1080-dark.png",
+    "auth-desktop-1440x900-light.png",
+    "auth-desktop-1440x900-dark.png",
+    "auth-laptop-1366x768-light.png",
+    "auth-laptop-1366x768-dark.png",
+    "auth-tablet-1024x768-light.png",
+    "auth-tablet-1024x768-dark.png",
+    "auth-tablet-820x1180-light.png",
+    "auth-tablet-820x1180-dark.png",
+    "auth-mobile-390x844-light.png",
+    "auth-mobile-390x844-dark.png",
+    "auth-mobile-320x568-light.png",
+    "auth-mobile-320x568-dark.png",
+    "state-register-mode-desktop.png",
+    "interactive-feature-sources.png",
+    "interactive-feature-gaps.png",
+    "interactive-feature-memory.png",
+    "state-recovery-step-redesign.png"
+  ],
+  "layoutMetrics": {}
+}

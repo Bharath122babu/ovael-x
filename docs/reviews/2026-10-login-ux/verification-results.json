@@ -1,0 +1,198 @@
+{
+  "checks": [
+    {
+      "name": "Sign in empty fields triggers field errors and alert",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Username error clears live once valid",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Register 2-char username triggers 3-64 rule on blur",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Register space in username triggers specific space message",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Password length counter displays exact length (7 / 10)",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Register 9-char password triggers 10-char min on blur",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Duplicate username displays error and \"Sign in instead\" link",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Sign in instead link switches to login mode with username preserved",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Wrong password produces generic non-enumerating message",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "9 failed login attempts triggers rate limit message",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Registration succeeds and generates recovery key",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Continue button is disabled until confirmation checkbox is checked",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Clicking recovery code selects the entire key",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Copy button provides visual confirmation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Download generates text file with username and key without password",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Recovery key is NEVER stored in localStorage, sessionStorage, or cookies",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Checking confirmation checkbox enables Continue button",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Continuing after recovery confirmation enters workspace",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Invalid recovery key produces generic \"Invalid recovery credentials\"",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Password reset succeeds and issues a replacement recovery key",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Continuing returns to Sign In with success banner",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Old recovery key is invalidated and cannot be reused",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Signing in with newly reset password succeeds",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Password toggle retains selection range and focus",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Remember my learner ID pre-populates username on reload",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Backend offline renders status badge and explains why submit is disabled",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "login-signin-desktop-light.png",
+    "login-create-desktop-light.png",
+    "login-recover-desktop-light.png",
+    "login-signin-desktop-dark.png",
+    "login-create-desktop-dark.png",
+    "login-recover-desktop-dark.png",
+    "login-signin-mobile-light.png",
+    "login-create-mobile-light.png",
+    "login-recover-mobile-light.png",
+    "login-signin-mobile-dark.png",
+    "login-create-mobile-dark.png",
+    "login-recover-mobile-dark.png",
+    "state-validation-empty-light.png",
+    "state-register-validation-light.png",
+    "state-duplicate-id-light.png",
+    "state-wrong-password-light.png",
+    "state-rate-limit-light.png",
+    "state-recovery-step-unchecked-light.png",
+    "state-recovery-step-checked-light.png",
+    "state-recovery-replacement-light.png",
+    "state-password-reset-success-light.png",
+    "state-offline-backend-light.png"
+  ],
+  "learnerDiffs": [
+    {
+      "screen": "learner-settings-desktop-light.png",
+      "identical": false,
+      "bytesStep5": 96955,
+      "bytesStep6": 96949
+    },
+    {
+      "screen": "learner-courses-desktop-light.png",
+      "identical": true,
+      "bytesStep5": 116890,
+      "bytesStep6": 116890
+    },
+    {
+      "screen": "learner-materials-desktop-light.png",
+      "identical": true,
+      "bytesStep5": 101553,
+      "bytesStep6": 101553
+    },
+    {
+      "screen": "learner-progress-desktop-light.png",
+      "identical": true,
+      "bytesStep5": 163693,
+      "bytesStep6": 163693
+    },
+    {
+      "screen": "learner-connections-desktop-light.png",
+      "identical": true,
+      "bytesStep5": 62553,
+      "bytesStep6": 62553
+    }
+  ],
+  "storageInspection": {
+    "local": {
+      "ovael_theme": "light"
+    },
+    "session": {},
+    "cookies": "ovael_csrf=oDnMrjFX6s4sg1wirUXKcPo9yl4d9p71"
+  },
+  "a11yTree": {}
+}

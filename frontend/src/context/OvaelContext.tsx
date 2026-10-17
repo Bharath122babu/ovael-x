@@ -9,6 +9,7 @@ import {
 } from "react";
 import { api } from "../api";
 import { ovaelApi } from "../api/client";
+import { safeStorage } from "../storage";
 import type {
   AuthUser,
   Course,
@@ -70,7 +71,7 @@ export function OvaelProvider({ children }: { children: React.ReactNode }) {
     userRef = useRef<AuthUser | null>(null);
   const clearLocalState = useCallback(() => {
     if (userRef.current)
-      sessionStorage.removeItem(`ovael.local-state.${userRef.current.user_id}`);
+      safeStorage.removeItem(`ovael.local-state.${userRef.current.user_id}`, "session");
     setLocalState([]);
   }, []);
   // refresh() replaces `map` and `connections` with new objects after every
@@ -103,7 +104,7 @@ export function OvaelProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [user?.user_id, memory?.personalization_enabled, hasActiveConnection, relayKey]);
+  }, [user, memory?.personalization_enabled, hasActiveConnection, relayKey]);
   const clear = useCallback(() => {
     clearLocalState();
     userRef.current = null;
@@ -181,7 +182,7 @@ export function OvaelProvider({ children }: { children: React.ReactNode }) {
         setError(
           `Could not refresh ${failed.join(", ")}. Retry when connected.`,
         );
-      const raw = sessionStorage.getItem(`ovael.local-state.${me.user_id}`);
+      const raw = safeStorage.getItem(`ovael.local-state.${me.user_id}`, "session");
       try {
         const parsed = raw ? JSON.parse(raw) : [];
         setLocalState(
@@ -205,8 +206,9 @@ export function OvaelProvider({ children }: { children: React.ReactNode }) {
   }, [clear]);
   useEffect(() => {
     void refresh();
+    const genRef = generation;
     return () => {
-      generation.current++;
+      genRef.current++;
     };
   }, [refresh]);
   const login = useCallback(
@@ -231,7 +233,7 @@ export function OvaelProvider({ children }: { children: React.ReactNode }) {
     } finally {
       generation.current++;
       if (userRef.current)
-        sessionStorage.removeItem(`ovael.session.${userRef.current.user_id}`);
+        safeStorage.removeItem(`ovael.session.${userRef.current.user_id}`, "session");
       clear();
     }
   }, [clear]);
@@ -250,9 +252,10 @@ export function OvaelProvider({ children }: { children: React.ReactNode }) {
           ...current.slice(-99),
           { ...delta, received_at: new Date().toISOString() },
         ];
-        sessionStorage.setItem(
+        safeStorage.setItem(
           `ovael.local-state.${uid}`,
           JSON.stringify(next),
+          "session",
         );
         return next;
       });
